@@ -1,17 +1,17 @@
 #%Module###<-magic cookie ####################################################
 ##
-##   Simons Observatory Software Stack.
+##   Simons Observatory Conda Environment.
 ##
 ##
 # variables for Tcl script use only
 set     version  @VERSION@
 
-module-whatis "Loads software for the Simons Observatory."
+module-whatis "Loads conda tools for the Simons Observatory."
 
 proc ModulesHelp { } {
-  global version
-  puts stderr "\t\t Simons Observatory Software Stack - Version $version\n"
-  puts stderr ""
+    global version
+    puts stderr "\t\t Simons Observatory Conda Environment - Version $version\n"
+    puts stderr ""
 }
 
 conflict sohpc so-env soconda
@@ -25,26 +25,29 @@ unsetenv PYTHONSTARTUP
 # Create a versioned location for user-installed pip packages.
 setenv PYTHONUSERBASE $env(HOME)/.local/soconda/@VERSION@/pip
 
-# Source the conda init script for our shell, and then
-# load our environment.  Note that this requires a fairly recent
-# version of Modules or Lmod.
+# Source the conda init script for our shell.  Note that this 
+# requires a fairly recent version of Modules or Lmod.
 
-if [ module-info command load ] {
-  if [ module-info shelltype sh ] {
+if [ module-info shelltype sh ] {
     source-sh bash "@BASE@/etc/profile.d/conda.sh"
-    source-sh bash "@BASE@/bin/conda" activate @ENVNAME@ 
-  }
-  if [ module-info shelltype csh ] {
+}
+if [ module-info shelltype csh ] {
     source-sh tcsh "@BASE@/etc/profile.d/conda.csh"
-    source-sh tcsh "@BASE@/bin/conda" activate @ENVNAME@
-  }
 }
 
-if [ module-info command unload ] {
-  if [ module-info shelltype sh ] {
-    source-sh bash "@BASE@/bin/conda" deactivate
-  }
-  if [ module-info shelltype csh ] {
-    source-sh tcsh "@BASE@/bin/conda" deactivate
-  }
-}
+# Activate the conda environment by modifying the environment
+# directly.  This is needed since the source-sh and system
+# calls do not work.  This solution could be fragile, so should
+# be revisited in the future if all systems move to Lmod.  Lua
+# module files should better support calling "conda activate"
+# directly
+
+setenv CONDA_PREFIX "@ENVPREFIX@"
+
+setenv CONDA_PROMPT_MODIFIER ""
+
+setenv CONDA_SHLVL "1"
+
+setenv CONDA_DEFAULT_ENV "@ENVNAME@"
+
+prepend-path PATH "@ENVPREFIX@/bin"
