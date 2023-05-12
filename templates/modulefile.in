@@ -1,0 +1,50 @@
+#%Module###<-magic cookie ####################################################
+##
+##   Simons Observatory Software Stack.
+##
+##
+# variables for Tcl script use only
+set     version  @VERSION@
+
+module-whatis "Loads software for the Simons Observatory."
+
+proc ModulesHelp { } {
+  global version
+  puts stderr "\t\t Simons Observatory Software Stack - Version $version\n"
+  puts stderr ""
+}
+
+conflict sohpc so-env soconda
+
+# Dependency module commands
+@MODLOAD@
+
+# This might be set by OS python and gives us problems.
+unsetenv PYTHONSTARTUP
+
+# Create a versioned location for user-installed pip packages.
+setenv PYTHONUSERBASE $env(HOME)/.local/soconda/@VERSION@/pip
+
+# Source the conda init script for our shell, and then
+# load our environment.  Note that this requires a fairly recent
+# version of Modules or Lmod.
+
+if [ module-info command load ] {
+  if [ module-info shelltype sh ] {
+    source-sh bash "@BASE@/etc/profile.d/conda.sh"
+    source-sh bash "@BASE@/bin/conda" activate @ENVNAME@ 
+  }
+  if [ module-info shelltype csh ] {
+    source-sh tcsh "@BASE@/etc/profile.d/conda.csh"
+    source-sh tcsh "@BASE@/bin/conda" activate @ENVNAME@
+  }
+}
+
+if [ module-info command unload ] {
+  if [ module-info shelltype sh ] {
+    source-sh bash "@BASE@/bin/conda" deactivate
+  }
+  if [ module-info shelltype csh ] {
+    source-sh tcsh "@BASE@/bin/conda" deactivate
+  }
+}

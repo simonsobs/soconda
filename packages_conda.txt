@@ -24,3 +24,11 @@ coveralls
 pytest-cov
 ducc0
 libflac
+pysqlite3
+sqlalchemy
+numba
+skyfield
+pyfftw
+typer
+scikit-image
+
