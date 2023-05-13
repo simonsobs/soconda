@@ -1,0 +1,12 @@
+diff -urN moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/setup.py moby2_openblas/setup.py
+--- moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/setup.py	2021-09-09 07:55:34.000000000 -0700
++++ moby2_openblas/setup.py	2022-03-25 19:10:38.758241651 -0700
+@@ -10,7 +10,7 @@
+ import numpy
+ includes = [numpy.get_include()]
+ libdirs = []
+-library = ['fftw3f', 'gslcblas', 'gsl', 'lapack', 'actpol']
++library = ['fftw3f', 'gslcblas', 'gsl', 'openblas', 'actpol']
+ 
+ sources = glob.glob('src/*.c')
+ headers = glob.glob('src/*.h')

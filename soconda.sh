@@ -137,6 +137,11 @@ conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
 
+echo "After install, before deactivation CC=${CC} CXX=${CXX}"
+conda deactivate
+conda activate ${fullenv}
+echo "After re-activation CC=${CC} CXX=${CXX}"
+
 # Install mpi4py
 
 echo "Installing mpi4py..." | tee "log_mpi4py"
@@ -154,16 +159,16 @@ fi
 
 # Install compiled packages
 
-# while IFS='' read -r line || [[ -n "${line}" ]]; do
-#     # Is this line commented?
-#     comment=$(echo "${line}" | cut -c 1)
-#     if [ "${comment}" != "#" ]; then
-#         pkgname="${line}"
-#         pkgscript="${scriptdir}/pkgs/${pkgname}.sh"
-#         echo "Building package ${pkgname}"
-#         eval "${pkgscript}" 2>&1 | tee "log_${pkgname}"
-#     fi
-# done < "${scriptdir}/packages_compiled.txt"
+while IFS='' read -r line || [[ -n "${line}" ]]; do
+    # Is this line commented?
+    comment=$(echo "${line}" | cut -c 1)
+    if [ "${comment}" != "#" ]; then
+        pkgname="${line}"
+        pkgscript="${scriptdir}/pkgs/${pkgname}.sh"
+        echo "Building package ${pkgname} CC=${CC} CXX=${CXX}"
+        eval "${pkgscript}" 2>&1 | tee "log_${pkgname}"
+    fi
+done < "${scriptdir}/packages_compiled.txt"
 
 # Install pip packages
 

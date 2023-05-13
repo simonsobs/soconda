@@ -4,3 +4,5 @@ libactpol_deps
 libactpol
 moby2
 toast
+# Uncomment next line to build so3g from source
+so3g

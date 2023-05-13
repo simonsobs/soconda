@@ -36,7 +36,13 @@ The install script takes options to specify the location of the base environment
 to create. It also allows specifying a central location to install the
 modulefile.
 
+### Special Note on mpi4py
 
+By default, the conda package for mpi4py will be installed using the mpich
+flavor. This should work well for stand-alone workstations or single nodes. If
+you have a cluster with a customized MPI compiler, then set the `MPICC`
+environment variable to the MPI C compiler before creating an environment. That
+will cause the mpi4py package to be built using your compiler.
 
 ### Example:  Local System
 
@@ -101,8 +107,10 @@ to a versioned location within your home directory. You can then pip-install
 packages with the `--user` option to override packages in the conda environment.
 
 If you want to dramatically change the package versions / content of an
-`soconda` stack, it is likely easier to just use the existing base environment
-and run...
+`soconda` stack, just load the existing base conda environment and edit the
+three lists of packages (`packages_[conda|pip|compiled].txt`) to exclude certain
+packages or add extras. Then install it to some personal location outside the
+base install (i.e. pass the full path to `soconda -e <path>`).
 
 
 ## Deleting an Environment
@@ -112,5 +120,32 @@ removing the path or (if using a name), removing the
 `<base dir>/envs/<name of env>` directory. You can optionally delete the
 modulefile and the pip local directory in your home directory.
 
+## Advanced Details
+
+The compiled packages assume the use of the conda compilers for consistency with
+the libraries installed through conda. If you want to change those compilers you
+can remove the `compilers` conda package and manually set the `CC`, `CXX`, and `FC`
+environment variables. Full warning that this may cause problems with threading
+interfaces, thread pinning, etc, when building packages that use OpenMP.
+
+### Pixell
+
+We currently build pixell from source with the conda compilers for consistency,
+rather than installing the wheel.
+
+### So3g
+
+This package is currently built from source by default, but the pre-built wheel
+(which comes bundled with OpenMP-enabled libopenblas) should also work. To use
+that, comment out the so3g line in `packages_compiled.txt` and uncomment the
+line in `packages_pip.txt`.
+
+### TOAST
+
+This package is currently built from source by default, with dependencies
+installed through conda. When toast-3.0 arrives in the conda-forge toast
+feedstock, it should be added back to `packages_conda.txt`. It should also work
+to install the python wheel package by commenting out the toast entry in
+`packages_compiled.txt` and adding it to `packages_pip.txt`.
 
 

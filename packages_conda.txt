@@ -3,11 +3,18 @@ compilers
 conda-build
 libopenblas=*=*openmp*
 libblas=*=*openblas
+libcblas
+blas-devel
 cmake
+autoconf
+automake
+libtool
+m4
 psutil
 cython
 pytest
 fftw
+gsl
 wcslib
 libaatm
 suitesparse
@@ -28,7 +35,10 @@ pysqlite3
 sqlalchemy
 numba
 skyfield
-pyfftw
 typer
 scikit-image
-
+# Revert to 0.12 until this bug is fixed:
+# https://github.com/conda-forge/pyfftw-feedstock/issues/51
+pyfftw=0.12
+# Uncomment the next line if building so3g from source
+boost
