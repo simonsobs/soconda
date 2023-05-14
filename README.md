@@ -17,7 +17,7 @@ Otherwise, decide on the install prefix for your overall conda environment. For
 this example, we will use `/opt/conda` as the path to the conda base
 installation. Now run the bootstrap script:
 
-    $> ./bootstrap_base "/opt/conda"
+    $> ./tools/bootstrap_base "/opt/conda"
 
 This bootstrap will install a base system with the conda-forge channel set to
 the default. You can now source the conda initialization file and activate the
@@ -46,8 +46,32 @@ will cause the mpi4py package to be built using your compiler.
 
 ### Example:  Local System
 
+Starting from scratch, bootstrap a small conda-forge base environment in `~/conda`:
+
+    $>  ./tools/bootstrap_base.sh ~/conda
+
+Create an `soconda` environment with default name and version. However, we
+decide to put all the modulefiles into a central location in the root of the
+base conda install:
+
+    $>  ./soconda.sh -b ~/conda -m ~/conda/modulefiles
+
+Now we can load the module:
+
+    $>  module use ~/conda/modulefiles
+    $>  module avail
+    $>  module load soconda/XXXXXX
+
+OR we could activate the environment directly with the normal conda procedure:
+
+    $>  source ~/conda/etc/profile.d/conda.sh
+    $>  conda env list
+    $>  conda activate soconda-XXXXXX
+
 
 ### Example:  NERSC
+
+At NERSC we can use the supported Anaconda python as our base envi
 
 
 ### Example:  Simons1
@@ -100,6 +124,20 @@ If using module files, then doing a `module unload soconda` will deactivate the
 conda environment and remove any conda initialization from your shell
 environment.
 
+---
+**IMPORTANT**
+
+You should not mix and match the use of these modules and conda commands. Use
+one or the other.
+
+---
+
+### Running Tests
+
+After loading an `soconda` environment, you can run some tests with:
+
+    $>  ./run_tests.sh
+
 ## Customizing an Environment
 
 When you load an `soconda` module, it sets the user local pip install directory
@@ -111,7 +149,6 @@ If you want to dramatically change the package versions / content of an
 three lists of packages (`packages_[conda|pip|compiled].txt`) to exclude certain
 packages or add extras. Then install it to some personal location outside the
 base install (i.e. pass the full path to `soconda -e <path>`).
-
 
 ## Deleting an Environment
 
