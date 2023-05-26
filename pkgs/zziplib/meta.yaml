@@ -1,0 +1,49 @@
+{% set version = "0.13.72" %}
+{% set sha256 = "93ef44bf1f1ea24fc66080426a469df82fa631d13ca3b2e4abaeab89538518dc" %}
+
+{% set build = 0 %}
+
+package:
+  name: zziplib
+  version: {{ version }}
+
+source:
+  url: https://github.com/gdraheim/zziplib/archive/v{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: {{ build }}
+  skip: true  # [win]
+  run_exports:
+    - zziplib
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - cmake
+    - make
+    - zlib
+  host:
+    - zlib
+  run:
+    - zlib
+
+test:
+  commands:
+    - ls $PREFIX/lib  # [not win]
+    - test -f $PREFIX/lib/libzzip${SHLIB_EXT}  # [not win]
+
+about:
+  home: https://github.com/gdraheim/zziplib
+  license: GPL-2
+  license_family: GPL
+  license_file: LICENSE
+  summary: Read access to zip files in zip-archive format.
+  description: |
+    This is a conda package for zziplib, which provides POSIX file access
+    to zip archives.
+  dev_url: https://github.com/gdraheim/zziplib
+
+extra:
+  recipe-maintainers:
+    - tskisner

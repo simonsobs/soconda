@@ -131,49 +131,63 @@ fi
 
 # Install conda packages
 
-echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
-    2>&1 | tee -a "log_conda"
-# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-rm -f "${CONDA_PREFIX}/bin/cc"
+# echo "Installing conda packages..." | tee "log_conda"
+# conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
+#     2>&1 | tee -a "log_conda"
+# # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
+# rm -f "${CONDA_PREFIX}/bin/cc"
 
-echo "After install, before deactivation CC=${CC} CXX=${CXX}"
-conda deactivate
-conda activate ${fullenv}
-echo "After re-activation CC=${CC} CXX=${CXX}"
+# echo "After install, before deactivation CC=${CC} CXX=${CXX}"
+# conda deactivate
+# conda activate ${fullenv}
+# echo "After re-activation CC=${CC} CXX=${CXX}"
 
 # Install mpi4py
 
-echo "Installing mpi4py..." | tee "log_mpi4py"
-if [ "x${MPICC}" = "x" ]; then
-    echo "The MPICC environment variable is not set.  Installing mpi4py" \
-        | tee -a "log_mpi4py"
-    echo "from the conda package, rather than building from source." \
-        | tee -a "log_mpi4py"
-    conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
-else
-    echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
-    pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-        2>&1 | tee -a "log_mpi4py"
-fi
+# echo "Installing mpi4py..." | tee "log_mpi4py"
+# if [ "x${MPICC}" = "x" ]; then
+#     echo "The MPICC environment variable is not set.  Installing mpi4py" \
+#         | tee -a "log_mpi4py"
+#     echo "from the conda package, rather than building from source." \
+#         | tee -a "log_mpi4py"
+#     conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
+# else
+#     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
+#     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
+#         2>&1 | tee -a "log_mpi4py"
+# fi
 
-# Install compiled packages
+# Install local packages
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
     comment=$(echo "${line}" | cut -c 1)
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
-        pkgscript="${scriptdir}/pkgs/${pkgname}.sh"
-        echo "Building package ${pkgname} CC=${CC} CXX=${CXX}"
-        eval "${pkgscript}" 2>&1 | tee "log_${pkgname}"
+        pkgrecipe="${scriptdir}/pkgs/${pkgname}"
+        echo "Building package ${pkgname}"
+        eval "conda-build ${pkgrecipe}" 2>&1 | tee "log_${pkgname}"
+        echo "Installing package ${pkgname}"
+        eval "conda install --use-local ${pkgname}"
     fi
-done < "${scriptdir}/packages_compiled.txt"
+done < "${scriptdir}/packages_local.txt"
 
-# Install pip packages
+# Install pip packages.  We install one package at a time
+# with no dependencies, so that we will intentionally
+# get an error.  All dependency packages should be installed
+# through conda.
 
 echo "Installing pip packages..." | tee "log_pip"
-pip install -r "${scriptdir}/packages_pip.txt" 2>&1 | tee -a "log_pip"
+
+# while IFS='' read -r line || [[ -n "${line}" ]]; do
+#     # Is this line commented?
+#     comment=$(echo "${line}" | cut -c 1)
+#     if [ "${comment}" != "#" ]; then
+#         pkg="${line}"
+#         echo "Installing package ${pkg}"
+#         pip install --no-deps ${pkg} 2>&1 | tee -a "log_pip"
+#     fi
+# done < "${scriptdir}/packages_pip.txt"
 
 # Create and install module file
 
