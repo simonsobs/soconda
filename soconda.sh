@@ -165,10 +165,10 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo "Building package ${pkgname}"
+        echo "Building local package '${pkgname}'"
         eval "conda-build ${pkgrecipe}" 2>&1 | tee "log_${pkgname}"
-        echo "Installing package ${pkgname}"
-        eval "conda install --use-local ${pkgname}"
+        echo "Installing local package '${pkgname}'"
+        eval "conda install --yes --use-local ${pkgname}"
     fi
 done < "${scriptdir}/packages_local.txt"
 
@@ -191,26 +191,26 @@ echo "Installing pip packages..." | tee "log_pip"
 
 # Create and install module file
 
-if [ "x${moduledir}" = "x" ]; then
-    # No centralized directory was specified for modulefiles.  Make
-    # a subdirectory within the environment itself.
-    moduledir="${CONDA_PREFIX}/modulefiles"
-fi
-mkdir -p "${moduledir}/${envroot}"
-outmod="${moduledir}/${envroot}/${version}"
-rm -f "${outmod}"
+# if [ "x${moduledir}" = "x" ]; then
+#     # No centralized directory was specified for modulefiles.  Make
+#     # a subdirectory within the environment itself.
+#     moduledir="${CONDA_PREFIX}/modulefiles"
+# fi
+# mkdir -p "${moduledir}/${envroot}"
+# outmod="${moduledir}/${envroot}/${version}"
+# rm -f "${outmod}"
 
-confsub="-e 's#@VERSION@#${version}#g'"
-confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
-confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
-confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
+# confsub="-e 's#@VERSION@#${version}#g'"
+# confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
+# confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
+# confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
 
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    if [[ "${line}" =~ @MODLOAD@ ]]; then
-        if [ -e "${modinit}" ]; then
-            cat "${modinit}" >> "${outmod}"
-        fi
-    else
-        echo "${line}" | eval sed ${confsub} >> "${outmod}"
-    fi
-done < "${scriptdir}/templates/modulefile.in"
+# while IFS='' read -r line || [[ -n "${line}" ]]; do
+#     if [[ "${line}" =~ @MODLOAD@ ]]; then
+#         if [ -e "${modinit}" ]; then
+#             cat "${modinit}" >> "${outmod}"
+#         fi
+#     else
+#         echo "${line}" | eval sed ${confsub} >> "${outmod}"
+#     fi
+# done < "${scriptdir}/templates/modulefile.in"
