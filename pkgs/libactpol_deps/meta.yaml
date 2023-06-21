@@ -1,0 +1,52 @@
+{% set version = "db0aee380dad503ba8fdf058d4d8075387100758" %}
+{% set sha256 = "08e64797d4a34b3035797ab53d3c33094b401e73647c50de10de2c3800f650c3" %}
+
+{% set build = 0 %}
+
+package:
+  name: libactpol_deps
+  version: {{ version }}
+
+source:
+  url: https://github.com/ACTCollaboration/libactpol_deps/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: {{ build }}
+  skip: true  # [win]
+  run_exports:
+    - libactpol_deps
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('fortran') }}
+    - automake
+    - autoconf
+    - m4
+    - libtool
+    - make
+    - zziplib
+  host:
+    - zziplib
+  run:
+    - zziplib
+
+test:
+  commands:
+    - ls $PREFIX/lib  # [not win]
+    - test -f $PREFIX/lib/libactpol_deps${SHLIB_EXT}  # [not win]
+
+about:
+  home: https://github.com/ACTCollaboration/libactpol_deps
+  license: GPL-3
+  license_family: GPL
+  license_file: LICENSE
+  summary: Dependencies for libactpol.
+  description: |
+    This is a conda package for libactpol_deps
+  dev_url: https://github.com/ACTCollaboration/libactpol_deps
+
+extra:
+  recipe-maintainers:
+    - tskisner

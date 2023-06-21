@@ -131,31 +131,31 @@ fi
 
 # Install conda packages
 
-# echo "Installing conda packages..." | tee "log_conda"
-# conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
-#     2>&1 | tee -a "log_conda"
-# # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-# rm -f "${CONDA_PREFIX}/bin/cc"
+echo "Installing conda packages..." | tee "log_conda"
+conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
+    2>&1 | tee -a "log_conda"
+# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
+rm -f "${CONDA_PREFIX}/bin/cc"
 
-# echo "After install, before deactivation CC=${CC} CXX=${CXX}"
-# conda deactivate
-# conda activate ${fullenv}
-# echo "After re-activation CC=${CC} CXX=${CXX}"
+echo "After install, before deactivation CC=${CC} CXX=${CXX}"
+conda deactivate
+conda activate ${fullenv}
+echo "After re-activation CC=${CC} CXX=${CXX}"
 
 # Install mpi4py
 
-# echo "Installing mpi4py..." | tee "log_mpi4py"
-# if [ "x${MPICC}" = "x" ]; then
-#     echo "The MPICC environment variable is not set.  Installing mpi4py" \
-#         | tee -a "log_mpi4py"
-#     echo "from the conda package, rather than building from source." \
-#         | tee -a "log_mpi4py"
-#     conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
-# else
-#     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
-#     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-#         2>&1 | tee -a "log_mpi4py"
-# fi
+echo "Installing mpi4py..." | tee "log_mpi4py"
+if [ "x${MPICC}" = "x" ]; then
+    echo "The MPICC environment variable is not set.  Installing mpi4py" \
+        | tee -a "log_mpi4py"
+    echo "from the conda package, rather than building from source." \
+        | tee -a "log_mpi4py"
+    conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
+else
+    echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
+    pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
+        2>&1 | tee -a "log_mpi4py"
+fi
 
 # Install local packages
 
