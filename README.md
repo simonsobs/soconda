@@ -36,6 +36,15 @@ The install script takes options to specify the location of the base environment
 to create. It also allows specifying a central location to install the
 modulefile.
 
+---
+**NOTE**
+
+Running the `soconda.sh` script will create log files and downloaded sources in
+the current directory. Consider running the command from within a temporary
+build directory to avoid clutter.
+
+---
+
 ### Special Note on mpi4py
 
 By default, the conda package for mpi4py will be installed using the mpich
@@ -71,7 +80,11 @@ OR we could activate the environment directly with the normal conda procedure:
 
 ### Example:  NERSC
 
-At NERSC we can use the supported Anaconda python as our base envi
+At NERSC we can use the supported Anaconda python as our base environment:
+
+    $>  module load python
+
+Now we choose a path to install
 
 
 ### Example:  Simons1
