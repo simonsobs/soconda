@@ -1,0 +1,62 @@
+{% set version = "fd360a7352c88d3eb5195f5f0ea331ddc24e5e09" %}
+{% set sha256 = "2d7f317b34bee752e21a47db0e6d48faeb33d23b06255ddd875274300a183395" %}
+
+{% set build = 0 %}
+
+package:
+  name: moby2
+  version: {{ version }}
+
+source:
+  url: https://github.com/ACTCollaboration/moby2/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+  patches:
+    - dep_names.patch
+
+build:
+  number: {{ build }}
+  skip: true  # [win]
+  run_exports:
+    - moby2
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
+    - openblas * openmp_*
+  host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
+    - openblas * openmp_*
+    - python
+    - fftw
+    - gsl
+    - libactpol
+    - numpy
+    - future
+  run:
+    - python
+    - {{ pin_compatible("fftw") }}
+    - gsl
+    - libactpol
+    - numpy
+    - future
+
+test:
+  imports:
+    - moby2
+
+about:
+  home: https://github.com/ACTCollaboration/moby2
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python tools for ACT
+  description: |
+    This is a conda package for moby2
+  dev_url: https://github.com/ACTCollaboration/moby2
+
+extra:
+  recipe-maintainers:
+    - tskisner

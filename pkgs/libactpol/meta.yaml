@@ -1,0 +1,54 @@
+{% set version = "c0c1647ad62b418f34fe38eb73168d4f2e13ff6f" %}
+{% set sha256 = "254dba260b7e8f77edbff9ce271ba6806cca085e084bc23346fcc90015a0c565" %}
+
+{% set build = 0 %}
+
+package:
+  name: libactpol
+  version: {{ version }}
+
+source:
+  url: https://github.com/ACTCollaboration/libactpol/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: {{ build }}
+  skip: true  # [win]
+  run_exports:
+    - libactpol
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - automake
+    - autoconf
+    - m4
+    - libtool
+    - make
+    - cfitsio
+    - wcslib
+    - libactpol_deps
+  run:
+    - cfitsio
+    - wcslib
+    - libactpol_deps
+
+test:
+  commands:
+    - ls $PREFIX/lib  # [not win]
+    - test -f $PREFIX/lib/libactpol${SHLIB_EXT}  # [not win]
+
+about:
+  home: https://github.com/ACTCollaboration/libactpol
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Library for ACT data I/O.
+  description: |
+    This is a conda package for libactpol
+  dev_url: https://github.com/ACTCollaboration/libactpol
+
+extra:
+  recipe-maintainers:
+    - tskisner

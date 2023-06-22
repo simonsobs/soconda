@@ -74,88 +74,88 @@ envroot=$(basename ${envname})
 # The full environment name, including the root and version.
 fullenv="${envname}-${version}"
 
-# Activate the base environment
+# # Activate the base environment
 
-if [ "x$(which conda)" = "x" ]; then
-    # conda is not in the path
-    if [ "x${base}" = "x" ]; then
-        # User did not specify where to find it
-        echo "You must either activate the conda base environment before"
-        echo "running this script, or you must specify the path to the base"
-        echo "install with the \"-b <path to base>\" option."
-        exit 1
-    fi
-    conda_dir="${base}"
-else
-    # Conda is in the path
-    conda_dir="$(dirname $(dirname $(which conda)))"
-fi
-# Make sure that conda is initialized
-source "${conda_dir}/etc/profile.d/conda.sh"
-conda activate base
+# if [ "x$(which conda)" = "x" ]; then
+#     # conda is not in the path
+#     if [ "x${base}" = "x" ]; then
+#         # User did not specify where to find it
+#         echo "You must either activate the conda base environment before"
+#         echo "running this script, or you must specify the path to the base"
+#         echo "install with the \"-b <path to base>\" option."
+#         exit 1
+#     fi
+#     conda_dir="${base}"
+# else
+#     # Conda is in the path
+#     conda_dir="$(dirname $(dirname $(which conda)))"
+# fi
+# # Make sure that conda is initialized
+# source "${conda_dir}/etc/profile.d/conda.sh"
+# conda activate base
 
-# Determine whether the new environment is a name or a full path.
-env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
-is_path=no
-if [ "${env_noslash}" != "${fullenv}" ]; then
-    # This was a path
-    is_path=yes
-    env_check=""
-    if [ -e "${fullenv}/bin/conda" ]; then
-	    # It already exists
-	    env_check="${fullenv}"
-    fi
-else
-    env_check=$(conda env list | grep "${fullenv} ")
-fi
+# # Determine whether the new environment is a name or a full path.
+# env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
+# is_path=no
+# if [ "${env_noslash}" != "${fullenv}" ]; then
+#     # This was a path
+#     is_path=yes
+#     env_check=""
+#     if [ -e "${fullenv}/bin/conda" ]; then
+# 	    # It already exists
+# 	    env_check="${fullenv}"
+#     fi
+# else
+#     env_check=$(conda env list | grep "${fullenv} ")
+# fi
 
-if [ "x${env_check}" = "x" ]; then
-    # Environment does not yet exist.  Create it.
-    if [ ${is_path} = "no" ]; then
-	    echo "Creating new environment \"${fullenv}\""
-	    conda create --yes -n "${fullenv}"
-    else
-	    echo "Creating new environment \"${fullenv}\""
-	    conda create --yes -p "${fullenv}"
-    fi
-    echo "Activating environment \"${fullenv}\""
-    conda activate "${fullenv}"
-    echo "Setting default channel in this env to conda-forge"
-    conda config --env --add channels conda-forge
-    conda config --env --set channel_priority strict
-else
-    echo "Activating environment \"${fullenv}\""
-    conda activate "${fullenv}"
-    conda env list
-fi
+# if [ "x${env_check}" = "x" ]; then
+#     # Environment does not yet exist.  Create it.
+#     if [ ${is_path} = "no" ]; then
+# 	    echo "Creating new environment \"${fullenv}\""
+# 	    conda create --yes -n "${fullenv}"
+#     else
+# 	    echo "Creating new environment \"${fullenv}\""
+# 	    conda create --yes -p "${fullenv}"
+#     fi
+#     echo "Activating environment \"${fullenv}\""
+#     conda activate "${fullenv}"
+#     echo "Setting default channel in this env to conda-forge"
+#     conda config --env --add channels conda-forge
+#     conda config --env --set channel_priority strict
+# else
+#     echo "Activating environment \"${fullenv}\""
+#     conda activate "${fullenv}"
+#     conda env list
+# fi
 
-# Install conda packages
+# # Install conda packages
 
-echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
-    2>&1 | tee -a "log_conda"
-# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-rm -f "${CONDA_PREFIX}/bin/cc"
+# echo "Installing conda packages..." | tee "log_conda"
+# conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
+#     2>&1 | tee -a "log_conda"
+# # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
+# rm -f "${CONDA_PREFIX}/bin/cc"
 
-echo "After install, before deactivation CC=${CC} CXX=${CXX}"
-conda deactivate
-conda activate ${fullenv}
-echo "After re-activation CC=${CC} CXX=${CXX}"
+# echo "After install, before deactivation CC=${CC} CXX=${CXX}"
+# conda deactivate
+# conda activate ${fullenv}
+# echo "After re-activation CC=${CC} CXX=${CXX}"
 
-# Install mpi4py
+# # Install mpi4py
 
-echo "Installing mpi4py..." | tee "log_mpi4py"
-if [ "x${MPICC}" = "x" ]; then
-    echo "The MPICC environment variable is not set.  Installing mpi4py" \
-        | tee -a "log_mpi4py"
-    echo "from the conda package, rather than building from source." \
-        | tee -a "log_mpi4py"
-    conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
-else
-    echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
-    pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-        2>&1 | tee -a "log_mpi4py"
-fi
+# echo "Installing mpi4py..." | tee "log_mpi4py"
+# if [ "x${MPICC}" = "x" ]; then
+#     echo "The MPICC environment variable is not set.  Installing mpi4py" \
+#         | tee -a "log_mpi4py"
+#     echo "from the conda package, rather than building from source." \
+#         | tee -a "log_mpi4py"
+#     conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
+# else
+#     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
+#     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
+#         2>&1 | tee -a "log_mpi4py"
+# fi
 
 # Install local packages
 

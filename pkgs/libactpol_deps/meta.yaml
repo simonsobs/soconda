@@ -21,13 +21,12 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
+  host:
     - automake
     - autoconf
     - m4
     - libtool
     - make
-    - zziplib
-  host:
     - zziplib
   run:
     - zziplib
@@ -35,7 +34,7 @@ requirements:
 test:
   commands:
     - ls $PREFIX/lib  # [not win]
-    - test -f $PREFIX/lib/libactpol_deps${SHLIB_EXT}  # [not win]
+    - test -f $PREFIX/lib/libslim${SHLIB_EXT}  # [not win]
 
 about:
   home: https://github.com/ACTCollaboration/libactpol_deps

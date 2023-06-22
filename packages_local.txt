@@ -1,8 +1,8 @@
-pixell
+#pixell
 #libactpol_deps
 #libactpol
-#moby2
+moby2
 # Remove next line once toast-3.0 is on conda-forge
 #toast
 # Uncomment next line to build so3g from source
-#so3g
+so3g

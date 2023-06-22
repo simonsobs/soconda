@@ -24,13 +24,13 @@ requirements:
     - {{ compiler('fortran') }}
     - llvm-openmp >=4.0.1  # [osx]
     - libgomp      # [linux]
+  host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
     - automake
     - autoconf
     - m4
     - libtool
-  host:
-    - llvm-openmp >=4.0.1  # [osx]
-    - libgomp      # [linux]
     - python
     - cython
     - numpy

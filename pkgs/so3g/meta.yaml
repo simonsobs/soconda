@@ -1,0 +1,67 @@
+{% set version = "0.1.6" %}
+{% set sha256 = "50284e8f1c61a0488811791ce05941d5bdd1bd30ab61e2bf6a2f052c1f6cb059" %}
+
+{% set build = 0 %}
+
+package:
+  name: so3g
+  version: {{ version }}
+
+source:
+  url: https://github.com/simonsobs/so3g/archive/v{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: {{ build }}
+  skip: true  # [win]
+  run_exports:
+    - so3g
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
+    - openblas * openmp_*
+  host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
+    - openblas * openmp_*
+    - python
+    - numpy
+    - boost
+    - flac
+  run:
+    - python
+    - numpy
+    - boost
+    - flac
+    - astropy
+    - matplotlib
+    - scipy
+    - ephem
+    - pytz
+    - pyaml
+    - sqlalchemy
+    - pysqlite3-wheels
+    - tqdm
+
+test:
+  imports:
+    - so3g
+
+about:
+  home: https://github.com/simonsobs/so3g
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Simons Observatory SPT3G Tools
+  description: |
+    Glue functions and new classes for SO work in the spt3g paradigm.
+  dev_url: https://github.com/simonsobs/so3g
+
+extra:
+  recipe-maintainers:
+    - tskisner
