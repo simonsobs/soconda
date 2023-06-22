@@ -1,0 +1,25 @@
+diff -urN moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09_orig/python/tod/cuts.py moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/python/tod/cuts.py
+--- moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09_orig/python/tod/cuts.py	2021-09-09 07:55:34.000000000 -0700
++++ moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/python/tod/cuts.py	2023-06-22 08:58:08.838517855 -0700
+@@ -693,7 +693,7 @@
+     for deti in det_list:
+         mask = cuts.cuts[deti].get_mask()
+         offset = cuts.sample_offset - si
+-        total_mask = np.ones(nsamps, dtype=np.bool)
++        total_mask = np.ones(nsamps, dtype=bool)
+         total_mask[max(0,offset):min(nsamps,cuts.nsamps+offset)] = \
+             mask[max(0,-offset):min(nsamps-offset,cuts.nsamps)]
+         cuts_list = CutsVector.from_mask(total_mask)
+diff -urN moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09_orig/python/util/moby_fits.py moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/python/util/moby_fits.py
+--- moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09_orig/python/util/moby_fits.py	2021-09-09 07:55:34.000000000 -0700
++++ moby2-fd360a7352c88d3eb5195f5f0ea331ddc24e5e09/python/util/moby_fits.py	2023-06-22 08:59:06.558322217 -0700
+@@ -40,7 +40,8 @@
+     (np.float32, 'E', None),
+     (np.float64, 'D', None),
+     # Hack for bools; store as byte.
+-    (np.bool,    'B', None),
++    (np.bool_,    'B', None),
++    (bool,        'B', None),
+ ]
+ 
+ _numpy_to_fits = {

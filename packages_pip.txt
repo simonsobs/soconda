@@ -1,5 +1,7 @@
 qpoint
 pysm3
-so3g
+# Uncomment here if installing wheel, and comment out
+# line in packages_local.txt
+#so3g
 https://github.com/simonsobs/sotodlib/archive/master.tar.gz
 https://github.com/galsci/mapsims/archive/main.tar.gz

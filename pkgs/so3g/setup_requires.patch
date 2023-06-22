@@ -1,0 +1,11 @@
+diff -urN so3g-0.1.6_orig/setup.py so3g-0.1.6/setup.py
+--- so3g-0.1.6_orig/setup.py	2023-03-20 11:38:43.000000000 -0700
++++ so3g-0.1.6/setup.py	2023-06-22 11:38:42.746999553 -0700
+@@ -371,7 +371,6 @@
+ conf["url"] = "https://github.com/simonsobs/so3g"
+ conf["version"] = get_version()
+ conf["python_requires"] = ">=3.7.0"
+-conf["setup_requires"] = (["wheel", "cmake"],)
+ conf["install_requires"] = [
+     "numpy",
+     "astropy",

@@ -10,10 +10,15 @@ package:
 source:
   url: https://github.com/simonsobs/so3g/archive/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  patches:
+    - setup_requires.patch
 
 build:
   number: {{ build }}
   skip: true  # [win]
+  script_env:
+    - CFLAGS="-Wno-error -O3 -g -fPIC"
+    - CXXFLAGS="-Wno-error -O3 -g -fPIC -std=c++14"
   run_exports:
     - so3g
 
@@ -25,19 +30,22 @@ requirements:
     - llvm-openmp >=4.0.1  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - cmake
+    - make
   host:
     - llvm-openmp >=4.0.1  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
     - python
     - numpy
+    - scipy
     - boost
-    - flac
+    - libflac
   run:
     - python
     - numpy
-    - boost
-    - flac
+    - {{ pin_compatible("boost") }}
+    - {{ pin_compatible("libflac") }}
     - astropy
     - matplotlib
     - scipy
@@ -45,7 +53,7 @@ requirements:
     - pytz
     - pyaml
     - sqlalchemy
-    - pysqlite3-wheels
+    - pysqlite3
     - tqdm
 
 test:

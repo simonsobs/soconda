@@ -1,0 +1,77 @@
+
+{% set version = "3.0.0a15" %}
+{% set sha256 = "6527b3127417866c8850126a46e6a5ce9de567e10e5e223dc48016b37e04bbdf" %}
+
+{% set build = 0 %}
+
+package:
+  name: toast
+  version: {{ version }}
+
+source:
+  url: https://github.com/hpc4cmb/toast/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  skip: True  # [py<38]
+  skip: True  # [win]
+  number: {{ build }}
+  string: "py{{ py }}h{{ PKG_HASH }}_{{ build }}"
+  run_exports:
+    - toast
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - make                 # [unix]
+    - llvm-openmp >=4.0.1  # [osx]
+  host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - python
+    - fftw
+    - openblas * openmp_*
+    - liblapack
+    - suitesparse
+    - libaatm
+    - libflac
+  run:
+    - llvm-openmp >=4.0.1  # [osx]
+    - python
+    - {{ pin_compatible("fftw") }}
+    - openblas * openmp_*
+    - {{ pin_compatible("liblapack") }}
+    - {{ pin_compatible("suitesparse") }}
+    - {{ pin_compatible("libaatm") }}
+    - {{ pin_compatible("libflac") }}
+    - numpy
+    - scipy
+    - matplotlib
+    - astropy
+    - healpy
+    - h5py
+    - ephem
+    - tomlkit
+    - traitlets>=5.0
+    - psutil
+    - pshmem>=0.2.10
+
+test:
+  imports:
+    - toast
+
+about:
+  home: https://github.com/hpc4cmb/toast
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'Time Ordered Astrophysics Scalable Tools'
+  description: |
+    TOAST is a software framework for simulating and processing timestream data
+    collected by microwave telescopes.
+  dev_url: https://github.com/hpc4cmb/toast
+
+extra:
+  recipe-maintainers:
+    - tskisner
