@@ -19,16 +19,18 @@ if [ "x${version}" = "x" ]; then
     exit 1
 fi
 
-# Location for clone repo
+# Location for clone repos
 mkdir -p "${temp_dir}"
 today=$(date +%Y%m%d)
-clone_dir="${temp_dir}/${today}"
 
 # The name of env
 env_name="${install_dir}/soconda"
 
 # The full version
 env_version="${today}_${version}"
+
+# Clone location
+clone_dir="${temp_dir}/${env_version}"
 
 # Make sure the module dir exists
 mkdir -p "${module_dir}"
