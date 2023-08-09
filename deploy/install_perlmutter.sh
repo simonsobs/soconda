@@ -46,10 +46,10 @@ if [ -d "${clone_dir}" ]; then
     rm -rf "${clone_dir}"
 fi
 
-git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}" 2>&1 >> "${logfile}"
+git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
 # Load the NERSC anaconda base
-module load python 2>&1 >> "${logfile}"
+module load python >> "${logfile}" 2>&1
 
 # Build things from the temp directory
 
@@ -63,12 +63,12 @@ eval "${clone_dir}/soconda.sh" \
     -e "${env_name}" \
     -v "${env_version}" \
     -m "${module_dir}" \
-    -i "${clone_dir}/deploy/init_nersc_lmod" 2>&1 >> "${logfile}"
+    -i "${clone_dir}/deploy/init_nersc_lmod" >> "${logfile}" 2>&1
 
 popd 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
 # Update permissions
-chmod -R g-w,g+rX "${env_name}_${env_version}" 2>&1 >> "${logfile}"
-chmod -R g-w,g+rX "${module_dir}/soconda/*" 2>&1 >> "${logfile}"
+chmod -R g-w,g+rX "${env_name}_${env_version}" >> "${logfile}" 2>&1
+chmod -R g-w,g+rX "${module_dir}/soconda/*" >> "${logfile}" 2>&1
 
