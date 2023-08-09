@@ -1,0 +1,2 @@
+# Load the NERSC Anaconda base
+module load python
