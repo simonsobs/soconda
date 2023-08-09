@@ -45,6 +45,7 @@ fi
 git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}"
 
 # Load the NERSC anaconda base
+module load python
 
 # Build things from the temp directory
 
