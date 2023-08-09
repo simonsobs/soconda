@@ -183,9 +183,11 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo "Building local package '${pkgname}'"
-        eval "conda-build ${pkgrecipe}" 2>&1 | tee "log_${pkgname}"
+        eval "conda build ${pkgrecipe}" 2>&1 | tee "log_${pkgname}"
         echo "Installing local package '${pkgname}'"
         eval "conda install --yes --use-local ${pkgname}"
+	echo "Cleaning up build products"
+	eval "conda build purge"
     fi
 done < "${scriptdir}/packages_local.txt"
 
