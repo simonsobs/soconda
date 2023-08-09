@@ -35,17 +35,21 @@ clone_dir="${temp_dir}/${env_version}"
 # Make sure the module dir exists
 mkdir -p "${module_dir}"
 
+# Log file
+logfile="${temp_dir}/log_${env_version}"
+echo "Starting at $(date)" > "${logfile}"
+
 # Get specified commit
-echo "Making shallow clone of ${version} in ${clone_dir}"
+echo "Making shallow clone of ${version} in ${clone_dir}" >> "${logfile}"
 
 if [ -d "${clone_dir}" ]; then
     rm -rf "${clone_dir}"
 fi
 
-git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}"
+git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}" 2>&1 >> "${logfile}"
 
 # Load the NERSC anaconda base
-module load python
+module load python 2>&1 >> "${logfile}"
 
 # Build things from the temp directory
 
@@ -59,11 +63,12 @@ eval "${clone_dir}/soconda.sh" \
     -e "${env_name}" \
     -v "${env_version}" \
     -m "${module_dir}" \
-    -i "${clone_dir}/deploy/init_nersc_lmod" 2>&1 >log
+    -i "${clone_dir}/deploy/init_nersc_lmod" 2>&1 >> "${logfile}"
 
 popd 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
 # Update permissions
-chmod -R g-w,g+rX "${env_name}_${env_version}"
-chmod -R g-w,g+rX "${module_dir}/soconda/*"
+chmod -R g-w,g+rX "${env_name}_${env_version}" 2>&1 >> "${logfile}"
+chmod -R g-w,g+rX "${module_dir}/soconda/*" 2>&1 >> "${logfile}"
+
