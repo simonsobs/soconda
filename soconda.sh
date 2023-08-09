@@ -72,7 +72,7 @@ fi
 envroot=$(basename ${envname})
 
 # The full environment name, including the root and version.
-fullenv="${envname}-${version}"
+fullenv="${envname}_${version}"
 
 # Activate the base environment
 
@@ -121,9 +121,19 @@ if [ "x${env_check}" = "x" ]; then
     fi
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
-    echo "Setting default channel in this env to conda-forge"
-    conda config --env --add channels conda-forge
-    conda config --env --set channel_priority strict
+
+    # Create condarc for this environment
+    echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
+    echo "channels:" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
+    echo "channel_priority: strict" >> "${CONDA_PREFIX}/.condarc"
+    echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
+    echo "envs_dirs: $(dirname ${CONDA_PREFIX})" >> "${CONDA_PREFIX}/.condarc"
+    echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
+
+    # Reactivate to pick up changes
+    conda deactivate
+    conda activate "${fullenv}"
 else
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
@@ -139,7 +149,7 @@ conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
 rm -f "${CONDA_PREFIX}/bin/cc"
 
 conda deactivate
-conda activate ${fullenv}
+conda activate "${fullenv}"
 
 # Get the python site packages version
 pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
