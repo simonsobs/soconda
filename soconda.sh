@@ -135,6 +135,9 @@ if [ "x${env_check}" = "x" ]; then
     # Reactivate to pick up changes
     conda deactivate
     conda activate "${fullenv}"
+
+    # Update conda and low-level tools
+    conda update --all
 else
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
