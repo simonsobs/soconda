@@ -9,7 +9,7 @@ temp_dir=${SCRATCH}/temp_soconda
 install_dir=/global/common/software/sobs/perlmutter/conda_envs
 
 # Module file directory
-module_dir=/global/common/software/sobs/perlmutter/soconda/modulefiles
+module_dir=/global/common/software/sobs/perlmutter/modulefiles
 
 #===========================================
 
@@ -61,3 +61,6 @@ eval "${clone_dir}/soconda.sh" \
 popd 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
+# Update permissions
+chmod -R g-w,g+rX "${env_name}_${env_version}"
+chmod -R g-w,g+rX "${module_dir}/soconda/*"
