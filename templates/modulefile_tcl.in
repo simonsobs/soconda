@@ -4,7 +4,7 @@
 ##
 ##
 # variables for Tcl script use only
-set     version  @VERSION@
+set version  @VERSION@
 
 module-whatis "Loads conda tools for the Simons Observatory."
 
@@ -22,32 +22,20 @@ conflict sohpc so-env soconda
 # This might be set by OS python and gives us problems.
 unsetenv PYTHONSTARTUP
 
-# Create a versioned location for user-installed pip packages.
-setenv PYTHONUSERBASE $env(HOME)/.local/soconda/@VERSION@/pip
-
-# Source the conda init script for our shell.  Note that this 
-# requires a fairly recent version of Modules or Lmod.
-
-if [ module-info shelltype sh ] {
-    source-sh bash "@BASE@/etc/profile.d/conda.sh"
-}
-if [ module-info shelltype csh ] {
-    source-sh tcsh "@BASE@/etc/profile.d/conda.csh"
-}
-
 # Activate the conda environment by modifying the environment
 # directly.  This is needed since the source-sh and system
 # calls do not work.  This solution could be fragile, so should
-# be revisited in the future if all systems move to Lmod.  Lua
-# module files should better support calling "conda activate"
-# directly
+# be revisited in the future.
 
 setenv CONDA_PREFIX "@ENVPREFIX@"
-
 setenv CONDA_PROMPT_MODIFIER ""
-
 setenv CONDA_SHLVL "1"
-
 setenv CONDA_DEFAULT_ENV "@ENVNAME@"
-
 prepend-path PATH "@ENVPREFIX@/bin"
+
+# Create a versioned location for user-installed pip packages.
+# Add this location to the start of the path.
+set userbase $env(HOME)/.local/soconda/@VERSION@
+setenv PYTHONUSERBASE $userbase
+prepend-path PATH $userbase/bin
+prepend-path PYTHONPATH $userbase/lib/python@PYVER@/site-packages

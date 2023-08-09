@@ -1,135 +1,42 @@
-
-help([[NERSC Anaconda Python 3.9, 2021.11
-For information about using Python at NERSC, please see our documentation:
-https://docs.nersc.gov/development/languages/python/
-]])
-whatis("Name: Python")
-whatis("Version: 3.9-anaconda-2021.11")
-whatis("URL: https://docs.nersc.gov/development/languages/python/")
-whatis("Description: Anaconda Python 3.9")
-setenv("PYTHON_DIR","/global/common/software/nersc/pm-2022q3/sw/python/3.9-anaconda-2021.11")
-unsetenv("PYTHONSTARTUP")
-setenv("PYTHONUSERBASE","/global/homes/k/kisner/.local/perlmutter/3.9-anaconda-2021.11")
-prepend_path("PATH","/global/homes/k/kisner/.local/perlmutter/3.9-anaconda-2021.11/bin")
-prepend_path("PATH","/global/common/software/nersc/pm-2022q3/sw/python/3.9-anaconda-2021.11/bin")
-execute{cmd="source '/global/common/software/nersc/pm-2022q3/sw/python/3.9-anaconda-2021.11/etc/profile.d/conda.sh'", modeA={"load"}}
-execute{cmd="source '/global/common/software/nersc/pm-2022q3/sw/python/3.9-anaconda-2021.11/etc/profile.d/mamba.sh'", modeA={"load"}}
-execute{cmd="conda deactivate", modeA={"unload"}}
-execute{cmd="unset CONDA_EXE", modeA={"unload"}}
-execute{cmd="unset _CE_M", modeA={"unload"}}
-execute{cmd="unset _CE_CONDA", modeA={"unload"}}
-execute{cmd="unset CONDA_PYTHON_EXE", modeA={"unload"}}
-execute{cmd="unset CONDA_SHLVL", modeA={"unload"}}
-depends_on("evp-patch")
-
-
-#%Module###<-magic cookie ####################################################
-##
-##   Simons Observatory Conda Environment.
-##
-##
-# variables for Tcl script use only
-set     version  @VERSION@
-
-module-whatis "Loads conda tools for the Simons Observatory."
-
-proc ModulesHelp { } {
-    global version
-    puts stderr "\t\t Simons Observatory Conda Environment - Version $version\n"
-    puts stderr ""
-}
-
-conflict sohpc so-env soconda
-
-# Dependency module commands
-@MODLOAD@
-
-# This might be set by OS python and gives us problems.
-unsetenv PYTHONSTARTUP
-
-# Create a versioned location for user-installed pip packages.
-setenv PYTHONUSERBASE $env(HOME)/.local/soconda/@VERSION@/pip
-
-# Source the conda init script for our shell.  Note that this 
-# requires a fairly recent version of Modules or Lmod.
-
-if [ module-info shelltype sh ] {
-    source-sh bash "@BASE@/etc/profile.d/conda.sh"
-}
-if [ module-info shelltype csh ] {
-    source-sh tcsh "@BASE@/etc/profile.d/conda.csh"
-}
-
-# Activate the conda environment by modifying the environment
-# directly.  This is needed since the source-sh and system
-# calls do not work.  This solution could be fragile, so should
-# be revisited in the future if all systems move to Lmod.  Lua
-# module files should better support calling "conda activate"
-# directly
-
-setenv CONDA_PREFIX "@ENVPREFIX@"
-
-setenv CONDA_PROMPT_MODIFIER ""
-
-setenv CONDA_SHLVL "1"
-
-setenv CONDA_DEFAULT_ENV "@ENVNAME@"
-
-prepend-path PATH "@ENVPREFIX@/bin"
-
-
 --[[
     Conda Tools for the Simons Observatory
 ]]--
 
 local name        = "soconda"
 local version     = "@VERSION@"
-local root        = pathJoin("/global/common/software/nersc/pm-2022q3/sw", name, version)
-
-local HOME        = os.getenv("HOME")
-local NERSC_HOST  = os.getenv("NERSC_HOST")
-local CONDA_PREFIX = os.getenv("CONDA_PREFIX")
-
-
+local root        = "@ENVPREFIX@"
 
 help([[
 Simons Observatory Conda Environment - Version @VERSION@
 ]])
 
-whatis("Name: ".. 'soconda')
+whatis("Name: " .. 'soconda')
 whatis("Version: " .. "@VERSION@")
 whatis("URL: " .. "https://github.com/simonsobs/soconda")
-whatis("Description: " .. "S.O. Conda Tools")
+whatis("Description: " .. "Simons Observatory Conda Tools")
 
-unsetenv ("PYTHONSTARTUP")
+conflict("sohpc", "so-env", "soconda")
 
-local PYTHONUSERBASE = pathJoin(HOME, ".local", "soconda", "@VERSION@")
-setenv ("PYTHONUSERBASE", PYTHONUSERBASE)
+-- Dependency module commands
+@MODLOAD@
 
--- add PYTHONUSERBASE/bin to $PATH for pip packages (pip install --user <package>).
-local pipPATH = pathJoin(HOME, ".local", "soconda", "@VERSION@", "bin")
-prepend_path ("PATH", pipPATH)
+-- This might be set by OS python and gives us problems.
+unsetenv("PYTHONSTARTUP")
 
-local PATH = pathJoin(root, "bin")
-prepend_path ("PATH", PATH)
+-- Activate the conda environment by modifying the environment
+-- directly.  This is needed since the source-sh and system
+-- calls do not work.  This solution could be fragile, so should
+-- be revisited in the future.
 
--- now source the conda script that will allow us to use `conda activate`
-execute{cmd="source '"..pathJoin(root, "/etc/profile.d/conda."..myShellType()).."'", modeA={"load"}}
+setenv("CONDA_PREFIX", "@ENVPREFIX@")
+setenv("CONDA_PROMPT_MODIFIER", "")
+setenv("CONDA_SHLVL", "1")
+setenv("CONDA_DEFAULT_ENV", "@ENVNAME@")
+prepend_path("PATH", "@ENVPREFIX@/bin")
 
-if (myShellType() == "sh") then
-    execute{cmd="source '"..pathJoin(root, "/etc/profile.d/mamba.sh'"), modeA={"load"}}
-end
--- make sure we clean up
-execute{cmd="conda deactivate", modeA={"unload"}}
-local CONDABINPATH = pathJoin(root, "condabin")
-if (mode() == "unload") then
-    remove_path ("PATH", CONDABINPATH)
-end
-execute{cmd="unset CONDA_EXE", modeA={"unload"}}
-execute{cmd="unset _CE_M", modeA={"unload"}}
-execute{cmd="unset _CE_CONDA", modeA={"unload"}}
-execute{cmd="unset CONDA_PYTHON_EXE", modeA={"unload"}}
-execute{cmd="unset CONDA_SHLVL", modeA={"unload"}}
+-- Create a versioned user directory for local pip installation
+local userbase = pathJoin(HOME, ".local", "soconda", "@VERSION@")
+setenv("PYTHONUSERBASE", userbase)
+local userbin = pathJoin(userbase, "bin")
+prepend_path("PATH", userbin)
 
--- load workaround module for cray-mpich / libfabric / conda env issues in SLES 15 SP4
-depends_on("evp-patch")

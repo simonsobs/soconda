@@ -1,2 +1,2 @@
-# Load the NERSC Anaconda base
-module load python
+-- Load the NERSC Anaconda base
+depends_on("python")

@@ -141,6 +141,9 @@ rm -f "${CONDA_PREFIX}/bin/cc"
 conda deactivate
 conda activate ${fullenv}
 
+# Get the python site packages version
+pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
+
 # Install mpi4py
 
 echo "Installing mpi4py..." | tee "log_mpi4py"
@@ -203,6 +206,7 @@ confsub="-e 's#@VERSION@#${version}#g'"
 confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
 confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
 confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
+confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
 
 if [ "x${LMOD_VERSION}" = "x" ]; then
     # Using TCL modules
