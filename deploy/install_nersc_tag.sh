@@ -3,7 +3,7 @@
 #========== Configuration ==================
 
 # Location for persistent soconda checkout
-git_dir=${HOME}/git/soconda
+git_dir=${HOME}/software/git/soconda
 
 # Location of installed envs
 install_dir=/global/common/software/sobs/perlmutter/conda_envs
@@ -53,6 +53,6 @@ if [ "${found}" = "yes" ]; then
     echo "Latest tag \"${latest}\" was already installed on ${found_date}" >> "${log_file}" 2>&1
 else
     echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
-    eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
+    # eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
 fi
 
