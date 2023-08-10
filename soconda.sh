@@ -126,7 +126,6 @@ if [ "x${env_check}" = "x" ]; then
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
-    echo "channel_priority: strict" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
     echo "envs_dirs:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - $(dirname ${CONDA_PREFIX})" >> "${CONDA_PREFIX}/.condarc"
@@ -147,10 +146,7 @@ else
     conda env list
 fi
 
-# Install conda packages.  We always force using the OpenMP flavor
-# of OpenBLAS.
-
-force_blas="libopenblas=*=*openmp* libblas=*=*openblas"
+# Install conda packages.
 
 conda_pkgs=""
 while IFS='' read -r line || [[ -n "${line}" ]]; do
@@ -163,7 +159,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
 done < "${scriptdir}/packages_conda.txt"
 
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --update-all ${force_blas} ${conda_pkgs} \
+conda install --yes --update-all ${conda_pkgs} \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
@@ -266,6 +262,7 @@ else
     input_mod="${scriptdir}/templates/modulefile_lua.in"
 fi
 
+rm -f "${outmod}"
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [[ "${line}" =~ @MODLOAD@ ]]; then
         if [ -e "${modinit}" ]; then
@@ -276,7 +273,9 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${input_mod}"
 
+rm -f "${out_jupyter}"
 out_jupyter="${CONDA_PREFIX}/bin/soconda_jupyter.sh"
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     echo "${line}" | eval sed ${confsub} >> "${out_jupyter}"
 done < "${scriptdir}/templates/jupyter.sh.in"
+chmod +x "${out_jupyter}"

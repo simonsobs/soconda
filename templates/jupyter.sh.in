@@ -18,6 +18,6 @@ echo '
     "display_name": "Simons Observatory @VERSION@"
 }
 ' > "${kerneldir}/kernel.json"
-cp "@ENVPREFIX@/logo-*.png" "${kerneldir}/"
+cp "@ENVPREFIX@"/logo-*.png "${kerneldir}/"
 exit 0
 

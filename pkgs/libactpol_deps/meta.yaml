@@ -22,6 +22,7 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
   host:
+    - openblas * openmp_*
     - automake
     - autoconf
     - m4
@@ -29,6 +30,7 @@ requirements:
     - make
     - zziplib
   run:
+    - openblas * openmp_*
     - zziplib
 
 test:

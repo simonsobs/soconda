@@ -44,6 +44,8 @@ requirements:
   run:
     - python
     - numpy
+    - openblas * openmp_*
+    - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("boost") }}
     - {{ pin_compatible("libflac") }}
     - astropy

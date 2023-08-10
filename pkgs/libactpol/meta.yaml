@@ -21,6 +21,7 @@ requirements:
   build:
     - {{ compiler('c') }}
   host:
+    - openblas * openmp_*
     - automake
     - autoconf
     - m4
@@ -30,6 +31,7 @@ requirements:
     - wcslib
     - libactpol_deps
   run:
+    - openblas * openmp_*
     - cfitsio
     - wcslib
     - libactpol_deps

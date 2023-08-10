@@ -38,6 +38,7 @@ requirements:
     - future
   run:
     - python
+    - openblas * openmp_*
     - {{ pin_compatible("fftw") }}
     - gsl
     - libactpol

@@ -27,6 +27,7 @@ requirements:
   host:
     - llvm-openmp >=4.0.1  # [osx]
     - libgomp      # [linux]
+    - openblas * openmp_*
     - automake
     - autoconf
     - m4
@@ -43,6 +44,7 @@ requirements:
     - pillow
   run:
     - python
+    - openblas * openmp_*
     - {{ pin_compatible('numpy') }}
     - scipy
     - astropy

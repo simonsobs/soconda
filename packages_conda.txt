@@ -1,8 +1,7 @@
-# NOTE: the libopenblas and libblas packages
-# are hardcoded in soconda.sh and should never
-# be listed here.
 python=3.10.*
 compilers
+libopenblas=*=*openmp*
+libblas=*=*openblas
 conda-build
 libcblas
 blas-devel
@@ -16,6 +15,7 @@ cython
 pytest
 fftw
 gsl
+cfitsio
 wcslib
 libaatm
 suitesparse
@@ -39,8 +39,12 @@ skyfield
 typer
 scikit-image
 zziplib
+pytz
+future
+pyaml
+tqdm
 # Revert to 0.12 until this bug is fixed:
 # https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw=0.12
+pyfftw==0.12
 # Uncomment the next line if building so3g from source
-boost
+#boost
