@@ -2,6 +2,9 @@
 
 #========== Configuration ==================
 
+# Location for conda base
+base_dir=/global/common/software/sobs/perlmutter/conda
+
 # Location for temp clones
 temp_dir=${SCRATCH}/temp_soconda
 
@@ -48,8 +51,9 @@ fi
 
 git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
-# Load the NERSC anaconda base
-module load python >> "${logfile}" 2>&1
+# Activate the base environment
+source "${base_dir}/etc/profile.d/conda.sh"
+conda activate base >> "${logfile}" 2>&1
 
 # Build things from the temp directory
 
