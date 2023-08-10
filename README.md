@@ -8,26 +8,55 @@ This repository contains scripts to help with:
 
 - Building a few legacy compiled packages into this environment
 
-- Creating a versioned modulefile for loading the environment
+- Creating a versioned modulefile for (optionally) loading the environment
 
-## Base Conda Environment
+## Using an Existing Environment
 
-If you already have a conda base environment, then you can skip this step.
-Otherwise, decide on the install prefix for your overall conda environment. For
-this example, we will use `/opt/conda` as the path to the conda base
-installation. Now run the bootstrap script:
+If you are just using an already-created environment, you can follow
+instructions on project resources (Confluence) for how to load a particular
+version on a system. After loading an environment, there are a several ways to
+customize things.
 
-    $> ./tools/bootstrap_base "/opt/conda"
+### Overriding a Few Packages
 
-This bootstrap will install a base system with the conda-forge channel set to
-the default. You can now source the conda initialization file and activate the
-base environment:
+Each `soconda` modulefile sets the user directory (for `pip install --user`) to
+be in a versioned location in your home directory. If you want to use a
+different / newer version of `sotodlib` (for example), then you can just do:
 
-    $> source /opt/conda/etc/profile.d/conda.sh
-    $> conda activate base
+    $> pip install --user https://github.com/simonsobs/sotodlib/archive/master.tar.gz
 
-After installing an `soconda` environment below, the resulting module file will
-do this on load.
+If you swap to a different `soconda` environment, your user package install
+directory will also switch.
+
+### More Extensive Customization
+
+One benefit of an `soconda` environment is that it also contains conda packages
+built for some legacy compiled tools. If you want to keep those, but
+dramatically change which other conda packages are installed, you can first
+create a new personal environment while cloning an existing one:
+
+    $> conda create --clone soconda_20230809_1.0.0 /path/to/my/env
+
+Then activate your new environment and conda install whatever you like:
+
+    $> conda activate /path/to/my/env
+    $> conda install foo bar blat
+
+Note that your pip user directory will still be set to the location created by
+the original upstream module, and you can also "`pip install --user`"
+additional packages to go with your custom conda environment.
+
+### Rolling Your Own
+
+You can also just load a conda base environment on a particular system and then
+read the rest of this document to install your own environment. You can edit
+the files:
+
+    packages_conda.txt
+    packages_local.txt
+    packages_pip.txt
+
+to control which packages will be installed with conda, pip, or built locally.
 
 ## Creating a Simons Observatory Environment
 
@@ -45,6 +74,25 @@ build directory to avoid clutter.
 
 ---
 
+### Base Conda Environment
+
+If you already have a conda-forge base environment, then you can skip this
+step. Otherwise, decide on the install prefix for your overall conda
+environment. For this example, we will use `/opt/conda` as the path to the
+conda base installation. Now run the bootstrap script:
+
+    $> ./tools/bootstrap_base "/opt/conda"
+
+This bootstrap will install a base system with the conda-forge channel set to
+the default. You can now source the conda initialization file and activate the
+base environment:
+
+    $> source /opt/conda/etc/profile.d/conda.sh
+    $> conda activate base
+
+After installing an `soconda` environment below, the resulting module file will
+do this on load.
+
 ### Special Note on mpi4py
 
 By default, the conda package for mpi4py will be installed using the mpich
@@ -57,109 +105,73 @@ will cause the mpi4py package to be built using your compiler.
 
 Starting from scratch, bootstrap a small conda-forge base environment in `~/conda`:
 
-    $>  ./tools/bootstrap_base.sh ~/conda
+    $> ./tools/bootstrap_base.sh ~/conda
+    $> source ~/conda/etc/profile.d/conda.sh
+    $> conda activate base
 
 Create an `soconda` environment with default name and version. However, we
 decide to put all the modulefiles into a central location in the root of the
 base conda install:
 
-    $>  ./soconda.sh -b ~/conda -m ~/conda/modulefiles
+    $> ./soconda.sh -b ~/conda -m ~/conda/modulefiles
 
 Now we can load the module:
 
-    $>  module use ~/conda/modulefiles
-    $>  module avail
-    $>  module load soconda/XXXXXX
-
-OR we could activate the environment directly with the normal conda procedure:
-
-    $>  source ~/conda/etc/profile.d/conda.sh
-    $>  conda env list
-    $>  conda activate soconda-XXXXXX
-
+    $> module use ~/conda/modulefiles
+    $> module avail
+    $> module load soconda/XXXXXX
 
 ### Example:  NERSC
 
-At NERSC we can use the supported Anaconda python as our base environment:
+At NERSC, the default provided python is from Anaconda, and cannot be easily
+customized for our needs. Instead, we have a conda-forge base system installed
+in our project software directory:
 
-    $>  module load python
+    $> source /global/common/software/sobs/perlmutter/conda/etc/profile.d/conda.sh
+    $> conda activate base
 
-Now we choose a path to install
-
-
-### Example:  Simons1
-
-
+Now we can either install a shared software environment or use this base environment to build a conda environment in a personal directory.
 
 ## Loading an Environment
 
 The created conda environment includes the root "name" (or path) specified at
 creation time and has the version appended to this. For example, if you did not
 specify the name or the version, then it would have created an environment under
-`envs/soconda-<git version>`.
-
-### Loading an Environment the Conda Way
-
-This is just a normal conda environment, so you can load it by ensuring that you
-have sourced the conda init script and then running `conda activate`. For
-example, if your conda base install is in `/opt/conda`, and you installed from
-the git tag `1.0.0` of soconda, then you would do:
-
-    # NOTE:  if this is the only base conda install
-    # you are using, you can safely source that in your
-    # shell resource file.
-    $> source /opt/conda/etc/profile.d/conda.sh
-
-    # Activate this (or any other) environment
-    $> conda activate soconda-1.0.0
+`envs/soconda_<git version>`.
 
 ### Loading an Environment with a Modulefile
 
-If you prefer working with module files, there is a module file installed with
-each soconda environment.  If you specified the module directory during install,
-then a module named after the version was created in that directory.  The module
-file will initialize the conda base environment and then activate the `soconda`
-environment.
+There is a module file installed with each soconda environment. If you
+specified the module directory during install, then a module named after the
+version was created in that directory. The module file will initialize the
+conda base environment and then activate the environment you created.
 
 Ensure that the location of the modulefile is in your search path:
 
     # (If you specified a custom module file directory)
-    $>  module use /path/to/custom/modulefiles
+    $> module use /path/to/custom/modulefiles
 
-    # OR (you are using the defaults)
-    $>  module use /opt/conda/envs/soconda-1.0.0/modulefiles
+    # OR (you are using the defaults, and your base install is in /opt/conda)
+    $> module use /opt/conda/envs/soconda-1.0.0/modulefiles
 
 And then load the module:
 
-    $>  module load soconda/1.0.0
+    $> module load soconda/1.0.0
 
-If using module files, then doing a `module unload soconda` will deactivate the
-conda environment and remove any conda initialization from your shell
-environment.
-
----
-**IMPORTANT**
-
-You should not mix and match the use of these modules and conda commands. Use
-one or the other.
-
----
+Doing a `module unload soconda` will deactivate the conda environment and
+remove any conda initialization from your shell environment.
 
 ### Running Tests
 
 After loading an `soconda` environment, you can run some tests with:
 
-    $>  ./run_tests.sh
+    $> ./run_tests.sh
 
 ## Customizing an Environment
 
-When you load an `soconda` module, it sets the user local pip install directory
-to a versioned location within your home directory. You can then pip-install
-packages with the `--user` option to override packages in the conda environment.
-
 If you want to dramatically change the package versions / content of an
 `soconda` stack, just load the existing base conda environment and edit the
-three lists of packages (`packages_[conda|pip|compiled].txt`) to exclude certain
+three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
 packages or add extras. Then install it to some personal location outside the
 base install (i.e. pass the full path to `soconda -e <path>`).
 
@@ -187,7 +199,7 @@ rather than installing the wheel.
 
 This package is currently built from source by default, but the pre-built wheel
 (which comes bundled with OpenMP-enabled libopenblas) should also work. To use
-that, comment out the so3g line in `packages_compiled.txt` and uncomment the
+that, comment out the so3g line in `packages_local.txt` and uncomment the
 line in `packages_pip.txt`.
 
 ### TOAST
@@ -196,6 +208,6 @@ This package is currently built from source by default, with dependencies
 installed through conda. When toast-3.0 arrives in the conda-forge toast
 feedstock, it should be added back to `packages_conda.txt`. It should also work
 to install the python wheel package by commenting out the toast entry in
-`packages_compiled.txt` and adding it to `packages_pip.txt`.
+`packages_local.txt` and adding it to `packages_pip.txt`.
 
 
