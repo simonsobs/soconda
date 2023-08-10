@@ -12,6 +12,7 @@ source:
   sha256: {{ sha256 }}
   patches:
     - setup_requires.patch
+    - cxx_werror.patch
 
 build:
   number: {{ build }}
@@ -30,7 +31,6 @@ requirements:
     - llvm-openmp >=4.0.1  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
-    - cmake
     - make
   host:
     - llvm-openmp >=4.0.1  # [osx]

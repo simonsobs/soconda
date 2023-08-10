@@ -125,7 +125,6 @@ if [ "x${env_check}" = "x" ]; then
     # Create condarc for this environment
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
-    echo "  - file://${CONDA_PREFIX}/conda-bld" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "channel_priority: strict" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
@@ -139,22 +138,44 @@ if [ "x${env_check}" = "x" ]; then
 
     # Update conda and low-level tools
     conda update --all
+
+    # Copy logo files
+    cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
 else
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
     conda env list
 fi
 
-# Install conda packages
+# Install conda packages.  We always force using the OpenMP flavor
+# of OpenBLAS.
+
+force_blas="libopenblas=*=*openmp* libblas=*=*openblas"
+
+conda_pkgs=""
+while IFS='' read -r line || [[ -n "${line}" ]]; do
+    # Is this line commented?
+    comment=$(echo "${line}" | cut -c 1)
+    if [ "${comment}" != "#" ]; then
+        pkgname="${line}"
+        conda_pkgs="${conda_pkgs} ${pkgname}"
+    fi
+done < "${scriptdir}/packages_conda.txt"
 
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --update-all --file "${scriptdir}/packages_conda.txt" \
-    2>&1 | tee -a "log_conda"
+conda install --yes --update-all ${force_blas} ${conda_pkgs} \
+    | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
 
 conda deactivate
 conda activate "${fullenv}"
+
+mkdir -p "${CONDA_PREFIX}/conda-bld"
+conda-index "${CONDA_PREFIX}/conda-bld"
+conda config \
+    --file "${CONDA_PREFIX}/.condarc" \
+    --add channels "file://${CONDA_PREFIX}/conda-bld"
 
 # Get the python site packages version
 pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
@@ -167,14 +188,14 @@ if [ "x${MPICC}" = "x" ]; then
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda install --yes mpich mpi4py 2>&1 | tee -a "log_mpi4py"
+    conda install --yes mpich mpi4py | tee -a "log_mpi4py" 2>&1
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-        2>&1 | tee -a "log_mpi4py"
+        | tee -a "log_mpi4py" 2>&1
 fi
 
-# Install local packages
+# Build local packages
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
@@ -183,13 +204,15 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo "Building local package '${pkgname}'"
-        eval "conda build ${pkgrecipe}" 2>&1 | tee "log_${pkgname}"
+        conda-build ${pkgrecipe} > "log_${pkgname}" 2>&1
         echo "Installing local package '${pkgname}'"
-        eval "conda install --yes --use-local ${pkgname}"
-	echo "Cleaning up build products"
-	eval "conda build purge"
+        # conda install --yes --only-deps ${pkgname}
+        conda install --yes ${pkgname}
     fi
 done < "${scriptdir}/packages_local.txt"
+
+echo "Cleaning up build products"
+conda-build purge
 
 # Install pip packages.  We install one package at a time
 # with no dependencies, so that we will intentionally
@@ -204,11 +227,21 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkg="${line}"
         echo "Installing package ${pkg}"
-        pip install --no-deps ${pkg} 2>&1 | tee -a "log_pip"
+        pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
     fi
 done < "${scriptdir}/packages_pip.txt"
 
-# Create and install module file
+# Create jupyter kernel launcher
+kern="${CONDA_PREFIX}/bin/soconda_run_kernel.sh"
+echo "#!/bin/bash" > "${kern}"
+echo "conn=\$1" >> "${kern}"
+echo "source \"${conda_dir}/etc/profile.d/conda.sh\"" >> "${kern}"
+echo "conda activate \"${fullenv}\"" >> "${kern}"
+echo "export DISABLE_MPI=true" >> "${kern}"
+echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
+chmod +x "${kern}"
+
+# Create and install module file and jupyter init script
 
 if [ "x${moduledir}" = "x" ]; then
     # No centralized directory was specified for modulefiles.  Make
@@ -242,3 +275,8 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "${line}" | eval sed ${confsub} >> "${outmod}"
     fi
 done < "${input_mod}"
+
+out_jupyter="${CONDA_PREFIX}/bin/soconda_jupyter.sh"
+while IFS='' read -r line || [[ -n "${line}" ]]; do
+    echo "${line}" | eval sed ${confsub} >> "${out_jupyter}"
+done < "${scriptdir}/templates/jupyter.sh.in"

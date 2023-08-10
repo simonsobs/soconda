@@ -35,5 +35,11 @@ bash "${inst}" -b -f -p "${base}" \
     && echo "channels:" >> "${base}/.condarc" \
     && echo "  - conda-forge" >> "${base}/.condarc" \
     && echo "channel_priority: strict" >> "${base}/.condarc" \
-    && echo "changeps1: false" >> "${base}/.condarc"
+    && echo "changeps1: true" >> "${base}/.condarc"
+
+# Activate and set solver.  Re-enable after mamba supports
+# strict channel order.
+# source "${base}/etc/profile.d/conda.sh"
+# conda install -n base conda-libmamba-solver
+# conda config --file "${base}/.condarc" --set solver libmamba
 

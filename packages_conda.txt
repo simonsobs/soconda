@@ -1,8 +1,9 @@
+# NOTE: the libopenblas and libblas packages
+# are hardcoded in soconda.sh and should never
+# be listed here.
 python=3.10.*
 compilers
 conda-build
-libopenblas=*=*openmp*
-libblas=*=*openblas
 libcblas
 blas-devel
 cmake
@@ -42,4 +43,4 @@ zziplib
 # https://github.com/conda-forge/pyfftw-feedstock/issues/51
 pyfftw=0.12
 # Uncomment the next line if building so3g from source
-# boost
+boost
