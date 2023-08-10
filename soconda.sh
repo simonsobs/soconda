@@ -245,7 +245,15 @@ if [ "x${moduledir}" = "x" ]; then
     moduledir="${CONDA_PREFIX}/modulefiles"
 fi
 mkdir -p "${moduledir}/${envroot}"
-outmod="${moduledir}/${envroot}/${version}"
+if [ "x${LMOD_VERSION}" = "x" ]; then
+    # Using TCL modules
+    input_mod="${scriptdir}/templates/modulefile_tcl.in"
+    outmod="${moduledir}/${envroot}/${version}"
+else
+    # Using LMOD
+    input_mod="${scriptdir}/templates/modulefile_lua.in"
+    outmod="${moduledir}/${envroot}/${version}.lua"
+fi
 rm -f "${outmod}"
 
 confsub="-e 's#@VERSION@#${version}#g'"
@@ -254,15 +262,6 @@ confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
 confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
 confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
 
-if [ "x${LMOD_VERSION}" = "x" ]; then
-    # Using TCL modules
-    input_mod="${scriptdir}/templates/modulefile_tcl.in"
-else
-    # Using LMOD
-    input_mod="${scriptdir}/templates/modulefile_lua.in"
-fi
-
-rm -f "${outmod}"
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [[ "${line}" =~ @MODLOAD@ ]]; then
         if [ -e "${modinit}" ]; then

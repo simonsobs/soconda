@@ -27,6 +27,8 @@ unsetenv PYTHONSTARTUP
 # calls do not work.  This solution could be fragile, so should
 # be revisited in the future.
 
+setenv CONDA_EXE "@BASE@/bin/conda"
+setenv CONDA_PYTHON_EXE "@BASE@/bin/python"
 setenv CONDA_PREFIX "@ENVPREFIX@"
 setenv CONDA_PROMPT_MODIFIER ""
 setenv CONDA_SHLVL "1"
