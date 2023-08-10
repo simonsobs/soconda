@@ -8,7 +8,7 @@ This repository contains scripts to help with:
 
 - Building a few legacy compiled packages into this environment
 
-- Creating a versioned modulefile for (optionally) loading the environment
+- Creating a versioned modulefile for loading the environment
 
 ## Using an Existing Environment
 
@@ -152,7 +152,7 @@ Ensure that the location of the modulefile is in your search path:
     $> module use /path/to/custom/modulefiles
 
     # OR (you are using the defaults, and your base install is in /opt/conda)
-    $> module use /opt/conda/envs/soconda-1.0.0/modulefiles
+    $> module use /opt/conda/envs/soconda_1.0.0/modulefiles
 
 And then load the module:
 
