@@ -31,7 +31,7 @@ requirements:
     - zziplib
   run:
     - openblas * openmp_*
-    - zziplib
+    - {{ pin_compatible('zziplib') }}
 
 test:
   commands:

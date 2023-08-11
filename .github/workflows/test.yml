@@ -1,0 +1,70 @@
+name:  Test Build
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    name: Tests on ${{ matrix.arch }} with Conda Python-${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.10"
+            arch: Linux-x86_64
+          - os: ubuntu-latest
+            python: "3.11"
+            arch: Linux-x86_64
+          - os: macos-latest
+            python: "3.10"
+            arch: MacOSX-x86_64
+          - os: macos-latest
+            python: "3.11"
+            arch: MacOSX-x86_64
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Conda Base
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: "latest"
+          channels: conda-forge
+          use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
+          auto-update-conda: true
+          auto-activate-base: true
+
+      - name: Check Conda Config
+        run: |
+          conda activate base
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+
+      - name: Install
+        run: |
+          ./soconda.sh -e soconda -v CI
+
+      - name: Run Tests
+        run: |
+          conda activate "soconda_CI"
+          export OMP_NUM_THREADS=2
+          export MPI_DISABLE=1
+          test_pixell.py
+          python3 -c 'import toast.tests; toast.tests.run()'
+          git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git
+          pushd sotodlib
+          python3 setup.py test
+          popd
+          unset MPI_DISABLE
+          unset OMP_NUM_THREADS

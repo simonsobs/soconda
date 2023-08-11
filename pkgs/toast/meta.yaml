@@ -39,12 +39,12 @@ requirements:
   run:
     - llvm-openmp >=4.0.1  # [osx]
     - python
-    - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible('fftw') }}
     - openblas * openmp_*
-    - {{ pin_compatible("liblapack") }}
-    - {{ pin_compatible("suitesparse") }}
-    - {{ pin_compatible("libaatm") }}
-    - {{ pin_compatible("libflac") }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('suitesparse') }}
+    - {{ pin_compatible('libaatm') }}
+    - {{ pin_compatible('libflac') }}
     - numpy
     - scipy
     - matplotlib

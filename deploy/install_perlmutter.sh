@@ -49,7 +49,7 @@ if [ -d "${clone_dir}" ]; then
     rm -rf "${clone_dir}"
 fi
 
-git clone --depth=1 --single-branch --branch=${version} https://github.com/tskisner/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
+git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
 # Activate the base environment
 source "${base_dir}/etc/profile.d/conda.sh"

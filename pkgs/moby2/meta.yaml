@@ -39,10 +39,10 @@ requirements:
   run:
     - python
     - openblas * openmp_*
-    - {{ pin_compatible("fftw") }}
-    - gsl
-    - libactpol
-    - numpy
+    - {{ pin_compatible('fftw') }}
+    - {{ pin_compatible('gsl') }}
+    - {{ pin_compatible('libactpol') }}
+    - {{ pin_compatible('numpy') }}
     - future
     - scipy
     - matplotlib

@@ -135,9 +135,6 @@ if [ "x${env_check}" = "x" ]; then
     conda deactivate
     conda activate "${fullenv}"
 
-    # Update conda and low-level tools
-    conda update --all
-
     # Copy logo files
     cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
 else
@@ -166,6 +163,12 @@ rm -f "${CONDA_PREFIX}/bin/cc"
 
 conda deactivate
 conda activate "${fullenv}"
+
+# Update conda and low-level tools, including pipgrip which we
+# use to install dependencies of pip packages with conda.
+conda update --yes --all
+conda install --yes setuptools wheel anytree click packaging
+python3 -m pip install pipgrip
 
 mkdir -p "${CONDA_PREFIX}/conda-bld"
 conda-index "${CONDA_PREFIX}/conda-bld"
@@ -222,8 +225,28 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     comment=$(echo "${line}" | cut -c 1)
     if [ "${comment}" != "#" ]; then
         pkg="${line}"
+        url_check=$(echo "${pkg}" | grep '/')
+        if [ "x${url_check}" = "x" ]; then
+            echo "Checking dependencies for package \"${pkg}\""
+            for dep in $(pipgrip --pipe ${pkg}); do
+                name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
+                if [ "${name}" != "${pkg}" ]; then
+                    depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
+                    if [ "x${depcheck}" = "x" ]; then
+                        # It is not already installed, try to install it with conda
+                        echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
+                        conda install --yes ${name} | tee -a "log_pip" 2>&1
+                        if [ $? -ne 0 ]; then
+                            echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
+                        fi
+                    else
+                        echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
+                    fi
+                fi
+            done
+        fi
         echo "Installing package ${pkg}"
-        pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
+        python3 -m pip install ${pkg} | tee -a "log_pip" 2>&1
     fi
 done < "${scriptdir}/packages_pip.txt"
 
