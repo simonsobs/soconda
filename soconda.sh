@@ -246,7 +246,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             done
         fi
         echo "Installing package ${pkg}"
-        python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
+        python3 -m pip install ${pkg} | tee -a "log_pip" 2>&1
     fi
 done < "${scriptdir}/packages_pip.txt"
 
