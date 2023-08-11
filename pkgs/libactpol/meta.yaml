@@ -30,11 +30,14 @@ requirements:
     - cfitsio
     - wcslib
     - libactpol_deps
+    # This constraint is to enforce compatibility with older cfitsio
+    # Remove this once healpy package is using latest wcslib / cfitsio.
+    - healpy
   run:
     - openblas * openmp_*
-    - cfitsio
-    - wcslib
-    - libactpol_deps
+    - {{ pin_compatible('cfitsio') }}
+    - {{ pin_compatible('wcslib') }}
+    - {{ pin_compatible('libactpol_deps') }}
 
 test:
   commands:

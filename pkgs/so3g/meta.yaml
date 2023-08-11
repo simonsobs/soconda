@@ -43,11 +43,11 @@ requirements:
     - libflac
   run:
     - python
-    - numpy
+    - {{ pin_compatible('numpy') }}
     - openblas * openmp_*
-    - {{ pin_compatible("liblapack") }}
-    - {{ pin_compatible("boost") }}
-    - {{ pin_compatible("libflac") }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('boost') }}
+    - {{ pin_compatible('libflac') }}
     - astropy
     - matplotlib
     - scipy
