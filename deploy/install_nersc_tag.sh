@@ -11,6 +11,9 @@ install_dir=/global/common/software/sobs/perlmutter/conda_envs
 # Log dir- make a temp dir in the git checkout
 log_dir="${git_dir}/logs"
 
+# Module file directory
+module_dir=/global/common/software/sobs/perlmutter/modulefiles
+
 #===========================================
 
 # Check that NERSC_HOST is set
@@ -40,19 +43,47 @@ found=no
 found_date=""
 for item in $(ls ${install_dir}); do
     if [ -d ${item} ]; then
-	# This is a directory
-	check=$(echo ${item} | sed -e "s/soconda_.*_\(.*\)/\1/")
-	found_date=$(echo ${item} | sed -e "s/soconda_\(.*\)_.*/\1/")
-	if [ "${check}" = "${latest}" ]; then
-	    found=yes
-	fi
+        # This is a directory
+        check=$(echo ${item} | sed -e "s/soconda_.*_\(.*\)/\1/")
+        found_date=$(echo ${item} | sed -e "s/soconda_\(.*\)_.*/\1/")
+        if [ "${check}" = "${latest}" ]; then
+            found=yes
+        fi
     fi
 done
 
+send_log=no
 if [ "${found}" = "yes" ]; then
     echo "Latest tag \"${latest}\" was already installed on ${found_date}" >> "${log_file}" 2>&1
 else
+    send_log=yes
     echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
-    # eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
+    eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
 fi
 
+# Only update the "stable" symlink if the build completed and the modulefile
+# was generated.
+mod_dir="${module_dir}/soconda"
+if [ -e "${mod_dir}/${latest}.lua" ]; then
+    rm "${mod_dir}/stable.lua" \
+    && ln -s "${mod_dir}/${latest}.lua" "${mod_dir}/stable.lua"
+fi
+
+echo "Finished installing tag \"${latest}\" on host ${NERSC_HOST} at $(date +%Y%m%d-%H%M%S)" >> "${log_file}"
+
+if [ "${send_log}" = "yes" ]; then
+    # Get our webhook address from the environment
+    slack_web_hook=${SLACKBOT_SOCONDA}
+
+    if [ "x${slack_web_hook}" = "x" ]; then
+        echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" >> "${log_file}"
+    else
+        # Create the JSON payload.
+        slackjson="${log_file}_slack.json"
+        headtail=15
+        echo -e "{\"text\":\"soconda tag check (log at \`${log_file}\`):\n\`\`\`$(head -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\n(Snip)\n\`\`\`$(tail -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\"}" > "${slackjson}"
+        # Post it.
+        slackerror=$(curl -X POST -H 'Content-type: application/json' --data "$(cat ${slackjson})" ${slack_web_hook})
+        echo "Slack API post  ${slackerror}" >> "${log_file}"
+    fi
+fi
