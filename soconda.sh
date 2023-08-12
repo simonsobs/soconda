@@ -127,6 +127,7 @@ if [ "x${env_check}" = "x" ]; then
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
+    echo "channel_priority: strict" >> "${CONDA_PREFIX}/.condarc"
     echo "envs_dirs:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - $(dirname ${CONDA_PREFIX})" >> "${CONDA_PREFIX}/.condarc"
     echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
