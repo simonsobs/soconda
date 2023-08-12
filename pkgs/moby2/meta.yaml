@@ -34,7 +34,7 @@ requirements:
     - fftw
     - gsl
     - libactpol
-    - numpy
+    - numpy>=1.20
     - future
   run:
     - python

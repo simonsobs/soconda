@@ -45,7 +45,7 @@ requirements:
     - {{ pin_compatible('suitesparse') }}
     - {{ pin_compatible('libaatm') }}
     - {{ pin_compatible('libflac') }}
-    - numpy
+    - numpy>=1.20
     - scipy
     - matplotlib
     - astropy
