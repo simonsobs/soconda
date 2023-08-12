@@ -204,8 +204,8 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo "Building local package '${pkgname}'"
         conda-build ${pkgrecipe} > "log_${pkgname}" 2>&1
+        cat "log_${pkgname}"
         echo "Installing local package '${pkgname}'"
-        # conda install --yes --only-deps ${pkgname}
         conda install --yes ${pkgname}
     fi
 done < "${scriptdir}/packages_local.txt"
