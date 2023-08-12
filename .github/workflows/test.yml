@@ -6,6 +6,8 @@ jobs:
   test:
     name: Tests on ${{ matrix.arch }} with Conda Python-${{ matrix.python }}
     runs-on: ${{ matrix.os }}
+    env:
+      CI: "1"
     defaults:
       run:
         shell: bash -l {0}
