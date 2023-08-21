@@ -15,7 +15,7 @@ whatis("Version: " .. "@VERSION@")
 whatis("URL: " .. "https://github.com/simonsobs/soconda")
 whatis("Description: " .. "Simons Observatory Conda Tools")
 
-conflict("sohpc", "so-env", "soconda")
+conflict("sohpc", "so-env", "soconda", "python")
 
 -- Dependency module commands
 @MODLOAD@
@@ -35,6 +35,23 @@ setenv("CONDA_PROMPT_MODIFIER", "")
 setenv("CONDA_SHLVL", "1")
 setenv("CONDA_DEFAULT_ENV", "@ENVPREFIX@")
 prepend_path("PATH", "@ENVPREFIX@/bin")
+
+local funcs = "conda __conda_activate __conda_hashr __conda_reactivate __add_sys_prefix_to_path"
+
+execute{cmd="source " .. @BASE@ .. "/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f " .. funcs, modeA={"load"}}
+
+execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=" .. conda_dir .. "; \
+	export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ':' '\\n' | /bin/grep . | /bin/grep -v $pre | tr '\\n' ':' | sed 's/:$//'); \
+	export PATH=$(echo ${PATH} | tr ':' '\\n' | /bin/grep . | /bin/grep -v $pre | tr '\\n' ':' | sed 's/:$//'); \
+        unset -f " .. funcs .. "; \
+    unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\" | /bin/grep -v 'CONDA_ENVS_PATH\\|CONDA_PKGS_DIRS');", modeA={"unload"}}
+
+execute{cmd="source " .. conda_dir .. "/etc/profile.d/conda.sh; conda activate py${PYV}_${ENV}; export -f " .. funcs, modeA={"load"}}
+execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=" .. conda_dir .. "; \
+	export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ':' '\\n' | /bin/grep . | /bin/grep -v $pre | tr '\\n' ':' | sed 's/:$//'); \
+	export PATH=$(echo ${PATH} | tr ':' '\\n' | /bin/grep . | /bin/grep -v $pre | tr '\\n' ':' | sed 's/:$//'); \
+        unset -f " .. funcs .. "; \
+
 
 -- Create a versioned user directory for local pip installation
 local userbase = pathJoin(HOME, ".local", "soconda", "@VERSION@")

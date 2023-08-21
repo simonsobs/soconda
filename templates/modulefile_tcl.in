@@ -14,10 +14,14 @@ proc ModulesHelp { } {
     puts stderr ""
 }
 
-conflict sohpc so-env soconda
+conflict sohpc so-env soconda python
 
 # Dependency module commands
 @MODLOAD@
+
+if {[module-info command unload]} {
+    system AUTO_ACTIVATE_BASE=false @BASE@/bin/conda deactivate
+}
 
 # This might be set by OS python and gives us problems.
 unsetenv PYTHONSTARTUP
@@ -27,7 +31,7 @@ unsetenv PYTHONSTARTUP
 # calls do not work.  This solution could be fragile, so should
 # be revisited in the future.
 
-setenv CONDA_EXE "@BASE@/bin/conda"
+setenv CONDA_EXE @BASE@/bin/conda
 setenv CONDA_PYTHON_EXE "@BASE@/bin/python"
 setenv CONDA_PREFIX "@ENVPREFIX@"
 setenv CONDA_PROMPT_MODIFIER ""
