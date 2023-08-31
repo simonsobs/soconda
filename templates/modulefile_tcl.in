@@ -32,51 +32,9 @@ set funcs "conda __conda_exe __conda_activate __conda_hashr __conda_reactivate"
 
 
 if {[module-info command load]} {
-    system "source @BASE@/etc/profile.d/conda.sh; \
-        conda activate @ENVNAME@; export -f $funcs .. \
-        "; export PATH=" .. userbin .. ":${PATH}"
+    system "source @BASE@/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f ${funcs}; export PATH=${userbin}:${PATH}"
 }
-
-if (mode() == "load") then
-    execute{cmd=, modeA={"load"}}
-end
-
-if (mode() == "unload") then
-    execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; \
-        pre=" .. "@BASE@" .. "; \
-        pipusr=" .. userbin .. "; \
-        export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | tr "\\n" ":" | sed 's/:$//'); \
-        export PATH=$(echo ${PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | /bin/grep -v $pipusr | tr "\\n" ":" | sed 's/:$//'); \
-        unset -f " .. funcs .. "; \
-        unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");", modeA={"unload"}}
-end
-
-
-
-
 
 if {[module-info command unload]} {
-    system AUTO_ACTIVATE_BASE=false @BASE@/bin/conda deactivate
+    system "for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=@BASE@; pipusr=$userbin; export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | tr "\\n" ":" | sed 's/:$//'); export PATH=$(echo ${PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | bin/grep -v $pipusr | tr "\\n" ":" | sed 's/:$//'); unset -f ${funcs}; unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");"
 }
-
-
-
-# Activate the conda environment by modifying the environment
-# directly.  This is needed since the source-sh and system
-# calls do not work.  This solution could be fragile, so should
-# be revisited in the future.
-
-setenv CONDA_EXE @BASE@/bin/conda
-setenv CONDA_PYTHON_EXE "@BASE@/bin/python"
-setenv CONDA_PREFIX "@ENVPREFIX@"
-setenv CONDA_PROMPT_MODIFIER ""
-setenv CONDA_SHLVL "1"
-setenv CONDA_DEFAULT_ENV "@ENVNAME@"
-prepend-path PATH "@ENVPREFIX@/bin"
-
-# Create a versioned location for user-installed pip packages.
-# Add this location to the start of the path.
-set userbase $env(HOME)/.local/soconda/@VERSION@
-setenv PYTHONUSERBASE $userbase
-prepend-path PATH $userbase/bin
-prepend-path PYTHONPATH $userbase/lib/python@PYVER@/site-packages
