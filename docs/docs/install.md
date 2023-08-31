@@ -25,15 +25,18 @@ clutter.
 ## Base Conda Environment
 
 If you already have a conda-forge base environment, then you can skip this
-step. Otherwise, decide on the install prefix for your overall conda
-environment. For this example, we will use `/opt/conda` as the path to the
-conda base installation. Now run the bootstrap script:
+step. However, you should consider setting the "solver" in the base environment
+to use libmamba. This will greatly speed up the dependency resolution
+calculation. Once you decide on the install prefix for your overall conda
+environment you can use the included bootstrap script. For this example, we
+will use `/opt/conda` as the path to the conda base installation. Now run the
+bootstrap script:
 
     $> ./tools/bootstrap_base "/opt/conda"
 
 This bootstrap will install a base system with the conda-forge channel set to
-the default. You can now source the conda initialization file and activate the
-base environment:
+the default and using the mamba solver. You can now source the conda
+initialization file and activate the base environment:
 
     $> source /opt/conda/etc/profile.d/conda.sh
     $> conda activate base
@@ -46,7 +49,7 @@ since it is done by the generated modulefile.
 By default, the conda package for mpi4py will be installed. This should work
 well for stand-alone workstations or single nodes. If you have a cluster with a
 customized MPI compiler, then set the `MPICC` environment variable to the MPI C
-compiler before creating an environment. That will cause the mpi4py package to
+compiler before running `soconda.sh`. That will cause the mpi4py package to
 be built using your compiler.
 
 ## Example:  Local System
@@ -71,14 +74,19 @@ Now we can load the module:
 
 ## Example:  NERSC
 
-At NERSC, the default provided python is from Anaconda, and does not work for
-our needs. Instead, we have a conda-forge base system installed in our project
-software directory:
+At NERSC, the default provided python is from Anaconda, and does not work well
+for our needs. Instead, we have a conda-forge base system installed in our
+project software directory:
 
     $> source /global/common/software/sobs/perlmutter/conda/etc/profile.d/conda.sh
     $> conda activate base
 
-Now we can either install a shared software environment or use this base environment to build a conda environment in a personal directory.  If you are installing to a shared software environment, you should do that as the project account and follow a specific naming convention which is beyond the scope of this document.  If you wanted to install these tools to your home directory you could do:
+Now we can either install a shared software environment or use this base
+environment to build a conda environment in a personal directory. If you are
+installing to a shared software environment, you should do that as the project
+account and follow a specific naming convention which is beyond the scope of
+this document. If you wanted to install these tools to your home directory you
+could do:
 
     $> ./soconda.sh -b ~/conda_envs -m ~/conda_envs/modulefiles
 
@@ -106,7 +114,7 @@ using this python stack.
 ## Customizing an Environment
 
 If you want to dramatically change the package versions / content of an
-`soconda` stack, just load the existing base conda environment and edit the
+`soconda` stack, just load the existing `base` conda environment and edit the
 three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
 packages or add extras. Then install it as usual.
 
@@ -129,6 +137,12 @@ interfaces, thread pinning, etc, when building packages that use OpenMP.
 
 We currently build pixell from source with the conda compilers for consistency,
 rather than installing the wheel.
+
+### Libactpol / Moby2
+
+There are three conda recipes for `libactpol_deps`, `libactpol`, and `moby2`.
+These are using git hashes that are either the latest or a branch / version
+recommended for S.O. use.
 
 ### So3g
 

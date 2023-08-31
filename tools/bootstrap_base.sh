@@ -18,28 +18,22 @@ if [ "x${base}" = "x" ]; then
     exit 1
 fi
 
+inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh miniforge.sh)
 
-if [ $(uname -s) = "Linux" ]; then
-    inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname -s)-$(uname -m).sh miniforge.sh)
-else
-    if [ $(uname -s) = "Darwin" ]; then
-        inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh miniforge.sh)
-    else
-        echo "Unsupported operating system" >&2
-        exit 1
-    fi
-fi
+bash "${inst}" -b -f -p "${base}"
 
-bash "${inst}" -b -f -p "${base}" \
-    && echo "# condarc for soconda" > "${base}/.condarc" \
-    && echo "channels:" >> "${base}/.condarc" \
-    && echo "  - conda-forge" >> "${base}/.condarc" \
-    && echo "channel_priority: strict" >> "${base}/.condarc" \
-    && echo "changeps1: true" >> "${base}/.condarc"
+# Activate base and install libmamba solver
+source "${base}/etc/profile.d/conda.sh"
+conda activate base
+conda update -n base --yes conda
+conda install -n base --yes conda-libmamba-solver
+conda deactivate
 
-# Activate and set solver.  Re-enable after mamba supports
-# strict channel order.
-# source "${base}/etc/profile.d/conda.sh"
-# conda install -n base conda-libmamba-solver
-# conda config --file "${base}/.condarc" --set solver libmamba
+# Create base config file
+echo "# condarc bootstrapped by soconda" > "${base}/.condarc"
+echo "channels:" >> "${base}/.condarc"
+echo "  - conda-forge" >> "${base}/.condarc"
+echo "changeps1: true" >> "${base}/.condarc"
+echo "env_prompt: '({name}) '" >> "${base}/.condarc"
+echo "solver: libmamba" >> "${base}/.condarc"
 

@@ -127,9 +127,6 @@ if [ "x${env_check}" = "x" ]; then
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
-    echo "channel_priority: strict" >> "${CONDA_PREFIX}/.condarc"
-    echo "envs_dirs:" >> "${CONDA_PREFIX}/.condarc"
-    echo "  - $(dirname ${CONDA_PREFIX})" >> "${CONDA_PREFIX}/.condarc"
     echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
 
     # Reactivate to pick up changes
@@ -165,11 +162,10 @@ rm -f "${CONDA_PREFIX}/bin/cc"
 conda deactivate
 conda activate "${fullenv}"
 
-# Update conda and low-level tools, including pipgrip which we
+# Install low-level tools, including pipgrip which we
 # use to install dependencies of pip packages with conda.
-conda update --yes --all
-conda install --yes setuptools wheel anytree click packaging
-python3 -m pip install pipgrip
+conda install --yes --update-all setuptools pip wheel anytree click packaging
+pip install pipgrip
 
 mkdir -p "${CONDA_PREFIX}/conda-bld"
 conda-index "${CONDA_PREFIX}/conda-bld"

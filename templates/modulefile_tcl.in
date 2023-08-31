@@ -3,7 +3,6 @@
 ##   Simons Observatory Conda Environment.
 ##
 ##
-# variables for Tcl script use only
 set version  @VERSION@
 
 module-whatis "Loads conda tools for the Simons Observatory."
@@ -19,12 +18,48 @@ conflict sohpc so-env soconda python
 # Dependency module commands
 @MODLOAD@
 
+# This might be set by OS python and gives us problems.
+unsetenv PYTHONSTARTUP
+
+# Versioned user directory for local pip installation
+set userbase $env(HOME)/.local/soconda/@VERSION@
+setenv PYTHONUSERBASE $userbase
+set userbin $userbase/bin
+
+set funcs "conda __conda_exe __conda_activate __conda_hashr __conda_reactivate"
+
+# WIP: port lua techniques here...
+
+
+if {[module-info command load]} {
+    system "source @BASE@/etc/profile.d/conda.sh; \
+        conda activate @ENVNAME@; export -f $funcs .. \
+        "; export PATH=" .. userbin .. ":${PATH}"
+}
+
+if (mode() == "load") then
+    execute{cmd=, modeA={"load"}}
+end
+
+if (mode() == "unload") then
+    execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; \
+        pre=" .. "@BASE@" .. "; \
+        pipusr=" .. userbin .. "; \
+        export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | tr "\\n" ":" | sed 's/:$//'); \
+        export PATH=$(echo ${PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | /bin/grep -v $pipusr | tr "\\n" ":" | sed 's/:$//'); \
+        unset -f " .. funcs .. "; \
+        unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");", modeA={"unload"}}
+end
+
+
+
+
+
 if {[module-info command unload]} {
     system AUTO_ACTIVATE_BASE=false @BASE@/bin/conda deactivate
 }
 
-# This might be set by OS python and gives us problems.
-unsetenv PYTHONSTARTUP
+
 
 # Activate the conda environment by modifying the environment
 # directly.  This is needed since the source-sh and system
