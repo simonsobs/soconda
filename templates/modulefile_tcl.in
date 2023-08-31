@@ -28,13 +28,10 @@ set userbin $userbase/bin
 
 set funcs "conda __conda_exe __conda_activate __conda_hashr __conda_reactivate"
 
-# WIP: port lua techniques here...
-
-
 if {[module-info command load]} {
-    system "source @BASE@/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f ${funcs}; export PATH=${userbin}:${PATH}"
+   puts stdout "source @BASE@/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f ${funcs}; export PATH=${userbin}:\$PATH;"
 }
 
 if {[module-info command unload]} {
-    system "for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=@BASE@; pipusr=$userbin; export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | tr "\\n" ":" | sed 's/:$//'); export PATH=$(echo ${PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | bin/grep -v $pipusr | tr "\\n" ":" | sed 's/:$//'); unset -f ${funcs}; unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");"
+    puts stdout "for i in \$(seq \${CONDA_SHLVL:=0}); do conda deactivate; done; pre=@BASE@; pipusr=${userbin}; export LD_LIBRARY_PATH=\$(echo \$LD_LIBRARY_PATH | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v \$pre | tr \"\\n\" \":\" | sed 's/:\$//'); export PATH=\$(echo \$PATH | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v \$pre | /bin/grep -v \$pipusr | tr \"\\n\" \":\" | sed 's/:\$//'); unset -f ${funcs}; unset \$(env | /bin/grep -o \"\[^=\]*CONDA\[^=\]*\");"
 }

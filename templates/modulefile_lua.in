@@ -37,13 +37,5 @@ if (mode() == "load") then
 end
 
 if (mode() == "unload") then
-    execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; \
-        pre=" .. "@BASE@" .. "; \
-        pipusr=" .. userbin .. "; \
-        export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | tr "\\n" ":" | sed 's/:$//'); \
-        export PATH=$(echo ${PATH} | tr ":" "\\n" | /bin/grep . | /bin/grep -v $pre | /bin/grep -v $pipusr | tr "\\n" ":" | sed 's/:$//'); \
-        unset -f " .. funcs .. "; \
-        unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");", modeA={"unload"}}
+    execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=" .. "@BASE@" .. "; pipusr=" .. userbin .. "; export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v $pre | tr \"\\n\" \":\" | sed 's/:$//'); export PATH=$(echo ${PATH} | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v $pre | /bin/grep -v $pipusr | tr \"\\n\" \":\" | sed 's/:$//'); unset -f " .. funcs .. "; unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");", modeA={"unload"}}
 end
-
-
