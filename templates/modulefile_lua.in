@@ -24,16 +24,15 @@ conflict("sohpc", "so-env", "soconda", "python")
 unsetenv("PYTHONSTARTUP")
 
 -- Versioned user directory for local pip installation
-local userbase = pathJoin(HOME, ".local", "soconda", "@VERSION@")
+local home = os.getenv("HOME")
+local userbase = pathJoin(home, ".local", "soconda", "@VERSION@")
 setenv("PYTHONUSERBASE", userbase)
 local userbin = pathJoin(userbase, "bin")
 
 local funcs = "conda __conda_exe __conda_activate __conda_hashr __conda_reactivate"
 
 if (mode() == "load") then
-    execute{cmd="source " .. "@BASE@" .. "/etc/profile.d/conda.sh; \
-        conda activate @ENVNAME@; export -f " .. funcs .. \
-        "; export PATH=" .. userbin .. ":${PATH}", modeA={"load"}}
+    execute{cmd="source " .. "@BASE@" .. "/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f " .. funcs .. "; export PATH=" .. userbin .. ":${PATH}", modeA={"load"}}
 end
 
 if (mode() == "unload") then

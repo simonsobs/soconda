@@ -20,7 +20,11 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
   host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
     - openblas * openmp_*
     - automake
     - autoconf

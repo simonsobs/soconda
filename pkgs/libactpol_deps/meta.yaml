@@ -21,8 +21,13 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
   host:
+    - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
     - openblas * openmp_*
+    - blas=*=*openblas
     - automake
     - autoconf
     - m4

@@ -22,11 +22,10 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
-    - llvm-openmp >=4.0.1  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp             # [(osx or linux)]
+    - _openmp_mutex * *_llvm  # [(osx or linux)]
   host:
-    - llvm-openmp >=4.0.1  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp             # [(osx or linux)]
     - openblas * openmp_*
     - automake
     - autoconf
@@ -43,8 +42,9 @@ requirements:
     - h5py
     - pillow
   run:
-    - python
+    - llvm-openmp             # [(osx or linux)]
     - openblas * openmp_*
+    - python
     - {{ pin_compatible('numpy') }}
     - scipy
     - astropy

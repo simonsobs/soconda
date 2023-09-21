@@ -27,8 +27,10 @@ requirements:
     - cmake
     - make                 # [unix]
     - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
   host:
     - llvm-openmp >=4.0.1  # [osx]
+    - libgomp      # [linux]
     - python
     - fftw
     - openblas * openmp_*
@@ -37,7 +39,6 @@ requirements:
     - libaatm
     - libflac
   run:
-    - llvm-openmp >=4.0.1  # [osx]
     - python
     - {{ pin_compatible('fftw') }}
     - openblas * openmp_*
