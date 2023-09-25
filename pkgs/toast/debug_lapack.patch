@@ -1,0 +1,14 @@
+diff -urN toast-3.0.0a19_orig/cmake/FindLAPACKnames.cmake toast-3.0.0a19/cmake/FindLAPACKnames.cmake
+--- toast-3.0.0a19_orig/cmake/FindLAPACKnames.cmake	2023-08-16 18:34:01.000000000 -0700
++++ toast-3.0.0a19/cmake/FindLAPACKnames.cmake	2023-09-22 09:51:26.249656186 -0700
+@@ -29,8 +29,8 @@
+               COMPILE_DEFINITIONS "-DLAPACK_${MANGLING}"
+               LINK_LIBRARIES "${LAPACK_LIBRARIES}" "${BLAS_LIBRARIES}" "${OMP_BLAS}"
+               OUTPUT_VARIABLE OUTPUT_MANGLING)
+-  # message("Test output for LAPACK_${MANGLING}:")
+-  # message(${OUTPUT_MANGLING})
++  message("Test output for LAPACK_${MANGLING}:")
++  message(${OUTPUT_MANGLING})
+   if(TRY_MANGLING)
+     set(LAPACK_NAMES "${MANGLING}")
+     break()

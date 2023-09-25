@@ -1,10 +1,18 @@
 python=3.10.*
 compilers
-libopenblas=*=*openmp*
+# The LLVM openmp implementation is compatible with gcc
+# and fork-safe.
+_openmp_mutex=*=*_llvm
+#
+# Require the OpenBLAS + OpenMP flavor of linear algebra packages
+openblas=*=openmp_*
+libopenblas=*=openmp_*
 libblas=*=*openblas
+libcblas=*=*openblas
+liblapack=*=*openblas
+liblapacke=*=*openblas
+#
 conda-build
-libcblas
-blas-devel
 cmake
 autoconf
 automake

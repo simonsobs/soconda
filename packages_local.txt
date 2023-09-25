@@ -6,5 +6,7 @@ moby2
 # and move to packages_conda.txt
 toast
 # Uncomment next line to build so3g from source, and
-# comment out line in packages_pip.txt
+# comment out line in packages_pip.txt.  NOTE: this
+# requires addressing pysqlite3-wheels and qpoint
+# dependencies.
 #so3g

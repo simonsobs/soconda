@@ -1,0 +1,15 @@
+site_name: S.O. Conda
+
+theme:
+  name: "material"
+  features:
+    - navigation.expand
+    - navigation.path
+
+nav:
+  - Introduction: index.md
+  - Use and Customization: usage.md
+  - Installation: install.md
+  - Automated Deployment: automate.md
+  - Developer Notes: dev.md
+

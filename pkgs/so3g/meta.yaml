@@ -1,5 +1,5 @@
-{% set version = "0.1.6" %}
-{% set sha256 = "50284e8f1c61a0488811791ce05941d5bdd1bd30ab61e2bf6a2f052c1f6cb059" %}
+{% set version = "0.1.8" %}
+{% set sha256 = "0e6d3e32af61524465892c575f92150bbc95aeb6e8349a1369cb013713cd8b7f" %}
 
 {% set build = 0 %}
 
@@ -20,32 +20,34 @@ build:
   script_env:
     - CFLAGS="-Wno-error -O3 -g -fPIC"
     - CXXFLAGS="-Wno-error -O3 -g -fPIC -std=c++14"
-  run_exports:
-    - so3g
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - llvm-openmp >=4.0.1  # [osx]
+    - make         # [unix]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
-    - openblas * openmp_*
-    - make
   host:
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - libopenblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - python
     - numpy>=1.20
     - scipy
     - boost
     - libflac
   run:
+    - openblas * openmp_*
+    - libopenblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - python
     - {{ pin_compatible('numpy') }}
-    - openblas * openmp_*
-    - {{ pin_compatible('liblapack') }}
     - {{ pin_compatible('boost') }}
     - {{ pin_compatible('libflac') }}
     - astropy

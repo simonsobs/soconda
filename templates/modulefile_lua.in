@@ -15,7 +15,7 @@ whatis("Version: " .. "@VERSION@")
 whatis("URL: " .. "https://github.com/simonsobs/soconda")
 whatis("Description: " .. "Simons Observatory Conda Tools")
 
-conflict("sohpc", "so-env", "soconda")
+conflict("sohpc", "so-env", "soconda", "python")
 
 -- Dependency module commands
 @MODLOAD@
@@ -23,22 +23,18 @@ conflict("sohpc", "so-env", "soconda")
 -- This might be set by OS python and gives us problems.
 unsetenv("PYTHONSTARTUP")
 
--- Activate the conda environment by modifying the environment
--- directly.  This is needed since the source-sh and system
--- calls do not work.  This solution could be fragile, so should
--- be revisited in the future.
-
-setenv("CONDA_EXE", "@BASE@/bin/conda")
-setenv("CONDA_PYTHON_EXE", "@BASE@/bin/python")
-setenv("CONDA_PREFIX", "@ENVPREFIX@")
-setenv("CONDA_PROMPT_MODIFIER", "")
-setenv("CONDA_SHLVL", "1")
-setenv("CONDA_DEFAULT_ENV", "@ENVPREFIX@")
-prepend_path("PATH", "@ENVPREFIX@/bin")
-
--- Create a versioned user directory for local pip installation
-local userbase = pathJoin(HOME, ".local", "soconda", "@VERSION@")
+-- Versioned user directory for local pip installation
+local home = os.getenv("HOME")
+local userbase = pathJoin(home, ".local", "soconda", "@VERSION@")
 setenv("PYTHONUSERBASE", userbase)
 local userbin = pathJoin(userbase, "bin")
-prepend_path("PATH", userbin)
 
+local funcs = "conda __conda_exe __conda_activate __conda_hashr __conda_reactivate"
+
+if (mode() == "load") then
+    execute{cmd="source " .. "@BASE@" .. "/etc/profile.d/conda.sh; conda activate @ENVNAME@; export -f " .. funcs .. "; export PATH=" .. userbin .. ":${PATH}", modeA={"load"}}
+end
+
+if (mode() == "unload") then
+    execute{cmd="for i in $(seq ${CONDA_SHLVL:=0}); do conda deactivate; done; pre=" .. "@BASE@" .. "; pipusr=" .. userbin .. "; export LD_LIBRARY_PATH=$(echo ${LD_LIBRARY_PATH} | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v $pre | tr \"\\n\" \":\" | sed 's/:$//'); export PATH=$(echo ${PATH} | tr \":\" \"\\n\" | /bin/grep . | /bin/grep -v $pre | /bin/grep -v $pipusr | tr \"\\n\" \":\" | sed 's/:$//'); unset -f " .. funcs .. "; unset $(env | /bin/grep -o \"[^=]*CONDA[^=]*\");", modeA={"unload"}}
+end
