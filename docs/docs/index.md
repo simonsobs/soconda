@@ -1,6 +1,7 @@
 # Simons Observatory Conda Tools
 
-This repository contains scripts to help with:
+[This git repository](https://github.com/simonsobs/soconda) contains scripts to
+help with:
 
 - Installing a conda base system (optional)
 
