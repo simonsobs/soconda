@@ -81,6 +81,8 @@ else
         send_log=yes
         rm -f "${git_dir}/.already_annoyed"
         echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
+        echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
+        echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
         eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
     fi
 fi
