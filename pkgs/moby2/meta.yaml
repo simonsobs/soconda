@@ -17,19 +17,18 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win]
-  run_exports:
-    - moby2
 
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
-    - openblas * openmp_*
   host:
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - python
     - fftw
     - gsl
@@ -37,8 +36,10 @@ requirements:
     - numpy>=1.20
     - future
   run:
-    - python
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
+    - python
     - {{ pin_compatible('fftw') }}
     - {{ pin_compatible('gsl') }}
     - {{ pin_compatible('libactpol') }}

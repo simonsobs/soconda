@@ -1,6 +1,6 @@
 
-{% set version = "3.0.0a18" %}
-{% set sha256 = "281d4c649cc5e2908ebbbe530dc85e2c86c7816827d102026cd084b7626b1f79" %}
+{% set version = "3.0.0a19" %}
+{% set sha256 = "e37c6e6de7a6829af378e0147113bd9439490cb5478be096c197fc6f7db6d6fe" %}
 
 {% set build = 0 %}
 
@@ -11,42 +11,45 @@ package:
 source:
   url: https://github.com/hpc4cmb/toast/archive/{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  # patches:
+  #   - debug_lapack.patch
 
 build:
   skip: True  # [py<38]
   skip: True  # [win]
   number: {{ build }}
   string: "py{{ py }}h{{ PKG_HASH }}_{{ build }}"
-  run_exports:
-    - toast
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - make                 # [unix]
-    - llvm-openmp >=4.0.1  # [osx]
+    - make         # [unix]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
   host:
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
+    - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - python
     - fftw
-    - openblas * openmp_*
-    - liblapack
     - suitesparse
     - libaatm
     - libflac
+    - numpy>=1.20
   run:
-    - python
-    - {{ pin_compatible('fftw') }}
     - openblas * openmp_*
-    - {{ pin_compatible('liblapack') }}
+    - libblas * *openblas
+    - liblapack * *openblas
+    - python
+    - {{ pin_compatible('numpy') }}
+    - {{ pin_compatible('fftw') }}
     - {{ pin_compatible('suitesparse') }}
     - {{ pin_compatible('libaatm') }}
     - {{ pin_compatible('libflac') }}
-    - numpy>=1.20
     - scipy
     - matplotlib
     - astropy

@@ -1,5 +1,5 @@
-{% set version = "0.19.0" %}
-{% set sha256 = "8142a2a368175de845166afffe3e4efd0ac0bdc109a96eb8f4cc0360e6191fd1" %}
+{% set version = "0.19.2" %}
+{% set sha256 = "aecc1bf6b2c6685d4641e76bdce40a4e4ed337cdffad69c294a9186ab8a5f9a1" %}
 
 {% set build = 0 %}
 
@@ -14,19 +14,20 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win]
-  run_exports:
-    - pixell
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
-    - llvm-openmp             # [(osx or linux)]
-    - _openmp_mutex * *_llvm  # [(osx or linux)]
+    - llvm-openmp  # [osx]
+    - libgomp      # [linux]
   host:
-    - llvm-openmp             # [(osx or linux)]
+    - llvm-openmp  # [osx]
+    - libgomp      # [linux]
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - automake
     - autoconf
     - m4
@@ -42,8 +43,9 @@ requirements:
     - h5py
     - pillow
   run:
-    - llvm-openmp             # [(osx or linux)]
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - python
     - {{ pin_compatible('numpy') }}
     - scipy

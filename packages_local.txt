@@ -7,4 +7,4 @@ moby2
 toast
 # Uncomment next line to build so3g from source, and
 # comment out line in packages_pip.txt
-#so3g
+so3g

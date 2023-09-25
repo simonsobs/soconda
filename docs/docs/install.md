@@ -35,8 +35,8 @@ bootstrap script:
     $> ./tools/bootstrap_base "/opt/conda"
 
 This bootstrap will install a base system with the conda-forge channel set to
-the default and using the mamba solver. You can now source the conda
-initialization file and activate the base environment:
+the default and using the libmamba solver. You can now source the conda
+initialization file and activate this base environment:
 
     $> source /opt/conda/etc/profile.d/conda.sh
     $> conda activate base
@@ -50,7 +50,7 @@ By default, the conda package for mpi4py will be installed. This should work
 well for stand-alone workstations or single nodes. If you have a cluster with a
 customized MPI compiler, then set the `MPICC` environment variable to the MPI C
 compiler before running `soconda.sh`. That will cause the mpi4py package to
-be built using your compiler.
+be built using your system MPI compiler.
 
 ## Example:  Local System
 
@@ -88,7 +88,8 @@ account and follow a specific naming convention which is beyond the scope of
 this document. If you wanted to install these tools to your home directory you
 could do:
 
-    $> ./soconda.sh -b ~/conda_envs -m ~/conda_envs/modulefiles
+    $> mkdir -p ~/conda_envs
+    $> ./soconda.sh -e ~/conda_envs/soconda -m ~/conda_envs/modulefiles
 
 And then load the module:
 

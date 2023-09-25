@@ -20,12 +20,14 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
   host:
-    - llvm-openmp >=4.0.1  # [osx]
+    - llvm-openmp  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
     - automake
     - autoconf
     - m4
@@ -39,9 +41,11 @@ requirements:
     - healpy
   run:
     - openblas * openmp_*
+    - libblas * *openblas
+    - liblapack * *openblas
+    - {{ pin_compatible('libactpol_deps') }}
     - {{ pin_compatible('cfitsio') }}
     - {{ pin_compatible('wcslib') }}
-    - {{ pin_compatible('libactpol_deps') }}
 
 test:
   commands:

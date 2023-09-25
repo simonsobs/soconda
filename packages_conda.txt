@@ -48,4 +48,4 @@ ipykernel
 # https://github.com/conda-forge/pyfftw-feedstock/issues/51
 pyfftw==0.12
 # Uncomment the next line if building so3g from source
-#boost
+boost
