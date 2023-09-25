@@ -26,6 +26,7 @@ requirements:
     - llvm-openmp  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - libopenblas * openmp_*
     - libblas * *openblas
     - liblapack * *openblas
     - automake
@@ -41,6 +42,7 @@ requirements:
     - healpy
   run:
     - openblas * openmp_*
+    - libopenblas * openmp_*
     - libblas * *openblas
     - liblapack * *openblas
     - {{ pin_compatible('libactpol_deps') }}

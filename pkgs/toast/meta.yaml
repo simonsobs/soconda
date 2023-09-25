@@ -32,6 +32,7 @@ requirements:
     - llvm-openmp  # [osx]
     - libgomp      # [linux]
     - openblas * openmp_*
+    - libopenblas * openmp_*
     - libblas * *openblas
     - liblapack * *openblas
     - python
@@ -42,6 +43,7 @@ requirements:
     - numpy>=1.20
   run:
     - openblas * openmp_*
+    - libopenblas * openmp_*
     - libblas * *openblas
     - liblapack * *openblas
     - python
