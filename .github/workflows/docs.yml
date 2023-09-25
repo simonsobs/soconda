@@ -1,16 +1,9 @@
 name:  Deploy Documentation
 
-# on:
-#   push:
-#     tags:
-#       - '*'
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - '*'
 
 jobs:
   update_docs:
