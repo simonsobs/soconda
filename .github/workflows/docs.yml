@@ -47,6 +47,8 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install mkdocs mkdocstrings mkdocstrings-python mkdocs-material
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Deploy Docs
         run: |
