@@ -14,7 +14,18 @@ log_dir="${git_dir}/logs"
 # Module file directory
 module_dir=/global/common/software/sobs/perlmutter/modulefiles
 
+# Typical size of an environment, in GB
+typical=5
+
 #===========================================
+
+# Function to check available space in software
+get_common_free_gb () {
+    cmn_used=$(prjquota --cmn sobs | grep sobs | awk '{print $2}')
+    cmn_total=$(prjquota --cmn sobs | grep sobs | awk '{print $3}')
+    cmn_remain=$(( ${cmn_total} - ${cmn_used} ))
+    echo ${cmn_remain}
+}
 
 # Check that NERSC_HOST is set
 host=${NERSC_HOST}
@@ -56,9 +67,22 @@ send_log=no
 if [ "${found}" = "yes" ]; then
     echo "Latest tag \"${latest}\" was already installed on ${found_date}" >> "${log_file}" 2>&1
 else
-    send_log=yes
-    echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
-    eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
+    annoy="${git_dir}/.already_annoyed"
+    remain=$(get_common_free_gb)
+    if (( remain < typical )); then
+        echo "Only ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
+        echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
+        echo "SKIPPING until disk space is cleared." >> "${log_file}" 2>&1
+        if [ ! -e "${annoy}" ]; then
+            send_log=yes
+            touch "${annoy}"
+        fi
+    else
+        send_log=yes
+        rm -f "${git_dir}/.already_annoyed"
+        echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
+        eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
+    fi
 fi
 
 # Only update the "stable" symlink if the build completed and the modulefile
