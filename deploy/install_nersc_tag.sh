@@ -15,7 +15,7 @@ log_dir="${git_dir}/logs"
 module_dir=/global/common/software/sobs/perlmutter/modulefiles
 
 # Typical size of an environment, in GB
-typical=5
+typical=6
 
 #===========================================
 
@@ -80,16 +80,16 @@ else
     else
         send_log=yes
         rm -f "${git_dir}/.already_annoyed"
-        echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
+        echo "Latest tag '${latest}' not found, installing..." >> "${log_file}" 2>&1
         echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
         echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
         install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
         if [ -f "${install_log}" ]; then
             # There were no errors, and the log file was returned
-            cat "${install_log}" >> "${log_file}"
+            cat "${install_log}" >> "${log_file}" 2>&1
         else
             # The script must have printed out some errors
-            echo "${install_log}" >> "${log_file}"
+            echo "${install_log}" >> "${log_file}" 2>&1
         fi
     fi
 fi
@@ -97,26 +97,29 @@ fi
 # Only update the "stable" symlink if the build completed and the modulefile
 # was generated.
 mod_dir="${module_dir}/soconda"
-if [ -e "${mod_dir}/${latest}.lua" ]; then
-    rm "${mod_dir}/stable.lua" \
-    && ln -s "${mod_dir}/${latest}.lua" "${mod_dir}/stable.lua"
+mod_latest="${mod_dir}/${latest}.lua"
+if [ -e "${mod_latest}" ]; then
+    rm -f "${mod_dir}/stable.lua" \
+    && ln -s "${mod_latest}" "${mod_dir}/stable.lua"
+else
+    echo "ERROR:  module file ${mod_latest} was not created- leaving stable symlink" >> "${log_file}" 2>&1
 fi
 
-echo "Finished installing tag \"${latest}\" on host ${NERSC_HOST} at $(date +%Y%m%d-%H%M%S)" >> "${log_file}"
+echo "Finished installing tag '${latest}' on host ${NERSC_HOST} at $(date +%Y%m%d-%H%M%S)" >> "${log_file}"
 
 if [ "${send_log}" = "yes" ]; then
     # Get our webhook address from the environment
     slack_web_hook=${SLACKBOT_SOCONDA}
 
     if [ "x${slack_web_hook}" = "x" ]; then
-        echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" >> "${log_file}"
+        echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" >> "${log_file}" 2>&1
     else
         # Create the JSON payload.
         slackjson="${log_file}_slack.json"
-        headtail=15
-        echo -e "{\"text\":\"soconda tag check (log at \`${log_file}\`):\n\`\`\`$(head -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\n(Snip)\n\`\`\`$(tail -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\"}" > "${slackjson}"
+        headtail=12
+        echo -e "{\"text\":\"soconda install tag (log at \`${log_file}\`):\n\`\`\`$(head -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\n(Snip)\n\`\`\`$(tail -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\"}" > "${slackjson}"
         # Post it.
         slackerror=$(curl -X POST -H 'Content-type: application/json' --data "$(cat ${slackjson})" ${slack_web_hook})
-        echo "Slack API post  ${slackerror}" >> "${log_file}"
+        echo "Slack API post  ${slackerror}" >> "${log_file}" 2>&1
     fi
 fi
