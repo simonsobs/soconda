@@ -83,7 +83,14 @@ else
         echo "Latest tag \"${latest}\" not found, installing..." >> "${log_file}" 2>&1
         echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
         echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
-        eval "${git_dir}/deploy/install_${host}.sh" "${latest}"
+        install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
+        if [ -f "${install_log}" ]; then
+            # There were no errors, and the log file was returned
+            cat "${install_log}" >> "${log_file}"
+        else
+            # The script must have printed out some errors
+            echo "${install_log}" >> "${log_file}"
+        fi
     fi
 fi
 

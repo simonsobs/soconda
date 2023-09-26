@@ -77,3 +77,5 @@ popd 2>&1 >/dev/null
 chmod -R g-w,g+rX "${env_name}_${env_version}" >> "${logfile}" 2>&1
 chmod -R g-w,g+rX "${module_dir}/soconda/*" >> "${logfile}" 2>&1
 
+# Return name of log file
+echo "${logfile}"
