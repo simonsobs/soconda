@@ -53,19 +53,20 @@ popd >/dev/null 2>&1
 found=no
 found_date=""
 for item in $(ls ${install_dir}); do
-    if [ -d ${item} ]; then
-        # This is a directory
-        check=$(echo ${item} | sed -e "s/soconda_.*_\(.*\)/\1/")
-        found_date=$(echo ${item} | sed -e "s/soconda_\(.*\)_.*/\1/")
-        if [ "${check}" = "${latest}" ]; then
-            found=yes
-        fi
+    check=$(echo ${item} | sed -e "s/soconda_.*_\(.*\)/\1/")
+    found_date=$(echo ${item} | sed -e "s/soconda_\(.*\)_.*/\1/")
+    if [ "${check}" = "${latest}" ]; then
+        found=yes
     fi
 done
 
+# Get the module file version that will be installed
+today=$(date +%Y%m%d)
+mod_ver="${today}_${latest}"
+
 send_log=no
 if [ "${found}" = "yes" ]; then
-    echo "Latest tag \"${latest}\" was already installed on ${found_date}" >> "${log_file}" 2>&1
+    echo "Latest tag '${latest}' was already installed on ${found_date}" >> "${log_file}" 2>&1
 else
     annoy="${git_dir}/.already_annoyed"
     remain=$(get_common_free_gb)
@@ -97,7 +98,7 @@ fi
 # Only update the "stable" symlink if the build completed and the modulefile
 # was generated.
 mod_dir="${module_dir}/soconda"
-mod_latest="${mod_dir}/${latest}.lua"
+mod_latest="${mod_dir}/${mod_ver}.lua"
 if [ -e "${mod_latest}" ]; then
     rm -f "${mod_dir}/stable.lua" \
     && ln -s "${mod_latest}" "${mod_dir}/stable.lua"
