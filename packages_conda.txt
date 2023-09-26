@@ -1,9 +1,5 @@
 python=3.10.*
 compilers
-# The LLVM openmp implementation is compatible with gcc
-# and fork-safe.
-_openmp_mutex=*=*_llvm
-#
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 openblas=*=openmp_*
 libopenblas=*=openmp_*
