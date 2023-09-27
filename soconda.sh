@@ -233,6 +233,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         conda install --yes ${name} | tee -a "log_pip" 2>&1
                         if [ $? -ne 0 ]; then
                             echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
+			    echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
                         fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
@@ -241,7 +242,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             done
         fi
         echo "Installing package ${pkg}"
-        python3 -m pip install ${pkg} | tee -a "log_pip" 2>&1
+        python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
     fi
 done < "${scriptdir}/packages_pip.txt"
 
