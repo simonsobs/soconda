@@ -9,6 +9,7 @@ liblapack=*=*openblas
 liblapacke=*=*openblas
 #
 conda-build
+numba
 cmake
 autoconf
 automake

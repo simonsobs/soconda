@@ -46,5 +46,5 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
     -DCMAKE_PREFIX_PATH="${PREFIX}" \
     "${SRC_DIR}"
-make -j $CPU_COUNT
+make -j 2
 make install

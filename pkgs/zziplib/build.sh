@@ -27,7 +27,7 @@ cmake \
     -DCMAKE_C_COMPILER="${CC}" \
     -DCMAKE_C_FLAGS="-O3 -g -fPIC" \
     "${SRC_DIR}"
-make -j $CPU_COUNT
+make -j 2
 make install
 
 # Run tests
