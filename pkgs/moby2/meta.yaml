@@ -34,8 +34,11 @@ requirements:
     - fftw
     - gsl
     - libactpol
-    - numpy>=1.20
     - future
+    - numpy
+    # Although not a dependency, we put numba here to force
+    # building with a numba-compatible numpy version
+    - numba
   run:
     - openblas * openmp_*
     - libopenblas * openmp_*

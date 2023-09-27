@@ -35,7 +35,6 @@ requirements:
     - libtool
     - python
     - cython
-    - numpy>=1.20
     - scipy
     - astropy
     - healpy
@@ -43,13 +42,16 @@ requirements:
     - pyyaml
     - h5py
     - pillow
+    # Revert to 0.12 until this bug is fixed:
+    # https://github.com/conda-forge/pyfftw-feedstock/issues/51
+    - pyfftw==0.12
   run:
     - openblas * openmp_*
     - libopenblas * openmp_*
     - libblas * *openblas
     - liblapack * *openblas
     - python
-    - {{ pin_compatible('numpy') }}
+    - numpy
     - scipy
     - astropy
     - healpy
@@ -57,6 +59,7 @@ requirements:
     - pyyaml
     - h5py
     - pillow
+    - pyfftw==0.12
 
 test:
   imports:

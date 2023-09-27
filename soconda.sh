@@ -154,7 +154,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
 done < "${scriptdir}/packages_conda.txt"
 
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --update-all ${conda_pkgs} \
+conda install --yes ${conda_pkgs} \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
@@ -162,9 +162,7 @@ rm -f "${CONDA_PREFIX}/bin/cc"
 conda deactivate
 conda activate "${fullenv}"
 
-# Install low-level tools, including pipgrip which we
-# use to install dependencies of pip packages with conda.
-conda install --yes --update-all setuptools pip wheel anytree click packaging
+# Use pipgrip to install dependencies of pip packages with conda.
 pip install pipgrip
 
 mkdir -p "${CONDA_PREFIX}/conda-bld"
