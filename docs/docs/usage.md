@@ -24,7 +24,7 @@ built for some legacy compiled tools. If you want to keep those, but
 dramatically change which other conda packages are installed, you can first
 create a new personal environment while cloning an existing one:
 
-    $> conda create --clone soconda_20230809_1.0.0 /path/to/my/env
+    $> conda create --clone soconda_20230809_1.0.0 -p /path/to/my/env
 
 Then activate your new environment and conda install whatever you like:
 

@@ -12,4 +12,5 @@ nav:
   - Installation: install.md
   - Automated Deployment: automate.md
   - Developer Notes: dev.md
+  - Source on GitHub: "https://github.com/simonsobs/soconda"
 
