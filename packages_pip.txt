@@ -1,6 +1,5 @@
 pysqlite3-wheels
 quaternionarray
-qpoint
 pysm3
 #
 # Uncomment here if installing wheel, and comment out

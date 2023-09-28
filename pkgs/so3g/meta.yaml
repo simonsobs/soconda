@@ -40,7 +40,10 @@ requirements:
     - numpy
     - scipy
     - boost
+    - libboost-devel
+    - libboost-python-devel
     - libflac
+    - qpoint
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
@@ -51,8 +54,10 @@ requirements:
     - liblapack * *openblas
     - python
     - {{ pin_compatible('numpy') }}
-    - {{ pin_compatible('boost') }}
+    - {{ pin_compatible('libboost') }}
+    - {{ pin_compatible('libboost-python') }}
     - {{ pin_compatible('libflac') }}
+    - {{ pin_compatible('qpoint') }}
     - astropy
     - matplotlib
     - scipy

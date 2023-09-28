@@ -1,3 +1,4 @@
+qpoint
 pixell
 libactpol_deps
 libactpol
@@ -9,4 +10,4 @@ toast
 # comment out line in packages_pip.txt.  NOTE: this
 # requires addressing pysqlite3-wheels and qpoint
 # dependencies.
-#so3g
+so3g
