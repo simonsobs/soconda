@@ -1,10 +1,10 @@
-pysqlite3-wheels
 quaternionarray
 pysm3
 #
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
-so3g
+#pysqlite3-wheels
+#so3g
 #
 # Eventually use a tag for sotodlib...
 https://github.com/simonsobs/sotodlib/archive/master.tar.gz
