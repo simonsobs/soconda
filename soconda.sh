@@ -126,8 +126,10 @@ if [ -z "${env_check}" ]; then
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
     echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
+    echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
 
     # Reactivate to pick up changes
     conda deactivate
