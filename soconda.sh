@@ -21,11 +21,12 @@ show_help () {
 
 base=""
 envname=""
+config=""
 version=""
 moduledir=""
 modinit=""
 
-while getopts ":e:b:v:m:i:" opt; do
+while getopts ":e:c:b:v:m:i:" opt; do
     case $opt in
         e)
             envname=$OPTARG
@@ -33,14 +34,14 @@ while getopts ":e:b:v:m:i:" opt; do
         b)
             base=$OPTARG
             ;;
+        c)
+            config=$OPTARG
+            ;;
         v)
             version=$OPTARG
             ;;
         m)
             moduledir=$OPTARG
-            ;;
-        i)
-            modinit=$OPTARG
             ;;
         \?)
             show_help
@@ -68,11 +69,26 @@ if [ -z "${envname}" ]; then
     envname="soconda"
 fi
 
+if [ "x${config}" = "x" ]; then
+    echo "No config specified, using \"default\""
+    config="default"
+fi
+
 # The env root name, used for the name of the generated module file
 envroot=$(basename ${envname})
 
 # The full environment name, including the root and version.
 fullenv="${envname}_${version}"
+
+# The path to the selected config directory
+confdir="${scriptdir}/config/${config}"
+if [ ! -d "${confdir}" ]; then
+    echo "Config dir \"${confdir}\" does not exist"
+    exit 1
+fi
+
+# The optional module init for this config
+modinit="${confdir}/module_init"
 
 # Activate the base environment
 if [ -n "${base}" ]; then
@@ -153,7 +169,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         conda_pkgs="${conda_pkgs} ${pkgname}"
     fi
-done < "${scriptdir}/packages_conda.txt"
+done < "${confdir}/packages_conda.txt"
 
 echo "Installing conda packages..." | tee "log_conda"
 conda install --yes ${conda_pkgs} \
@@ -205,7 +221,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "Installing local package '${pkgname}'"
         conda install --yes --use-local ${pkgname}
     fi
-done < "${scriptdir}/packages_local.txt"
+done < "${confdir}/packages_local.txt"
 
 echo "Cleaning up build products"
 conda-build purge
@@ -246,7 +262,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "Installing package ${pkg}"
         python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
     fi
-done < "${scriptdir}/packages_pip.txt"
+done < "${confdir}/packages_pip.txt"
 
 # Create jupyter kernel launcher
 kern="${CONDA_PREFIX}/bin/soconda_run_kernel.sh"
