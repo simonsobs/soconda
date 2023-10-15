@@ -1,0 +1,71 @@
+# Adjust the default python version
+python=3.10.*
+#
+# These are low-level tools needed to build local packages
+# and parse pip dependencies with pipgrip.
+#
+conda-build
+compilers
+setuptools
+pip
+wheel
+anytree
+click
+packaging
+#
+# Require the OpenBLAS + OpenMP flavor of linear algebra packages
+#
+openblas=*=openmp_*
+libopenblas=*=openmp_*
+libblas=*=*openblas
+libcblas=*=*openblas
+liblapack=*=*openblas
+liblapacke=*=*openblas
+#
+# Install requirements of our local and pip packages
+#
+numpy
+scipy
+matplotlib
+cmake
+autoconf
+automake
+libtool
+m4
+psutil
+cython
+pytest
+fftw
+gsl
+cfitsio
+wcslib
+libaatm
+suitesparse
+tomlkit
+traitlets
+h5py
+astropy
+ephem
+healpy
+pshmem
+coverage
+pytest
+coveralls
+pytest-cov
+ducc0
+libflac
+pysqlite3
+sqlalchemy
+numba
+skyfield
+typer
+scikit-image
+zziplib
+pytz
+future
+pyaml
+tqdm
+ipykernel
+# Revert to 0.12 until this bug is fixed:
+# https://github.com/conda-forge/pyfftw-feedstock/issues/51
+pyfftw==0.12
