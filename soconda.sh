@@ -72,6 +72,8 @@ fi
 if [ "x${config}" = "x" ]; then
     echo "No config specified, using \"default\""
     config="default"
+else
+    echo "Using config \"${config}\""
 fi
 
 # The env root name, used for the name of the generated module file
@@ -240,10 +242,11 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
         if [ "x${url_check}" = "x" ]; then
-            echo "Checking dependencies for package \"${pkg}\""
-            for dep in $(pipgrip --pipe ${pkg}); do
+            echo "Checking dependencies for package \"${pkg}\"" | tee -a "log_pip" 2>&1
+            pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
+            for dep in $(pipgrip --pipe "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
-                if [ "${name}" != "${pkg}" ]; then
+                if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
                     if [ "x${depcheck}" = "x" ]; then
                         # It is not already installed, try to install it with conda
@@ -251,15 +254,17 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         conda install --yes ${name} | tee -a "log_pip" 2>&1
                         if [ $? -ne 0 ]; then
                             echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
-			    echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
+                            echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
                         fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
                     fi
                 fi
             done
+        else
+            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" | tee -a "log_pip" 2>&1
         fi
-        echo "Installing package ${pkg}"
+        echo "Installing package ${pkg} with --no-deps" | tee -a "log_pip" 2>&1
         python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
     fi
 done < "${confdir}/packages_pip.txt"

@@ -34,18 +34,16 @@ if [ "x${host}" = "x" ]; then
     exit 1
 fi
 
-# Make sure log dir exists
-mkdir -p "${log_dir}"
-now=$(date +%Y%m%d-%H%M%S)
-log_file="${log_dir}/check_tags_${host}_${now}"
-echo "Starting at ${now}" > "${log_file}" 2>&1
+# If the latest tag is already installed, we do not need to make an
+# extra log in the log dir.  We already have a slurm/scron log that is
+# always created.
 
 # Update the persistent git checkout and find the most recent tag
 pushd "${git_dir}" >/dev/null 2>&1
-git checkout main >> "${log_file}" 2>&1
-git fetch --tags >> "${log_file}" 2>&1
-git rebase origin/main >> "${log_file}" 2>&1
-git remote prune origin >> "${log_file}" 2>&1
+git checkout main
+git fetch --tags
+git rebase origin/main
+git remote prune origin
 latest=$(git describe --tags $(git rev-list --tags --max-count=1))
 popd >/dev/null 2>&1
 
@@ -60,38 +58,51 @@ for item in $(ls ${install_dir}); do
     fi
 done
 
-# Get the module file version that will be installed
+if [ "${found}" = "yes" ]; then
+    # Nothing to do
+    echo "Latest tag '${latest}' was already installed on ${found_date}"
+    exit 0
+fi
+
+# If we got this far, we need to install things.
+
+# Make sure log dir exists
+mkdir -p "${log_dir}"
+
+now=$(date +%Y%m%d-%H%M%S)
 today=$(date +%Y%m%d)
+log_file="${log_dir}/check_tags_${host}_${now}"
+
+# Create the log file
+echo "Starting at ${now}" > "${log_file}" 2>&1
+
+# Get the module file version that will be installed
 mod_ver="${today}_${latest}"
 
 send_log=no
-if [ "${found}" = "yes" ]; then
-    echo "Latest tag '${latest}' was already installed on ${found_date}" >> "${log_file}" 2>&1
-else
-    annoy="${git_dir}/.already_annoyed"
-    remain=$(get_common_free_gb)
-    if (( remain < typical )); then
-        echo "Only ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
-        echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
-        echo "SKIPPING until disk space is cleared." >> "${log_file}" 2>&1
-        if [ ! -e "${annoy}" ]; then
-            send_log=yes
-            touch "${annoy}"
-        fi
-    else
+annoy="${git_dir}/.already_annoyed"
+remain=$(get_common_free_gb)
+if (( remain < typical )); then
+    echo "Only ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
+    echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
+    echo "SKIPPING until disk space is cleared." >> "${log_file}" 2>&1
+    if [ ! -e "${annoy}" ]; then
         send_log=yes
-        rm -f "${git_dir}/.already_annoyed"
-        echo "Latest tag '${latest}' not found, installing..." >> "${log_file}" 2>&1
-        echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
-        echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
-        install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
-        if [ -f "${install_log}" ]; then
-            # There were no errors, and the log file was returned
-            cat "${install_log}" >> "${log_file}" 2>&1
-        else
-            # The script must have printed out some errors
-            echo "${install_log}" >> "${log_file}" 2>&1
-        fi
+        touch "${annoy}"
+    fi
+else
+    send_log=yes
+    rm -f "${git_dir}/.already_annoyed"
+    echo "Latest tag '${latest}' not found, installing..." >> "${log_file}" 2>&1
+    echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}" 2>&1
+    echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}" 2>&1
+    install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
+    if [ -f "${install_log}" ]; then
+        # There were no errors, and the log file was returned
+        cat "${install_log}" >> "${log_file}" 2>&1
+    else
+        # The script must have printed out some errors
+        echo "${install_log}" >> "${log_file}" 2>&1
     fi
 fi
 
