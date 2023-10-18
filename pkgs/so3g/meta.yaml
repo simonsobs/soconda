@@ -18,8 +18,8 @@ build:
   number: {{ build }}
   skip: true  # [win]
   script_env:
-    - CFLAGS="-Wno-error -O3 -g -fPIC"
-    - CXXFLAGS="-Wno-error -O3 -g -fPIC -std=c++14"
+    - CFLAGS=-Wno-error -O3 -g -fPIC
+    - CXXFLAGS=-Wno-error -O3 -g -fPIC -std=c++14
 
 requirements:
   build:

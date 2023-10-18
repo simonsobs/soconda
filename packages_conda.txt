@@ -5,6 +5,8 @@ python=3.10.*
 # and parse pip dependencies with pipgrip.
 #
 conda-build
+conda-libmamba-solver
+conda-verify
 compilers
 setuptools
 pip

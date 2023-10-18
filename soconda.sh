@@ -56,14 +56,14 @@ done
 
 shift $((OPTIND-1))
 
-if [ "x${version}" = "x" ]; then
+if [ -z "${version}" ]; then
     # Get the version from git
     gitdesc=$(git describe --tags --dirty --always | cut -d "-" -f 1)
     gitcnt=$(git rev-list --count HEAD)
     version="${gitdesc}.dev${gitcnt}"
 fi
 
-if [ "x${envname}" = "x" ]; then
+if [ -z "${envname}" ]; then
     echo "Environment root name not specified, using \"soconda\""
     envname="soconda"
 fi
@@ -75,20 +75,20 @@ envroot=$(basename ${envname})
 fullenv="${envname}_${version}"
 
 # Activate the base environment
-
-if [ "x$(which conda)" = "x" ]; then
-    # conda is not in the path
-    if [ "x${base}" = "x" ]; then
-        # User did not specify where to find it
+if [ -n "${base}" ]; then
+    conda_dir="${base}"
+else
+    # User did not specify where to find it
+    if [ -z "$(which conda)" ]; then
+        # conda is not in the path
         echo "You must either activate the conda base environment before"
         echo "running this script, or you must specify the path to the base"
         echo "install with the \"-b <path to base>\" option."
         exit 1
+    else
+        # Conda is in the path
+        conda_dir="$(dirname $(dirname $(which conda)))"
     fi
-    conda_dir="${base}"
-else
-    # Conda is in the path
-    conda_dir="$(dirname $(dirname $(which conda)))"
 fi
 
 # Make sure that conda is initialized
@@ -110,7 +110,7 @@ else
     env_check=$(conda env list | grep "${fullenv} ")
 fi
 
-if [ "x${env_check}" = "x" ]; then
+if [ -z "${env_check}" ]; then
     # Environment does not yet exist.  Create it.
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
@@ -126,8 +126,10 @@ if [ "x${env_check}" = "x" ]; then
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
     echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
+    echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
 
     # Reactivate to pick up changes
     conda deactivate
@@ -177,7 +179,7 @@ pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*
 # Install mpi4py
 
 echo "Installing mpi4py..." | tee "log_mpi4py"
-if [ "x${MPICC}" = "x" ]; then
+if [ -z "${MPICC}" ]; then
     echo "The MPICC environment variable is not set.  Installing mpi4py" \
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
@@ -258,13 +260,13 @@ chmod +x "${kern}"
 
 # Create and install module file and jupyter init script
 
-if [ "x${moduledir}" = "x" ]; then
+if [ -z "${moduledir}" ]; then
     # No centralized directory was specified for modulefiles.  Make
     # a subdirectory within the environment itself.
     moduledir="${CONDA_PREFIX}/modulefiles"
 fi
 mkdir -p "${moduledir}/${envroot}"
-if [ "x${LMOD_VERSION}" = "x" ]; then
+if [ -z "${LMOD_VERSION}" ]; then
     # Using TCL modules
     input_mod="${scriptdir}/templates/modulefile_tcl.in"
     outmod="${moduledir}/${envroot}/${version}"

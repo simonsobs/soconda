@@ -45,6 +45,9 @@ requirements:
     # Revert to 0.12 until this bug is fixed:
     # https://github.com/conda-forge/pyfftw-feedstock/issues/51
     - pyfftw==0.12
+    # Remove until this perl bug is fixed
+    # https://github.com/conda-forge/perl-feedstock/issues/56
+    - libxcrypt1   # [linux]
   run:
     - openblas * openmp_*
     - libopenblas * openmp_*
