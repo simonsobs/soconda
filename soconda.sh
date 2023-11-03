@@ -69,7 +69,7 @@ if [ -z "${envname}" ]; then
     envname="soconda"
 fi
 
-if [ "x${config}" = "x" ]; then
+if [ -z "${config}" ]; then
     echo "No config specified, using \"default\""
     config="default"
 else
@@ -248,7 +248,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
                 if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
-                    if [ "x${depcheck}" = "x" ]; then
+                    if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
                         conda install --yes ${name} | tee -a "log_pip" 2>&1
