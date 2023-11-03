@@ -113,6 +113,20 @@ fi
 source "${conda_dir}/etc/profile.d/conda.sh"
 conda activate base
 
+# Conda package cache.  In some cases this can get really big, so
+# we point it to a temp location unless the user has overridden it.
+if [ -z ${CONDA_PKGS_DIRS} ]; then
+    if [ -z ${NERSC_HOST} ]; then
+        # Standard system
+        conda_tmp=$(mktemp -d)
+    else
+        # Running at NERSC, use a directory in scratch
+        conda_tmp="${SCRATCH}/tmp_soconda"
+        mkdir -p "${conda_tmp}"
+    fi
+    export CONDA_PKGS_DIRS="${conda_tmp}"
+fi
+
 # Determine whether the new environment is a name or a full path.
 env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
 is_path=no
@@ -202,7 +216,7 @@ if [ -z "${MPICC}" ]; then
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda install --yes mpich mpi4py | tee -a "log_mpi4py" 2>&1
+    conda install --yes openmpi mpi4py | tee -a "log_mpi4py" 2>&1
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
