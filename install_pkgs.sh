@@ -30,19 +30,29 @@ fi
 "$CONDA_EXE" env list
 
 
-# Install conda packages.
-conda_pkgs=""
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
-        pkgname="${line}"
-        conda_pkgs="${conda_pkgs} ${pkgname}"
-    fi
-done < "${scriptdir}/packages_conda.txt"
+# Create ${CONDA_PREFIX}/.condarc if not exist
+if [ ! -f "${CONDA_PREFIX}/.condarc" ]; then
+    echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
+    echo "channels:" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
+    echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
+    echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
+    echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
+fi
 
+# Set up local build environment
+mkdir -p "${CONDA_PREFIX}/conda-bld"
+conda index  "${CONDA_PREFIX}/conda-bld"
+conda config --file "${CONDA_PREFIX}/.condarc" \
+             --prepend channels "file://${CONDA_PREFIX}/conda-bld"
+
+
+# Install conda packages.
+# Install conda packages.
 echo "Installing conda packages..." | tee "log_conda"
-"$CONDA_EXE" install -p "${CONDA_PREFIX}" --yes ${conda_pkgs} \
+# For micromamba installation, conda command is not provided.
+"$CONDA_EXE" install -p "${CONDA_PREFIX}" --yes --file "${scriptdir}/packages_conda.txt" \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
@@ -70,17 +80,8 @@ echo ""
 # Use pipgrip to install dependencies of pip packages with conda.
 pip install pipgrip
 
-mkdir -p "${CONDA_PREFIX}/conda-bld"
-conda-index "${CONDA_PREFIX}/conda-bld"
-conda config \
-    --file "${CONDA_PREFIX}/.condarc" \
-    --add channels "file://${CONDA_PREFIX}/conda-bld"
-
-# Get the python site packages version
-pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
 
 # Install mpi4py
-
 echo "Installing mpi4py..." | tee "log_mpi4py"
 if [ -z "${MPICC}" ]; then
     echo "The MPICC environment variable is not set.  Installing mpi4py" \
@@ -94,8 +95,8 @@ else
         | tee -a "log_mpi4py" 2>&1
 fi
 
-# Build local packages
 
+# Build local packages
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
     comment=$(echo "${line}" | cut -c 1)
@@ -111,6 +112,7 @@ done < "${scriptdir}/packages_local.txt"
 
 echo "Cleaning up build products"
 conda build purge
+
 
 # Install pip packages.  We install one package at a time
 # with no dependencies, so that we will intentionally

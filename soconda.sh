@@ -143,6 +143,7 @@ else
     conda env list
 fi
 
+
 # Install packages
 bash ${scriptdir}/install_pkgs.sh
 
@@ -155,6 +156,9 @@ echo "conda activate \"${fullenv}\"" >> "${kern}"
 echo "export DISABLE_MPI=true" >> "${kern}"
 echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
 chmod +x "${kern}"
+
+# Get the python site packages version
+pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
 
 # Create and install module file and jupyter init script
 
