@@ -41,12 +41,6 @@ if [ ! -f "${CONDA_PREFIX}/.condarc" ]; then
     echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
 fi
 
-# Set up local build environment
-mkdir -p "${CONDA_PREFIX}/conda-bld"
-conda index  "${CONDA_PREFIX}/conda-bld"
-conda config --file "${CONDA_PREFIX}/.condarc" \
-             --prepend channels "file://${CONDA_PREFIX}/conda-bld"
-
 
 # Install conda packages.
 echo "Installing conda packages..." | tee "log_conda"
@@ -93,6 +87,13 @@ else
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
         | tee -a "log_mpi4py" 2>&1
 fi
+
+
+# Set up local build environment
+mkdir -p "${CONDA_PREFIX}/conda-bld"
+conda index  "${CONDA_PREFIX}/conda-bld"
+conda config --file "${CONDA_PREFIX}/.condarc" \
+             --prepend channels "file://${CONDA_PREFIX}/conda-bld"
 
 
 # Build local packages
