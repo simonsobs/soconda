@@ -54,23 +54,52 @@ be built using your system MPI compiler.
 
 ## Example:  Local System
 
-Starting from scratch, bootstrap a small conda-forge base environment in `~/conda`:
+Clone soconda repo
+```
+$ git clone git@github.com:simonsobs/soconda.git
+$ cd soconda
+```
 
-    $> ./tools/bootstrap_base.sh ~/conda
-    $> source ~/conda/etc/profile.d/conda.sh
-    $> conda activate base
+Create and activate new empty environment called `soconda`
+```
+$ conda create --no-default-packages -n soconda
+$ conda activate soconda
+```
 
-Create an `soconda` environment with default name and version. However, we
-decide to put all the modulefiles into a central location in the root of the
-base conda install:
+Install packages to `soconda` environment
+```
+(soconda) $ export MAKEFLAGS='-j 4'
+(soconda) $ bash install_pkgs.sh
+```
+(The `MAKEFLAGS` doesn't seem to have any effect, investigating)
 
-    $> ./soconda.sh -b ~/conda -m ~/conda/modulefiles
+Install JupyterLab
+```
+(soconda) $ conda install jupyterlab
+```
 
-Now we can load the module:
+If running on server, start jupyterlab listening on port `12345` with command
+```
+(soconda) $ cd /path/to/project
+(soconda) $ nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
+```
 
-    $> module use ~/conda/modulefiles
-    $> module avail
-    $> module load soconda/XXXXXX
+To list current running jupyter server:
+```
+(soconda) $ jupyter server list
+```
+
+To connect to jupyterlab running on server, run SSH tunnel on your laptop/desktop:
+```
+$ ssh -N -L 12345:localhost:12345 server_ip
+```
+Then you can connect to jupyterlab with link provided by command `jupyter server list`.
+
+To stop jupyterlab listenging on port 12345:
+```
+(soconda) $ jupyter server stop 12345
+```
+
 
 ## Example:  NERSC
 
