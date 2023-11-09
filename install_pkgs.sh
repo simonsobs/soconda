@@ -49,7 +49,6 @@ conda config --file "${CONDA_PREFIX}/.condarc" \
 
 
 # Install conda packages.
-# Install conda packages.
 echo "Installing conda packages..." | tee "log_conda"
 # For micromamba installation, conda command is not provided.
 "$CONDA_EXE" install -p "${CONDA_PREFIX}" --yes --file "${scriptdir}/packages_conda.txt" \
