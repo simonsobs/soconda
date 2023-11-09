@@ -30,18 +30,6 @@ fi
 "$CONDA_EXE" env list
 
 
-# Create ${CONDA_PREFIX}/.condarc if not exist
-if [ ! -f "${CONDA_PREFIX}/.condarc" ]; then
-    echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
-    echo "channels:" >> "${CONDA_PREFIX}/.condarc"
-    echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
-    echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
-    echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
-    echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
-    echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
-fi
-
-
 # Install conda packages.
 echo "Installing conda packages..." | tee "log_conda"
 # For micromamba installation, conda command is not provided.
@@ -68,6 +56,18 @@ echo "which conda:    $(which conda)"
 echo "which python:   $(which python)"
 echo "which pip:      $(which pip)"
 echo ""
+
+
+# Create ${CONDA_PREFIX}/.condarc if not exist
+if [ ! -f "${CONDA_PREFIX}/.condarc" ]; then
+    echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
+    echo "channels:" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
+    echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
+    echo "env_prompt: '({name}) '" >> "${CONDA_PREFIX}/.condarc"
+    echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
+fi
 
 
 # Use pipgrip to install dependencies of pip packages with conda.
