@@ -13,8 +13,24 @@ if [ -z "${CONDA_PREFIX}" ]; then
 fi
 
 
-# Install conda packages.
+if [ -n "${CONDA_EXE}" ]; then
+    echo "Find conda command at ${CONDA_EXE}"
+elif [ -n "${MAMBA_EXE}" ]; then
+    echo "Find micromamba command at ${MAMBA_EXE}"
+    # micromamba installation does not set CONDA_EXE
+    CONDA_EXE="${MAMBA_EXE}"
+    eval "$("$MAMBA_EXE" shell hook --shell bash)"
+else
+    echo "Could not find conda or micromamba command."
+    exit 1
+fi
 
+
+# List all environments also show current activated environment
+"$CONDA_EXE" env list
+
+
+# Install conda packages.
 conda_pkgs=""
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
@@ -26,13 +42,30 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
 done < "${scriptdir}/packages_conda.txt"
 
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes ${conda_pkgs} \
+"$CONDA_EXE" install -p "${CONDA_PREFIX}" --yes ${conda_pkgs} \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
 
-conda deactivate
-conda activate "${fullenv}"
+
+# For micromamba installation, conda command is availabe in current environment now.
+# For conda installation, reactivate to use conda command from current environment not base environment.
+if [ -z "${MAMBA_EXE}" ]; then
+    env_path=${CONDA_PREFIX}
+    conda deactivate
+    conda activate "${env_path}"
+fi
+
+
+# Print something helps debugging
+echo ""
+echo "CONDA_EXE=${CONDA_EXE}"
+echo "CONDA_PREFIX=${CONDA_PREFIX}"
+echo "which conda:    $(which conda)"
+echo "which python:   $(which python)"
+echo "which pip:      $(which pip)"
+echo ""
+
 
 # Use pipgrip to install dependencies of pip packages with conda.
 pip install pipgrip
@@ -70,15 +103,14 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo "Building local package '${pkgname}'"
-        conda-build ${pkgrecipe} > "log_${pkgname}" 2>&1
-        cat "log_${pkgname}"
+        conda build ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
         echo "Installing local package '${pkgname}'"
         conda install --yes --use-local ${pkgname}
     fi
 done < "${scriptdir}/packages_local.txt"
 
 echo "Cleaning up build products"
-conda-build purge
+conda build purge
 
 # Install pip packages.  We install one package at a time
 # with no dependencies, so that we will intentionally
@@ -93,13 +125,13 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
-        if [ "x${url_check}" = "x" ]; then
+        if [ -z "${url_check}" ]; then
             echo "Checking dependencies for package \"${pkg}\""
             for dep in $(pipgrip --pipe ${pkg}); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
                 if [ "${name}" != "${pkg}" ]; then
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
-                    if [ "x${depcheck}" = "x" ]; then
+                    if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
                         conda install --yes ${name} | tee -a "log_pip" 2>&1
