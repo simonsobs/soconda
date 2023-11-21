@@ -5,8 +5,6 @@ pushd $(dirname $0) >/dev/null 2>&1
 scriptdir=$(pwd)
 popd >/dev/null 2>&1
 
-module load opempi/gcc/4.1.2 anaconda3/2022.10
-
 show_help () {
     echo "" >&2
     echo "Usage:  $0" >&2
@@ -23,11 +21,12 @@ envname=""
 version=""
 moduledir=""
 
-while getopts ":e:b:v:m:i:" opt; do
+while getopts ":e:v:m:" opt; do
     case $opt in
         e)
             envname=$OPTARG
             ;;
+	v)
             version=$OPTARG
             ;;
         m)
@@ -47,7 +46,7 @@ done
 
 shift $((OPTIND-1))
 
-module load opempi/gcc/4.1.2 anaconda3/2022.10
+module load openmpi/gcc/4.1.2 anaconda3/2022.10
 MPICC=`which mpicc`
 
 if [ -z "${version}" ]; then
@@ -76,7 +75,6 @@ else
     # Conda is in the path
     conda_dir="$(dirname $(dirname $(which conda)))"
 fi
-
 # Determine whether the new environment is a name or a full path.
 env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
 is_path=no
@@ -132,10 +130,15 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     comment=$(echo "${line}" | cut -c 1)
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
-        if ["${pkgname}" = "python"]; then
-            pkgname=${pkgname}=${version}
+        if [ "${pkgname}" = "python" ]; then
+            pkgname="${pkgname}=${version}"
         fi
         conda_pkgs="${conda_pkgs} ${pkgname}"
+	num_pkgs=`wc -w <<< $conda_pkgs`
+	if [ "${num_pkgs}" = 10 ]; then
+	    conda install --yes $conda_pkgs
+	    conda_pkgs=""
+	fi
     fi
 done < "${scriptdir}/della/packages_conda.txt"
 
@@ -160,7 +163,7 @@ conda config \
 pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
 
 # Install mpi4py
-echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
+echo "Building mpi4py with MPICC=\"${MPICC}\""
 pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py
 
 # Build local packages
@@ -187,7 +190,7 @@ conda-build purge
 # get an error.  All dependency packages should be installed
 # through conda.
 
-echo "Installing pip packages..." | tee "log_pip"
+echo "Installing pip packages..."
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
@@ -203,55 +206,54 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
                     if [ "x${depcheck}" = "x" ]; then
                         # It is not already installed, try to install it with conda
-                        echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
-                        conda install --yes ${name} | tee -a "log_pip" 2>&1
+                        echo "Attempt to install conda package for dependency \"${name}\"..." 
+                        conda install --yes ${name}
                         if [ $? -ne 0 ]; then
-                            echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
-			    echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
+                            echo "  No conda package available for dependency \"${name}\"" 
+			    echo "  Assuming pip package already installed."
                         fi
                     else
-                        echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
+                        echo "  Package for dependency \"${name}\" already installed" 
                     fi
                 fi
             done
         fi
         echo "Installing package ${pkg}"
-        python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
+        python3 -m pip install --no-deps ${pkg}
     fi
 done < "${scriptdir}/della/packages_pip.txt"
 
 # Create and install module file and jupyter init script
-
-if [ -z "${moduledir}" ]; then
-    # No centralized directory was specified for modulefiles.  Make
-    # a subdirectory within the environment itself.
-    moduledir="${CONDA_PREFIX}/modulefiles"
-fi
-mkdir -p "${moduledir}/${envroot}"
-if [ -z "${LMOD_VERSION}" ]; then
-    # Using TCL modules
-    input_mod="${scriptdir}/templates/modulefile_tcl.in"
-    outmod="${moduledir}/${envroot}/${version}"
-else
-    # Using LMOD
-    input_mod="${scriptdir}/templates/modulefile_lua.in"
-    outmod="${moduledir}/${envroot}/${version}.lua"
-fi
-rm -f "${outmod}"
-
-confsub="-e 's#@VERSION@#${version}#g'"
-confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
-confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
-confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
-confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
-
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    if [[ "${line}" =~ @MODLOAD@ ]]; then
-        if [ -e "${modinit}" ]; then
-            cat "${modinit}" >> "${outmod}"
-        fi
-    else
-        echo "${line}" | eval sed ${confsub} >> "${outmod}"
-    fi
-done < "${input_mod}"
-
+#
+#if [ -z "${moduledir}" ]; then
+#    # No centralized directory was specified for modulefiles.  Make
+#    # a subdirectory within the environment itself.
+#    moduledir="${CONDA_PREFIX}/modulefiles"
+#fi
+#mkdir -p "${moduledir}/${envroot}"
+#if [ -z "${LMOD_VERSION}" ]; then
+#    # Using TCL modules
+#    input_mod="${scriptdir}/templates/modulefile_tcl.in"
+#    outmod="${moduledir}/${envroot}/${version}"
+#else
+#    # Using LMOD
+#    input_mod="${scriptdir}/templates/modulefile_lua.in"
+#    outmod="${moduledir}/${envroot}/${version}.lua"
+#fi
+#rm -f "${outmod}"
+#
+#confsub="-e 's#@VERSION@#${version}#g'"
+#confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
+#confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
+#confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
+#confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
+#
+#while IFS='' read -r line || [[ -n "${line}" ]]; do
+#    if [[ "${line}" =~ @MODLOAD@ ]]; then
+#        if [ -e "${modinit}" ]; then
+#            cat "${modinit}" >> "${outmod}"
+#        fi
+#    else
+#        echo "${line}" | eval sed ${confsub} >> "${outmod}"
+#    fi
+#done < "${input_mod}"
