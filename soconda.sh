@@ -289,7 +289,7 @@ echo "#!/bin/bash" > "${kern}"
 echo "conn=\$1" >> "${kern}"
 echo "source \"${conda_dir}/etc/profile.d/conda.sh\"" >> "${kern}"
 echo "conda activate \"${fullenv}\"" >> "${kern}"
-echo "export DISABLE_MPI=true" >> "${kern}"
+echo "if [ -n \${NERSC_HOST} ]; then export DISABLE_MPI=true fi" >> "${kern}"
 echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
 chmod +x "${kern}"
 
