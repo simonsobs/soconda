@@ -45,6 +45,7 @@ jobs:
           channel-priority: true
           use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
           auto-update-conda: true
+          activate-environment: ""
           auto-activate-base: true
 
       - name: Check Conda Config
