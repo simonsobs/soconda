@@ -39,14 +39,13 @@ jobs:
       - name: Setup Conda Base
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: "latest"
+          miniforge-version: latest
           python-version: ${{ matrix.python }}
-          channels: conda-forge
-          channel-priority: true
+          # channels: conda-forge
+          # channel-priority: true
           use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
           auto-update-conda: true
-          activate-environment: ""
-          auto-activate-base: true
+          activate-environment: soconda_CI
 
       - name: Check Conda Config
         run: |
