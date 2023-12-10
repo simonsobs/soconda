@@ -41,11 +41,10 @@ jobs:
         with:
           miniforge-version: latest
           python-version: ${{ matrix.python }}
-          # channels: conda-forge
-          # channel-priority: true
-          use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
           auto-update-conda: true
-          activate-environment: soconda_CI
+          conda-solver: libmamba
+          auto-activate-base: true
+          activate-environment: ""
 
       - name: Check Conda Config
         run: |
