@@ -43,8 +43,8 @@ jobs:
           python-version: ${{ matrix.python }}
           auto-update-conda: true
           # conda-solver: libmamba
-          auto-activate-base: true
-          activate-environment: ""
+          # auto-activate-base: true
+          activate-environment: soconda_CI
 
       - name: Check Conda Config
         run: |
