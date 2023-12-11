@@ -42,8 +42,6 @@ jobs:
           miniforge-version: latest
           python-version: ${{ matrix.python }}
           auto-update-conda: true
-          # conda-solver: libmamba
-          # auto-activate-base: true
           activate-environment: soconda_CI
 
       - name: Check Conda Config
@@ -56,6 +54,9 @@ jobs:
 
       - name: Install
         run: |
+          pyver=${{ matrix.python }}
+          sed -i -e "s/python=3\.10/python=${pyver}/" ./config/default/packages_conda.txt
+          cat ./config/default/packages_conda.txt
           ./soconda.sh -e soconda -v CI
 
       - name: Run Tests
