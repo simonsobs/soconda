@@ -42,7 +42,7 @@ jobs:
           miniforge-version: latest
           python-version: ${{ matrix.python }}
           auto-update-conda: true
-          conda-solver: libmamba
+          # conda-solver: libmamba
           auto-activate-base: true
           activate-environment: ""
 
