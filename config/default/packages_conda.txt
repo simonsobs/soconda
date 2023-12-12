@@ -68,9 +68,7 @@ future
 pyaml
 tqdm
 ipykernel
-# Revert to 0.12 until this bug is fixed:
-# https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw==0.12
+pyfftw
 jupyterlab
 wurlitzer
 plotly
