@@ -142,14 +142,18 @@ else
     env_check=$(conda env list | grep "${fullenv} ")
 fi
 
+# Extract the python version we are using (if not the default)
+# and pass that to the conda create command.
+python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
+
 if [ -z "${env_check}" ]; then
     # Environment does not yet exist.  Create it.
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -n "${fullenv}"
+        conda create --yes -n "${fullenv}" "${python_version}"
     else
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -p "${fullenv}"
+        conda create --yes -p "${fullenv}" "${python_version}"
     fi
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
