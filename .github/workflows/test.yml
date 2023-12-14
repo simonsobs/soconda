@@ -40,11 +40,11 @@ jobs:
         run: |
           rm -rf /usr/share/miniconda
           ./tools/bootstrap_base.sh ~/conda
-          source ~/conda/etc/profile.d/conda.sh
-          conda activate base
 
       - name: Check Conda Config
         run: |
+          source ~/conda/etc/profile.d/conda.sh
+          conda activate base
           conda info
           conda list
           conda config --show-sources
@@ -52,6 +52,8 @@ jobs:
 
       - name: Install
         run: |
+          source ~/conda/etc/profile.d/conda.sh
+          conda activate base
           pyver=${{ matrix.python }}
           sed -i -e "s/python=3\.10/python=${pyver}/" ./config/default/packages_conda.txt
           cat ./config/default/packages_conda.txt
@@ -59,6 +61,7 @@ jobs:
 
       - name: Run Tests
         run: |
+          source ~/conda/etc/profile.d/conda.sh
           conda activate "soconda_CI"
           export OMP_NUM_THREADS=2
           export MPI_DISABLE=1
