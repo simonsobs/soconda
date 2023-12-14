@@ -37,16 +37,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Conda Base
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniforge-version: latest
-          python-version: ${{ matrix.python }}
-          auto-update-conda: true
-          activate-environment: soconda_CI
+        run: |
+          ./tools/bootstrap_base.sh ~/conda
+          source ~/conda/etc/profile.d/conda.sh
+          conda activate base
 
       - name: Check Conda Config
         run: |
-          conda activate base
           conda info
           conda list
           conda config --show-sources
