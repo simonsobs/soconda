@@ -39,6 +39,7 @@ jobs:
       - name: Setup Conda Base
         run: |
           rm -rf /usr/share/miniconda
+          rm -rf /usr/local/miniconda
           ./tools/bootstrap_base.sh ~/conda
 
       - name: Check Conda Config
