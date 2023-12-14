@@ -38,6 +38,7 @@ jobs:
 
       - name: Setup Conda Base
         run: |
+          rm -rf /usr/share/miniconda
           ./tools/bootstrap_base.sh ~/conda
           source ~/conda/etc/profile.d/conda.sh
           conda activate base
