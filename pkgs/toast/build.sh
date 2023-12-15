@@ -16,35 +16,23 @@ else
     CMAKE_BUILD_TYPE=Release
 fi
 
-echo "DBG:  PATH=${PATH}"
-echo "DBG:  PYTHON=${PYTHON}"
-echo "DBG:  python3=$(which python3)"
-echo "DBG:  PY_VER=${PY_VER}"
+export TOAST_BUILD_CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+export TOAST_BUILD_CMAKE_PLATFORM_FLAGS=${CMAKE_PLATFORM_FLAGS}
+export TOAST_BUILD_CMAKE_C_COMPILER="${CC}"
+export TOAST_BUILD_CMAKE_CXX_COMPILER="${CXX}"
+export TOAST_BUILD_CMAKE_C_FLAGS="-O3 -g -fPIC"
+export TOAST_BUILD_CMAKE_CXX_FLAGS="-O3 -g -fPIC"
+export TOAST_BUILD_CMAKE_VERBOSE_MAKEFILE=1
+export TOAST_BUILD_CMAKE_INSTALL_PREFIX="${PREFIX}"
+export TOAST_BUILD_CMAKE_PREFIX_PATH="${PREFIX}"
+export TOAST_BUILD_FFTW_ROOT="${PREFIX}"
+export TOAST_BUILD_AATM_ROOT="${PREFIX}"
+export TOAST_BUILD_BLAS_LIBRARIES="${PREFIX}/lib/libblas${SHLIB_EXT}"
+export TOAST_BUILD_LAPACK_LIBRARIES="${PREFIX}/lib/liblapack${SHLIB_EXT}"
+export TOAST_BUILD_SUITESPARSE_INCLUDE_DIR_HINTS="${PREFIX}/include"
+export TOAST_BUILD_SUITESPARSE_LIBRARY_DIR_HINTS="${PREFIX}/lib"
 
-mkdir -p build
-cd build
-cmake \
-    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-    ${CMAKE_PLATFORM_FLAGS[@]} \
-    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-    -DPython3_EXECUTABLE=$(which python3) \
-    -DPython3_INCLUDE_DIR="${PREFIX}/include/python${PY_VER}" \
-    -DPython3_FIND_VIRTUALENV=ONLY \
-    -DCMAKE_C_COMPILER="${CC}" \
-    -DCMAKE_CXX_COMPILER="${CXX}" \
-    -DCMAKE_C_FLAGS="-O3 -g -fPIC" \
-    -DCMAKE_CXX_FLAGS="-O3 -g -fPIC" \
-    -DCMAKE_VERBOSE_MAKEFILE=1 \
-    -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
-    -DCMAKE_PREFIX_PATH="${PREFIX}" \
-    -DFFTW_ROOT="${PREFIX}" \
-    -DAATM_ROOT="${PREFIX}" \
-    -DBLAS_LIBRARIES="${PREFIX}/lib/libblas${SHLIB_EXT}" \
-    -DLAPACK_LIBRARIES="${PREFIX}/lib/liblapack${SHLIB_EXT}" \
-    -DSUITESPARSE_INCLUDE_DIR_HINTS="${PREFIX}/include" \
-    -DSUITESPARSE_LIBRARY_DIR_HINTS="${LIBDIR}" \
-    -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
-    -DCMAKE_PREFIX_PATH="${PREFIX}" \
-    "${SRC_DIR}"
-make -j 2
-make install
+# Ensure that stale build products are removed
+rm -rf build
+
+python -m pip install -vvv --ignore-installed --no-deps --prefix "${PREFIX}" .
