@@ -182,14 +182,16 @@ fi
 # Install conda packages.
 
 conda_pkgs=""
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
-        pkgname="${line}"
-        conda_pkgs="${conda_pkgs} ${pkgname}"
-    fi
-done < "${confdir}/packages_conda.txt"
+for pkgfile in "${scriptdir}/config/common.txt" "${confdir}/packages_conda.txt"; do
+    while IFS='' read -r line || [[ -n "${line}" ]]; do
+        # Is this line commented?
+        comment=$(echo "${line}" | cut -c 1)
+        if [ "${comment}" != "#" ]; then
+            pkgname="${line}"
+            conda_pkgs="${conda_pkgs} ${pkgname}"
+        fi
+    done < "${pkgfile}"
+done
 
 echo "Installing conda packages..." | tee "log_conda"
 conda install --yes ${conda_pkgs} \
