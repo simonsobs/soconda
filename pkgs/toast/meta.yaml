@@ -36,6 +36,7 @@ requirements:
     - libblas * *openblas
     - liblapack * *openblas
     - python
+    - numpy=1.26.*
     - fftw
     - suitesparse
     - libaatm
@@ -46,7 +47,7 @@ requirements:
     - libblas * *openblas
     - liblapack * *openblas
     - python
-    - numpy
+    - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('fftw') }}
     - {{ pin_compatible('suitesparse') }}
     - {{ pin_compatible('libaatm') }}
