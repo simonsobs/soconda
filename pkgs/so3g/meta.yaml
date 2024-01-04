@@ -1,5 +1,5 @@
-{% set version = "0.1.8" %}
-{% set sha256 = "0e6d3e32af61524465892c575f92150bbc95aeb6e8349a1369cb013713cd8b7f" %}
+{% set version = "0.1.10" %}
+{% set sha256 = "4cabc243acf6a18bb8b63572f468b303c3bc4cb4e0e901e3fbe222a8ff094e11" %}
 
 {% set build = 0 %}
 
