@@ -68,6 +68,23 @@ if [ -z "${envname}" ]; then
     echo "Environment root name not specified, using \"soconda\""
     envname="soconda"
 fi
+# The full environment name, including the root and version.
+fullenv="${envname}_${version}"
+# Determine whether the new environment is a name or a full path.
+env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
+if [ "${env_noslash}" != "${fullenv}" ]; then
+    # This was a path
+    is_path='yes'
+    # Make sure this is a full path
+    if [[ "${envname:0:1}" != '/' ]] ; then
+        # The path does not start at root
+        echo "Please provide a full path."
+        exit 1
+    fi
+else
+    is_path='no'
+fi
+
 
 if [ -z "${config}" ]; then
     echo "No config specified, using \"default\""
@@ -76,12 +93,6 @@ else
     echo "Using config \"${config}\""
 fi
 
-# The env root name, used for the name of the generated module file
-envroot=$(basename ${envname})
-
-# The full environment name, including the root and version.
-fullenv="${envname}_${version}"
-
 # The path to the selected config directory
 confdir="${scriptdir}/config/${config}"
 if [ ! -d "${confdir}" ]; then
@@ -89,36 +100,48 @@ if [ ! -d "${confdir}" ]; then
     exit 1
 fi
 
-# The optional module init for this config
-modinit="${confdir}/module_init"
 
-# Activate the base environment
 if [ -n "${base}" ]; then
     conda_dir="${base}"
+    # Initialize conda
+    source "${conda_dir}/etc/profile.d/conda.sh"
+    # Conda initialization script will create conda function,
+    # but micromamba will create micromamba function.
+    # Here create a conda_exec function that unify conda and micromamba
+    # installation.
+    conda_exec () { conda "$@" ; }
 else
     # User did not specify where to find it
-    if [ -z "$(which conda)" ]; then
-        # conda is not in the path
+    if [ -n "$CONDA_EXE" ]; then
+        echo "Find conda command at ${CONDA_EXE}"
+        conda_dir="$(dirname $(dirname $CONDA_EXE))"
+        # Initialize conda
+        eval "$("$CONDA_EXE" 'shell.bash' 'hook')"
+        conda_exec () { conda "$@" ; }
+    elif [ -n "$MAMBA_EXE" ]; then
+        echo "Find micromamba command at ${MAMBA_EXE}"
+        conda_dir="$MAMBA_ROOT_PREFIX"
+        # Initialize micromamba
+        eval "$("$MAMBA_EXE" shell hook --shell bash)"
+        conda_exec () { micromamba "$@" ; }
+    else
+        # Could not find conda or micromamba
         echo "You must either activate the conda base environment before"
         echo "running this script, or you must specify the path to the base"
         echo "install with the \"-b <path to base>\" option."
         exit 1
-    else
-        # Conda is in the path
-        conda_dir="$(dirname $(dirname $(which conda)))"
     fi
 fi
 
-# Make sure that conda is initialized
-source "${conda_dir}/etc/profile.d/conda.sh"
-conda activate base
 
 # Conda package cache.  In some cases this can get really big, so
 # we point it to a temp location unless the user has overridden it.
 if [ -z ${CONDA_PKGS_DIRS} ]; then
     if [ -z ${NERSC_HOST} ]; then
         # Standard system
-        conda_tmp=$(mktemp -d)
+        # Create temp direcotry
+        mkdir -p "$scriptdir/tmpfs"
+        conda_tmp=$(mktemp -d --tmpdir="$scriptdir/tmpfs")
     else
         # Running at NERSC, use a directory in scratch
         conda_tmp="${SCRATCH}/tmp_soconda"
@@ -127,36 +150,25 @@ if [ -z ${CONDA_PKGS_DIRS} ]; then
     export CONDA_PKGS_DIRS="${conda_tmp}"
 fi
 
-# Determine whether the new environment is a name or a full path.
-env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
-is_path=no
-if [ "${env_noslash}" != "${fullenv}" ]; then
-    # This was a path
-    is_path=yes
-    env_check=""
-    if [ -e "${fullenv}/bin/conda" ]; then
-        # It already exists
-        env_check="${fullenv}"
-    fi
-else
-    env_check=$(conda env list | grep "${fullenv} ")
-fi
 
 # Extract the python version we are using (if not the default)
 # and pass that to the conda create command.
 python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
+
+# Check this env exist or not
+# env_check would be empty if not exist
+env_check=$(conda_exec env list | grep "${fullenv}")
 if [ -z "${env_check}" ]; then
-    # Environment does not yet exist.  Create it.
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -n "${fullenv}" "${python_version}"
+        conda_exec create --yes -n "${fullenv}" "${python_version}"
     else
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -p "${fullenv}" "${python_version}"
+        conda_exec create --yes -p "${fullenv}" "${python_version}"
     fi
     echo "Activating environment \"${fullenv}\""
-    conda activate "${fullenv}"
+    conda_exec activate "${fullenv}"
 
     # Create condarc for this environment
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
@@ -168,50 +180,39 @@ if [ -z "${env_check}" ]; then
     echo "solver: libmamba" >> "${CONDA_PREFIX}/.condarc"
 
     # Reactivate to pick up changes
-    conda deactivate
-    conda activate "${fullenv}"
+    conda_exec deactivate
+    conda_exec activate "${fullenv}"
 
     # Copy logo files
     cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
 else
     echo "Activating environment \"${fullenv}\""
-    conda activate "${fullenv}"
-    conda env list
+    conda_exec activate "${fullenv}"
 fi
+conda_exec env list
+
 
 # Install conda packages.
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes --file "${scriptdir}/config/common.txt" \
+conda_exec install --yes --file "${scriptdir}/config/common.txt" \
     | tee -a "log_conda" 2>&1
-conda install --yes --file "${confdir}/packages_conda.txt" \
+conda_exec install --yes --file "${confdir}/packages_conda.txt" \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
 
-conda deactivate
-conda activate "${fullenv}"
+conda_exec deactivate
+conda_exec activate "${fullenv}"
 
-# Use pipgrip to install dependencies of pip packages with conda.
-pip install pipgrip
-
-mkdir -p "${CONDA_PREFIX}/conda-bld"
-conda-index "${CONDA_PREFIX}/conda-bld"
-conda config \
-    --file "${CONDA_PREFIX}/.condarc" \
-    --add channels "file://${CONDA_PREFIX}/conda-bld"
-
-# Get the python site packages version
-pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
 
 # Install mpi4py
-
 echo "Installing mpi4py..." | tee "log_mpi4py"
 if [ -z "${MPICC}" ]; then
     echo "The MPICC environment variable is not set.  Installing mpi4py" \
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda install --yes openmpi mpi4py | tee -a "log_mpi4py" 2>&1 \
+    conda_exec install --yes openmpi mpi4py | tee -a "log_mpi4py" 2>&1 \
     # Disable the ancient openib btl, in order to avoid a harmless warning
     echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
 else
@@ -220,7 +221,18 @@ else
         | tee -a "log_mpi4py" 2>&1
 fi
 
+
 # Build local packages
+# Here we use conda instead of conda_exec, because conda is a dependency
+# of conda-build package. Therefore after activated ${fullenv},
+# conda command is availabe in both micromamba and miniforge installation.
+# If you run $(which conda) command it should return $CONDA_PREFIX/bin/conda
+# in both cases.
+mkdir -p "${CONDA_PREFIX}/conda-bld"
+conda index "${CONDA_PREFIX}/conda-bld"
+conda config \
+    --file "${CONDA_PREFIX}/.condarc" \
+    --add channels "file://${CONDA_PREFIX}/conda-bld"
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
@@ -229,19 +241,29 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo "Building local package '${pkgname}'"
-        conda-build ${pkgrecipe} | tee "log_${pkgname}" 2>&1
+        conda build ${pkgrecipe} | tee "log_${pkgname}" 2>&1
         echo "Installing local package '${pkgname}'"
         conda install --yes --use-local ${pkgname}
     fi
 done < "${confdir}/packages_local.txt"
 
 echo "Cleaning up build products"
-conda-build purge
+conda build purge
+
+# Remove buid directory
+rm -r "${conda_tmp}"
+
+# Remove /tmp/pixell-* test files create by pixell/setup.py
+find "/tmp" -type f -name 'pixell-*' -exec rm -rf {} \;
+
 
 # Install pip packages.  We install one package at a time
 # with no dependencies, so that we will intentionally
 # get an error.  All dependency packages should be installed
 # through conda.
+
+# Use pipgrip to install dependencies of pip packages with conda.
+pip install pipgrip
 
 echo "Installing pip packages..." | tee "log_pip"
 
@@ -261,7 +283,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                     if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
-                        conda install --yes ${name} | tee -a "log_pip" 2>&1
+                        conda_exec install --yes ${name} | tee -a "log_pip" 2>&1
                         if [ $? -ne 0 ]; then
                             echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
                             echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
