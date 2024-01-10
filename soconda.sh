@@ -302,6 +302,10 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${confdir}/packages_pip.txt"
 
+
+# Get the python site packages version
+pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
+
 # Subsitutions to use when parsing input templates
 confsub="-e 's#@VERSION@#${version}#g'"
 confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
