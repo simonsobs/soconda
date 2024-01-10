@@ -43,9 +43,7 @@ requirements:
     - pyyaml
     - h5py
     - pillow
-    # Revert to 0.12 until this bug is fixed:
-    # https://github.com/conda-forge/pyfftw-feedstock/issues/51
-    - pyfftw==0.12
+    - pyfftw
     # Remove until this perl bug is fixed
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]

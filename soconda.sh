@@ -8,6 +8,7 @@ popd >/dev/null 2>&1
 show_help () {
     echo "" >&2
     echo "Usage:  $0" >&2
+    echo "    [-c <directory in config to use for options>]" >&2
     echo "    [-e <environment, either name or full path>]" >&2
     echo "    [-b <conda base install (if not activated)>]" >&2
     echo "    [-v <version (git version used by default)>]" >&2
@@ -172,7 +173,7 @@ if [ -z "${env_check}" ]; then
     conda activate "${fullenv}"
 
     # Copy logo files
-    cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
+    cp "${scriptdir}"/logo* "${CONDA_PREFIX}/"
 else
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
@@ -290,54 +291,24 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${confdir}/packages_pip.txt"
 
-# Create jupyter kernel launcher
-kern="${CONDA_PREFIX}/bin/soconda_run_kernel.sh"
-echo "#!/bin/bash" > "${kern}"
-echo "conn=\$1" >> "${kern}"
-echo "source \"${conda_dir}/etc/profile.d/conda.sh\"" >> "${kern}"
-echo "conda activate \"${fullenv}\"" >> "${kern}"
-echo "if [ -n \${NERSC_HOST} ]; then export DISABLE_MPI=true fi" >> "${kern}"
-echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
-chmod +x "${kern}"
-
-# Create and install module file and jupyter init script
-
-if [ -z "${moduledir}" ]; then
-    # No centralized directory was specified for modulefiles.  Make
-    # a subdirectory within the environment itself.
-    moduledir="${CONDA_PREFIX}/modulefiles"
-fi
-mkdir -p "${moduledir}/${envroot}"
-if [ -z "${LMOD_VERSION}" ]; then
-    # Using TCL modules
-    input_mod="${scriptdir}/templates/modulefile_tcl.in"
-    outmod="${moduledir}/${envroot}/${version}"
-else
-    # Using LMOD
-    input_mod="${scriptdir}/templates/modulefile_lua.in"
-    outmod="${moduledir}/${envroot}/${version}.lua"
-fi
-rm -f "${outmod}"
-
+# Subsitutions to use when parsing input templates
 confsub="-e 's#@VERSION@#${version}#g'"
 confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
 confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
 confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
 confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
 
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    if [[ "${line}" =~ @MODLOAD@ ]]; then
-        if [ -e "${modinit}" ]; then
-            cat "${modinit}" >> "${outmod}"
-        fi
-    else
-        echo "${line}" | eval sed ${confsub} >> "${outmod}"
-    fi
-done < "${input_mod}"
+# Source post-install options, if they exist
+if [ -e "${confdir}/post_install.sh" ]; then
+    source "${confdir}/post_install.sh"
+fi
 
-rm -f "${out_jupyter}"
-out_jupyter="${CONDA_PREFIX}/bin/soconda_jupyter.sh"
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    echo "${line}" | eval sed ${confsub} >> "${out_jupyter}"
-done < "${scriptdir}/templates/jupyter.sh.in"
-chmod +x "${out_jupyter}"
+# If the option is enabled in post_install.sh, install modulefile
+if [ -n "${install_module}" ]; then
+    source "${scriptdir}/tools/install_modulefile.sh"
+fi
+
+# If the option is enabled in post_install.sh install jupyter setup
+if [ -n "${install_jupyter_setup}" ]; then
+    source "${scriptdir}/tools/install_jupyter_setup.sh"
+fi
