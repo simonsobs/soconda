@@ -8,6 +8,7 @@ popd >/dev/null 2>&1
 show_help () {
     echo "" >&2
     echo "Usage:  $0" >&2
+    echo "    [-c <directory in config to use for options>]" >&2
     echo "    [-e <environment, either name or full path>]" >&2
     echo "    [-b <conda base install (if not activated)>]" >&2
     echo "    [-v <version (git version used by default)>]" >&2
@@ -184,7 +185,7 @@ if [ -z "${env_check}" ]; then
     conda_exec activate "${fullenv}"
 
     # Copy logo files
-    cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
+    cp "${scriptdir}"/logo* "${CONDA_PREFIX}/"
 else
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
@@ -240,10 +241,10 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo "Building local package '${pkgname}'"
-        conda build ${pkgrecipe} | tee "log_${pkgname}" 2>&1
-        echo "Installing local package '${pkgname}'"
-        conda install --yes --use-local ${pkgname}
+        echo "Building local package '${pkgname}'" | tee "log_${pkgname}" 2>&1
+        conda build ${pkgrecipe} | tee -a "log_${pkgname}" 2>&1
+        echo "Installing local package '${pkgname}'" | tee -a "log_${pkgname}" 2>&1
+        conda install --yes --use-local ${pkgname} | tee -a "log_${pkgname}" 2>&1
     fi
 done < "${confdir}/packages_local.txt"
 
@@ -301,3 +302,24 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${confdir}/packages_pip.txt"
 
+# Subsitutions to use when parsing input templates
+confsub="-e 's#@VERSION@#${version}#g'"
+confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
+confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
+confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
+confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
+
+# Source post-install options, if they exist
+if [ -e "${confdir}/post_install.sh" ]; then
+    source "${confdir}/post_install.sh"
+fi
+
+# If the option is enabled in post_install.sh, install modulefile
+if [ -n "${install_module}" ]; then
+    source "${scriptdir}/tools/install_modulefile.sh"
+fi
+
+# If the option is enabled in post_install.sh install jupyter setup
+if [ -n "${install_jupyter_setup}" ]; then
+    source "${scriptdir}/tools/install_jupyter_setup.sh"
+fi

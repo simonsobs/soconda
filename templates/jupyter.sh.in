@@ -2,7 +2,7 @@
 
 kerneldir=${HOME}/.local/share/jupyter/kernels/soconda-@VERSION@
 if [ -d ${kerneldir} ]; then
-    # echo "soconda @VERSION@ is already installed in ${kerneldir}, skipping." >&2
+    echo "soconda @VERSION@ is already installed in ${kerneldir}, skipping." >&2
     exit 0
 else
     echo "soconda installing kernel version @VERSION@ to ${kerneldir}"
@@ -12,12 +12,21 @@ echo '
 {
     "language": "python",
     "argv": [
-    "@ENVPREFIX@/bin/soconda_run_kernel.sh",
-    "{connection_file}"
+        "@ENVPREFIX@/bin/python3",
+        "-m",
+        "ipykernel_launcher",
+        "-f",
+        "{connection_file}"
     ],
-    "display_name": "Simons Observatory @VERSION@"
+    "display_name": "Simons Observatory @VERSION@",
+    "env": {
+        "PATH": "@ENVPREFIX@/bin",
+        "PYTHONPATH": "@ENVPREFIX@/lib/python@PYVER@/site-packages"
+    },
+    "metadata": {
+        "debugger": true
+    }
 }
 ' > "${kerneldir}/kernel.json"
-cp "@ENVPREFIX@"/logo-*.png "${kerneldir}/"
+cp "@ENVPREFIX@"/logo-* "${kerneldir}/"
 exit 0
-
