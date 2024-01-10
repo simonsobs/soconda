@@ -180,21 +180,10 @@ else
 fi
 
 # Install conda packages.
-
-conda_pkgs=""
-for pkgfile in "${scriptdir}/config/common.txt" "${confdir}/packages_conda.txt"; do
-    while IFS='' read -r line || [[ -n "${line}" ]]; do
-        # Is this line commented?
-        comment=$(echo "${line}" | cut -c 1)
-        if [ "${comment}" != "#" ]; then
-            pkgname="${line}"
-            conda_pkgs="${conda_pkgs} ${pkgname}"
-        fi
-    done < "${pkgfile}"
-done
-
 echo "Installing conda packages..." | tee "log_conda"
-conda install --yes ${conda_pkgs} \
+conda install --yes --file "${scriptdir}/config/common.txt" \
+    | tee -a "log_conda" 2>&1
+conda install --yes --file "${confdir}/packages_conda.txt" \
     | tee -a "log_conda" 2>&1
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
@@ -290,54 +279,3 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${confdir}/packages_pip.txt"
 
-# Create jupyter kernel launcher
-kern="${CONDA_PREFIX}/bin/soconda_run_kernel.sh"
-echo "#!/bin/bash" > "${kern}"
-echo "conn=\$1" >> "${kern}"
-echo "source \"${conda_dir}/etc/profile.d/conda.sh\"" >> "${kern}"
-echo "conda activate \"${fullenv}\"" >> "${kern}"
-echo "if [ -n \${NERSC_HOST} ]; then export DISABLE_MPI=true fi" >> "${kern}"
-echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
-chmod +x "${kern}"
-
-# Create and install module file and jupyter init script
-
-if [ -z "${moduledir}" ]; then
-    # No centralized directory was specified for modulefiles.  Make
-    # a subdirectory within the environment itself.
-    moduledir="${CONDA_PREFIX}/modulefiles"
-fi
-mkdir -p "${moduledir}/${envroot}"
-if [ -z "${LMOD_VERSION}" ]; then
-    # Using TCL modules
-    input_mod="${scriptdir}/templates/modulefile_tcl.in"
-    outmod="${moduledir}/${envroot}/${version}"
-else
-    # Using LMOD
-    input_mod="${scriptdir}/templates/modulefile_lua.in"
-    outmod="${moduledir}/${envroot}/${version}.lua"
-fi
-rm -f "${outmod}"
-
-confsub="-e 's#@VERSION@#${version}#g'"
-confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
-confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
-confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
-confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
-
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    if [[ "${line}" =~ @MODLOAD@ ]]; then
-        if [ -e "${modinit}" ]; then
-            cat "${modinit}" >> "${outmod}"
-        fi
-    else
-        echo "${line}" | eval sed ${confsub} >> "${outmod}"
-    fi
-done < "${input_mod}"
-
-rm -f "${out_jupyter}"
-out_jupyter="${CONDA_PREFIX}/bin/soconda_jupyter.sh"
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    echo "${line}" | eval sed ${confsub} >> "${out_jupyter}"
-done < "${scriptdir}/templates/jupyter.sh.in"
-chmod +x "${out_jupyter}"
