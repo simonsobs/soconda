@@ -240,10 +240,10 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo "Building local package '${pkgname}'"
-        conda-build ${pkgrecipe} | tee "log_${pkgname}" 2>&1
-        echo "Installing local package '${pkgname}'"
-        conda install --yes --use-local ${pkgname}
+        echo "Building local package '${pkgname}'" | tee "log_${pkgname}" 2>&1
+        conda-build ${pkgrecipe} | tee -a "log_${pkgname}" 2>&1
+        echo "Installing local package '${pkgname}'" | tee -a "log_${pkgname}" 2>&1
+        conda install --yes --use-local ${pkgname} | tee -a "log_${pkgname}" 2>&1
     fi
 done < "${confdir}/packages_local.txt"
 
