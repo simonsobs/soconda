@@ -3,8 +3,10 @@ quaternionarray
 pysm3
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
-pysqlite3-wheels
+posix-ipc
 toast==3.0.0a20
+pysqlite3-wheels
+qpoint
 so3g
 #
 # Latest tag
