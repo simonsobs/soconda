@@ -268,14 +268,15 @@ pip install pipgrip
 echo "Installing pip packages..." | tee "log_pip"
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
+    # Skip if $line is empty
     # If the $line start with '#' then it's a comment.
-    if [ "${line:0:1}" != "#" ]; then
+    if [[ -n "${line}" && "${line:0:1}" != "#" ]]; then
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
         if [ -z "${url_check}" ]; then
             echo "Checking dependencies for package \"${pkg}\"" |& tee -a "log_pip"
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
-            for dep in $(pipgrip --pipe "${pkg}"); do
+            for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
                 if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
@@ -283,10 +284,6 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." |& tee -a "log_pip"
                         conda_exec install --yes ${name} |& tee -a "log_pip"
-                        if [ $? -ne 0 ]; then
-                            echo "  No conda package available for dependency \"${name}\"" |& tee -a "log_pip"
-                            echo "  Assuming pip package already installed." |& tee -a "log_pip"
-                        fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" |& tee -a "log_pip"
                     fi
@@ -297,6 +294,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         fi
         echo "Installing package ${pkg} with --no-deps" |& tee -a "log_pip"
         python3 -m pip install --no-deps ${pkg} |& tee -a "log_pip"
+        echo -e "\n\n"
     fi
 done < "${confdir}/packages_pip.txt"
 
