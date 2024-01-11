@@ -159,6 +159,7 @@ python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 # Check this env exist or not
 # env_check would be empty if not exist
 env_check=$(conda_exec env list | grep "${fullenv}")
+echo -e "\n\n"
 if [ -z "${env_check}" ]; then
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
@@ -193,6 +194,7 @@ conda_exec env list
 
 
 # Install conda packages.
+echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
 conda_exec install --yes --file "${scriptdir}/config/common.txt" \
     |& tee -a "log_conda"
@@ -206,6 +208,7 @@ conda_exec activate "${fullenv}"
 
 
 # Install mpi4py
+echo -e "\n\n"
 echo "Installing mpi4py..." | tee "log_mpi4py"
 if [ -z "${MPICC}" ]; then
     echo "The MPICC environment variable is not set.  Installing mpi4py" \
@@ -240,6 +243,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
+        echo -e "\n\n"
         echo "Building local package '${pkgname}'" |& tee "log_${pkgname}"
         conda build ${pkgrecipe} |& tee -a "log_${pkgname}"
         echo "Installing local package '${pkgname}'" |& tee -a "log_${pkgname}"
@@ -247,6 +251,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     fi
 done < "${confdir}/packages_local.txt"
 
+echo -e "\n\n"
 echo "Cleaning up build products"
 conda build purge
 
@@ -263,8 +268,10 @@ find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
 # through conda.
 
 # Use pipgrip to install dependencies of pip packages with conda.
+echo -e "\n\n"
 pip install pipgrip
 
+echo -e "\n"
 echo "Installing pip packages..." | tee "log_pip"
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
