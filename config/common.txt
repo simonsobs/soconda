@@ -1,12 +1,10 @@
-# Adjust the default python version
-python=3.10.*
-#
+# This is the set of conda packages that should be installed
+# for all configurations.  The contents of 
+# <config dir>/packages_conda.txt are then appended to this list.
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
 #
 conda-build
-conda-libmamba-solver
-conda-verify
 compilers
 setuptools
 pip
@@ -26,7 +24,7 @@ liblapacke=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
-numpy
+numpy=1.26.*
 scipy
 matplotlib
 cmake
@@ -68,6 +66,4 @@ future
 pyaml
 tqdm
 ipykernel
-# Revert to 0.12 until this bug is fixed:
-# https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw==0.12
+pyfftw

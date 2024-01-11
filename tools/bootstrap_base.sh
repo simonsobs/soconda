@@ -13,7 +13,7 @@ show_help () {
 
 base=$1
 
-if [ "x${base}" = "x" ]; then
+if [ -z ${base} ]; then
     show_help
     exit 1
 fi

@@ -8,6 +8,7 @@ popd >/dev/null 2>&1
 show_help () {
     echo "" >&2
     echo "Usage:  $0" >&2
+    echo "    [-c <directory in config to use for options>]" >&2
     echo "    [-e <environment, either name or full path>]" >&2
     echo "    [-b <conda base install (if not activated)>]" >&2
     echo "    [-v <version (git version used by default)>]" >&2
@@ -21,11 +22,12 @@ show_help () {
 
 base=""
 envname=""
+config=""
 version=""
 moduledir=""
 modinit=""
 
-while getopts ":e:b:v:m:i:" opt; do
+while getopts ":e:c:b:v:m:i:" opt; do
     case $opt in
         e)
             envname=$OPTARG
@@ -33,14 +35,14 @@ while getopts ":e:b:v:m:i:" opt; do
         b)
             base=$OPTARG
             ;;
+        c)
+            config=$OPTARG
+            ;;
         v)
             version=$OPTARG
             ;;
         m)
             moduledir=$OPTARG
-            ;;
-        i)
-            modinit=$OPTARG
             ;;
         \?)
             show_help
@@ -68,11 +70,28 @@ if [ -z "${envname}" ]; then
     envname="soconda"
 fi
 
+if [ -z "${config}" ]; then
+    echo "No config specified, using \"default\""
+    config="default"
+else
+    echo "Using config \"${config}\""
+fi
+
 # The env root name, used for the name of the generated module file
 envroot=$(basename ${envname})
 
 # The full environment name, including the root and version.
 fullenv="${envname}_${version}"
+
+# The path to the selected config directory
+confdir="${scriptdir}/config/${config}"
+if [ ! -d "${confdir}" ]; then
+    echo "Config dir \"${confdir}\" does not exist"
+    exit 1
+fi
+
+# The optional module init for this config
+modinit="${confdir}/module_init"
 
 # Activate the base environment
 if [ -n "${base}" ]; then
@@ -95,6 +114,20 @@ fi
 source "${conda_dir}/etc/profile.d/conda.sh"
 conda activate base
 
+# Conda package cache.  In some cases this can get really big, so
+# we point it to a temp location unless the user has overridden it.
+if [ -z ${CONDA_PKGS_DIRS} ]; then
+    if [ -z ${NERSC_HOST} ]; then
+        # Standard system
+        conda_tmp=$(mktemp -d)
+    else
+        # Running at NERSC, use a directory in scratch
+        conda_tmp="${SCRATCH}/tmp_soconda"
+        mkdir -p "${conda_tmp}"
+    fi
+    export CONDA_PKGS_DIRS="${conda_tmp}"
+fi
+
 # Determine whether the new environment is a name or a full path.
 env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
 is_path=no
@@ -110,14 +143,18 @@ else
     env_check=$(conda env list | grep "${fullenv} ")
 fi
 
+# Extract the python version we are using (if not the default)
+# and pass that to the conda create command.
+python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
+
 if [ -z "${env_check}" ]; then
     # Environment does not yet exist.  Create it.
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -n "${fullenv}"
+        conda create --yes -n "${fullenv}" "${python_version}"
     else
         echo "Creating new environment \"${fullenv}\""
-        conda create --yes -p "${fullenv}"
+        conda create --yes -p "${fullenv}" "${python_version}"
     fi
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
@@ -136,7 +173,7 @@ if [ -z "${env_check}" ]; then
     conda activate "${fullenv}"
 
     # Copy logo files
-    cp "${scriptdir}"/logo*.png "${CONDA_PREFIX}/"
+    cp "${scriptdir}"/logo* "${CONDA_PREFIX}/"
 else
     echo "Activating environment \"${fullenv}\""
     conda activate "${fullenv}"
@@ -146,14 +183,16 @@ fi
 # Install conda packages.
 
 conda_pkgs=""
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
-        pkgname="${line}"
-        conda_pkgs="${conda_pkgs} ${pkgname}"
-    fi
-done < "${scriptdir}/packages_conda.txt"
+for pkgfile in "${scriptdir}/config/common.txt" "${confdir}/packages_conda.txt"; do
+    while IFS='' read -r line || [[ -n "${line}" ]]; do
+        # Is this line commented?
+        comment=$(echo "${line}" | cut -c 1)
+        if [ "${comment}" != "#" ]; then
+            pkgname="${line}"
+            conda_pkgs="${conda_pkgs} ${pkgname}"
+        fi
+    done < "${pkgfile}"
+done
 
 echo "Installing conda packages..." | tee "log_conda"
 conda install --yes ${conda_pkgs} \
@@ -184,7 +223,9 @@ if [ -z "${MPICC}" ]; then
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda install --yes mpich mpi4py | tee -a "log_mpi4py" 2>&1
+    conda install --yes openmpi mpi4py | tee -a "log_mpi4py" 2>&1 \
+    # Disable the ancient openib btl, in order to avoid a harmless warning
+    echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
@@ -199,13 +240,12 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     if [ "${comment}" != "#" ]; then
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo "Building local package '${pkgname}'"
-        conda-build ${pkgrecipe} > "log_${pkgname}" 2>&1
-        cat "log_${pkgname}"
-        echo "Installing local package '${pkgname}'"
-        conda install --yes --use-local ${pkgname}
+        echo "Building local package '${pkgname}'" | tee "log_${pkgname}" 2>&1
+        conda-build ${pkgrecipe} | tee -a "log_${pkgname}" 2>&1
+        echo "Installing local package '${pkgname}'" | tee -a "log_${pkgname}" 2>&1
+        conda install --yes --use-local ${pkgname} | tee -a "log_${pkgname}" 2>&1
     fi
-done < "${scriptdir}/packages_local.txt"
+done < "${confdir}/packages_local.txt"
 
 echo "Cleaning up build products"
 conda-build purge
@@ -224,78 +264,51 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
         if [ "x${url_check}" = "x" ]; then
-            echo "Checking dependencies for package \"${pkg}\""
-            for dep in $(pipgrip --pipe ${pkg}); do
+            echo "Checking dependencies for package \"${pkg}\"" | tee -a "log_pip" 2>&1
+            pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
+            for dep in $(pipgrip --pipe "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
-                if [ "${name}" != "${pkg}" ]; then
+                if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
-                    if [ "x${depcheck}" = "x" ]; then
+                    if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
                         conda install --yes ${name} | tee -a "log_pip" 2>&1
                         if [ $? -ne 0 ]; then
                             echo "  No conda package available for dependency \"${name}\"" | tee -a "log_pip" 2>&1
-			    echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
+                            echo "  Assuming pip package already installed." | tee -a "log_pip" 2>&1
                         fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
                     fi
                 fi
             done
+        else
+            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" | tee -a "log_pip" 2>&1
         fi
-        echo "Installing package ${pkg}"
+        echo "Installing package ${pkg} with --no-deps" | tee -a "log_pip" 2>&1
         python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
     fi
-done < "${scriptdir}/packages_pip.txt"
+done < "${confdir}/packages_pip.txt"
 
-# Create jupyter kernel launcher
-kern="${CONDA_PREFIX}/bin/soconda_run_kernel.sh"
-echo "#!/bin/bash" > "${kern}"
-echo "conn=\$1" >> "${kern}"
-echo "source \"${conda_dir}/etc/profile.d/conda.sh\"" >> "${kern}"
-echo "conda activate \"${fullenv}\"" >> "${kern}"
-echo "export DISABLE_MPI=true" >> "${kern}"
-echo "exec python3 -m ipykernel -f \${conn}" >> "${kern}"
-chmod +x "${kern}"
-
-# Create and install module file and jupyter init script
-
-if [ -z "${moduledir}" ]; then
-    # No centralized directory was specified for modulefiles.  Make
-    # a subdirectory within the environment itself.
-    moduledir="${CONDA_PREFIX}/modulefiles"
-fi
-mkdir -p "${moduledir}/${envroot}"
-if [ -z "${LMOD_VERSION}" ]; then
-    # Using TCL modules
-    input_mod="${scriptdir}/templates/modulefile_tcl.in"
-    outmod="${moduledir}/${envroot}/${version}"
-else
-    # Using LMOD
-    input_mod="${scriptdir}/templates/modulefile_lua.in"
-    outmod="${moduledir}/${envroot}/${version}.lua"
-fi
-rm -f "${outmod}"
-
+# Subsitutions to use when parsing input templates
 confsub="-e 's#@VERSION@#${version}#g'"
 confsub="${confsub} -e 's#@BASE@#${conda_dir}#g'"
 confsub="${confsub} -e 's#@ENVNAME@#${fullenv}#g'"
 confsub="${confsub} -e 's#@ENVPREFIX@#${CONDA_PREFIX}#g'"
 confsub="${confsub} -e 's#@PYVER@#${pyver}#g'"
 
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    if [[ "${line}" =~ @MODLOAD@ ]]; then
-        if [ -e "${modinit}" ]; then
-            cat "${modinit}" >> "${outmod}"
-        fi
-    else
-        echo "${line}" | eval sed ${confsub} >> "${outmod}"
-    fi
-done < "${input_mod}"
+# Source post-install options, if they exist
+if [ -e "${confdir}/post_install.sh" ]; then
+    source "${confdir}/post_install.sh"
+fi
 
-rm -f "${out_jupyter}"
-out_jupyter="${CONDA_PREFIX}/bin/soconda_jupyter.sh"
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    echo "${line}" | eval sed ${confsub} >> "${out_jupyter}"
-done < "${scriptdir}/templates/jupyter.sh.in"
-chmod +x "${out_jupyter}"
+# If the option is enabled in post_install.sh, install modulefile
+if [ -n "${install_module}" ]; then
+    source "${scriptdir}/tools/install_modulefile.sh"
+fi
+
+# If the option is enabled in post_install.sh install jupyter setup
+if [ -n "${install_jupyter_setup}" ]; then
+    source "${scriptdir}/tools/install_jupyter_setup.sh"
+fi

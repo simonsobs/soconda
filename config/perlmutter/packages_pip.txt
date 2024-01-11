@@ -6,8 +6,8 @@ pysm3
 #pysqlite3-wheels
 #so3g
 #
-# Eventually use a tag for sotodlib...
-https://github.com/simonsobs/sotodlib/archive/master.tar.gz
+# Latest tag
+https://github.com/simonsobs/sotodlib/archive/refs/master.tar.gz
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.

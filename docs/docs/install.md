@@ -7,6 +7,7 @@ modulefile:
 
     $> ./soconda.sh -h
         Usage:  ./soconda.sh
+        [-c <directory in config to use for options>]
         [-e <environment, either name or full path>]
         [-b <conda base install (if not activated)>]
         [-v <version (git version used by default)>]
@@ -114,17 +115,21 @@ using this python stack.
 
 ## Customizing an Environment
 
-If you want to dramatically change the package versions / content of an
-`soconda` stack, just load the existing `base` conda environment and edit the
-three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
-packages or add extras. Then install it as usual.
+When running `soconda.sh`, the system configuration to use can be specified
+with the `-c` option. This should be the name of the configuration subdirectory
+with the "config" top-level directory. If not specified, the "default" config
+is used. If you want to dramatically change the package versions / content of
+an `soconda` stack, just load the existing `base` conda environment, copy one
+of the configs to a new name and edit the three lists of packages
+(`packages_[conda|pip|local].txt`) to exclude certain packages or add extras.
+Then install it as usual.
 
 ## Deleting an Environment
 
 The `soconda` environments are self contained and you can delete them by
 removing the path or (if using a name), removing the `<base dir>/envs/<name of
-env>` directory. You can optionally delete the modulefile and the pip local
-directory in your home directory.
+env>` directory. You can optionally delete the modulefile and the versioned pip
+local directory in your home directory.
 
 ## Advanced Details
 

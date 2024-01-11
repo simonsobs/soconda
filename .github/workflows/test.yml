@@ -37,18 +37,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Conda Base
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniforge-version: "latest"
-          python-version: ${{ matrix.python }}
-          channels: conda-forge
-          channel-priority: true
-          use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
-          auto-update-conda: true
-          auto-activate-base: true
+        run: |
+          rm -rf /usr/share/miniconda
+          rm -rf /usr/local/miniconda
+          ./tools/bootstrap_base.sh ~/conda
 
       - name: Check Conda Config
         run: |
+          source ~/conda/etc/profile.d/conda.sh
           conda activate base
           conda info
           conda list
@@ -57,10 +53,16 @@ jobs:
 
       - name: Install
         run: |
+          source ~/conda/etc/profile.d/conda.sh
+          conda activate base
+          pyver=${{ matrix.python }}
+          sed -i -e "s/python=3\.10/python=${pyver}/" ./config/default/packages_conda.txt
+          cat ./config/default/packages_conda.txt
           ./soconda.sh -e soconda -v CI
 
       - name: Run Tests
         run: |
+          source ~/conda/etc/profile.d/conda.sh
           conda activate "soconda_CI"
           export OMP_NUM_THREADS=2
           export MPI_DISABLE=1
@@ -68,7 +70,7 @@ jobs:
           python3 -c 'import toast.tests; toast.tests.run()'
           git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git
           pushd sotodlib
-          python3 setup.py test
+          python3 -m unittest
           popd
           unset MPI_DISABLE
           unset OMP_NUM_THREADS
