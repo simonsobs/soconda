@@ -274,6 +274,7 @@ pip install pipgrip
 echo -e "\n"
 echo "Installing pip packages..." | tee "log_pip"
 
+installed_pkgs="$(conda_exec list | awk '{print $1}')"
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Skip if $line is empty
     # If the $line start with '#' then it's a comment.
@@ -286,11 +287,12 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
                 if [ "${name}" != "${pkgbase}" ]; then
-                    depcheck=$(conda list ${name} | awk '{print $1}' | grep -E "^${name}\$")
+                    depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
                         echo "Attempt to install conda package for dependency \"${name}\"..." |& tee -a "log_pip"
                         conda_exec install --yes ${name} |& tee -a "log_pip"
+                        installed_pkgs="${installed_pkgs}"$'\n'"${name}"
                     else
                         echo "  Package for dependency \"${name}\" already installed" |& tee -a "log_pip"
                     fi
@@ -301,6 +303,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         fi
         echo "Installing package ${pkg} with --no-deps" |& tee -a "log_pip"
         python3 -m pip install --no-deps ${pkg} |& tee -a "log_pip"
+        installed_pkgs="${installed_pkgs}"$'\n'"${pkg}"
         echo -e "\n\n"
     fi
 done < "${confdir}/packages_pip.txt"
