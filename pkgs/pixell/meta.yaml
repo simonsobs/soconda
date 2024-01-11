@@ -61,7 +61,7 @@ requirements:
     - pyyaml
     - h5py
     - pillow
-    - pyfftw==0.12
+    - pyfftw
 
 test:
   imports:
