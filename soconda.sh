@@ -254,7 +254,7 @@ conda build purge
 rm -rf "${conda_tmp}" &> /dev/null
 
 # Remove /tmp/pixell-* test files create by pixell/setup.py
-find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec ls {} \;
+find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
 
 
 # Install pip packages.  We install one package at a time
