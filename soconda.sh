@@ -156,7 +156,6 @@ fi
 # and pass that to the conda create command.
 python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
-
 # Check this env exist or not
 # env_check would be empty if not exist
 env_check=$(conda_exec env list | grep "${fullenv}")
@@ -252,10 +251,10 @@ echo "Cleaning up build products"
 conda build purge
 
 # Remove buid directory
-rm -r "${conda_tmp}"
+rm -rf "${conda_tmp}" &> /dev/null
 
 # Remove /tmp/pixell-* test files create by pixell/setup.py
-find "/tmp" -type f -name 'pixell-*' -exec rm -rf {} \;
+find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec ls {} \;
 
 
 # Install pip packages.  We install one package at a time
@@ -269,12 +268,11 @@ pip install pipgrip
 echo "Installing pip packages..." | tee "log_pip"
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
+    # If the $line start with '#' then it's a comment.
+    if [ "${line:0:1}" != "#" ]; then
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
-        if [ "x${url_check}" = "x" ]; then
+        if [ -z "${url_check}" ]; then
             echo "Checking dependencies for package \"${pkg}\"" | tee -a "log_pip" 2>&1
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe "${pkg}"); do
