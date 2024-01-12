@@ -7,6 +7,7 @@ modulefile:
 
     $> ./soconda.sh -h
         Usage:  ./soconda.sh
+        [-c <directory in config to use for options>]
         [-e <environment, either name or full path>]
         [-b <conda base install (if not activated)>]
         [-v <version (git version used by default)>]
@@ -24,22 +25,19 @@ clutter.
 
 ## Base Conda Environment
 
-If you already have a conda-forge base environment, then you can skip this
+If you already have a conda-forge or micromamba base environment, then you can skip this
 step. However, you should consider setting the "solver" in the base environment
-to use libmamba. This will greatly speed up the dependency resolution
-calculation. Once you decide on the install prefix for your overall conda
-environment you can use the included bootstrap script. For this example, we
-will use `/opt/conda` as the path to the conda base installation. Now run the
-bootstrap script:
+to use `libmamba`. To switch to new solver see
+[this]((https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
+This will greatly speed up the dependency resolution
+calculation.
 
-    $> ./tools/bootstrap_base "/opt/conda"
-
-This bootstrap will install a base system with the conda-forge channel set to
-the default and using the libmamba solver. You can now source the conda
-initialization file and activate this base environment:
-
-    $> source /opt/conda/etc/profile.d/conda.sh
-    $> conda activate base
+For new installation run following command to install miniforge
+```
+curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" | bash
+```
+It will set conda-forge as default channel and use `libmamba` as default solver.
+After the installation you need to re-login or start a new terminal to initialize conda.
 
 After installing an `soconda` environment below, you will not need this step
 since it is done by the generated modulefile.
@@ -53,53 +51,54 @@ compiler before running `soconda.sh`. That will cause the mpi4py package to
 be built using your system MPI compiler.
 
 ## Example:  Local System
+This installation could install `soconda` to your local computer and any cluster.
 
 Clone soconda repo
 ```
-$ git clone git@github.com:simonsobs/soconda.git
-$ cd soconda
+git clone git@github.com:simonsobs/soconda.git
+cd soconda
 ```
 
-Create and activate new empty environment called `soconda`
+Run the `soconda.sh` script
 ```
-$ conda create --no-default-packages -n soconda
-$ conda activate soconda
+export MAKEFLAGS='-j 4'
+bash soconda.sh -e soconda -c default
+```
+This will create a new environment `soconda_xxx.x.x` with version number as suffix
+using `default` configuration. [More details on configuration.](## Customizing an Environment)
+(The `MAKEFLAGS` doesn't seem to have any effect.)
+
+You could find out the name of new created environment with
+```
+conda env list
 ```
 
-Install packages to `soconda` environment
+Then you can now activate the environment with
 ```
-(soconda) $ export MAKEFLAGS='-j 4'
-(soconda) $ bash install_pkgs.sh
-```
-(The `MAKEFLAGS` doesn't seem to have any effect, investigating)
-
-Install JupyterLab
-```
-(soconda) $ conda install jupyterlab
+conda activate soconda_xxx.x.x
 ```
 
 If running on server, start jupyterlab listening on port `12345` with command
 ```
-(soconda) $ cd /path/to/project
-(soconda) $ nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
+cd /path/to/project
+nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
 ```
 
 To list current running jupyter server:
 ```
-(soconda) $ jupyter server list
+jupyter server list
 ```
 
-To connect to jupyterlab running on server, run SSH tunnel on your laptop/desktop:
+To connect to jupyterlab running on server, start SSH tunnel from your laptop/desktop:
 ```
-$ ssh -N -L 12345:localhost:12345 server_ip
+ssh -N -L 12345:localhost:12345 server_domain_or_ip
 ```
 Then you can connect to jupyterlab with link provided by command `jupyter server list`.
 
 To stop jupyterlab listenging on port 12345:
 ```
-(soconda) $ jupyter server stop 12345
+jupyter server stop 12345
 ```
-
 
 ## Example:  NERSC
 
@@ -143,17 +142,21 @@ using this python stack.
 
 ## Customizing an Environment
 
-If you want to dramatically change the package versions / content of an
-`soconda` stack, just load the existing `base` conda environment and edit the
-three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
-packages or add extras. Then install it as usual.
+When running `soconda.sh`, the system configuration to use can be specified
+with the `-c` option. This should be the name of the configuration subdirectory
+with the "config" top-level directory. If not specified, the "default" config
+is used. If you want to dramatically change the package versions / content of
+an `soconda` stack, just load the existing `base` conda environment, copy one
+of the configs to a new name and edit the three lists of packages
+(`packages_[conda|pip|local].txt`) to exclude certain packages or add extras.
+Then install it as usual.
 
 ## Deleting an Environment
 
 The `soconda` environments are self contained and you can delete them by
 removing the path or (if using a name), removing the `<base dir>/envs/<name of
-env>` directory. You can optionally delete the modulefile and the pip local
-directory in your home directory.
+env>` directory. You can optionally delete the modulefile and the versioned pip
+local directory in your home directory.
 
 ## Advanced Details
 
