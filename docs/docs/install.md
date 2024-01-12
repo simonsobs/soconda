@@ -79,6 +79,11 @@ Then you can now activate the environment with
 conda activate soconda_xxx.x.x
 ```
 
+If running on a Linux desktop that uses wayland, you also need to install the `qt-wayland` package
+```
+conda install qt-wayland
+```
+
 If running on server, start jupyterlab listening on port `12345` with command
 ```
 cd /path/to/project
