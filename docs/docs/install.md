@@ -160,8 +160,9 @@ Then install it as usual.
 ## Deleting an Environment
 
 The `soconda` environments are self contained and you can delete them by
-removing the path or (if using a name), removing the `<base dir>/envs/<name of
-env>` directory. You can optionally delete the modulefile and the versioned pip
+running command `conda remove --name envname --all` or `conda remove -p /base_dir/envs/name --all`.
+Or directly removing the `<base dir>/envs/<name of env>` directory.
+You can optionally delete the modulefile and the versioned pip
 local directory in your home directory.
 
 ## Advanced Details
