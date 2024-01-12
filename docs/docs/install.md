@@ -28,7 +28,7 @@ clutter.
 If you already have a conda-forge or micromamba base environment, then you can skip this
 step. However, you should consider setting the "solver" in the base environment
 to use `libmamba`. To use `libmamba` solver see
-[this]((https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
+[this](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
 This will greatly speed up the dependency resolution
 calculation.
 
@@ -66,7 +66,7 @@ export MAKEFLAGS='-j 4'
 bash soconda.sh -e soconda -c default
 ```
 This will create a new environment `soconda_xxx.x.x` with version number as suffix
-using `default` configuration. [More details on configuration.](## Customizing an Environment)
+using `default` configuration. [More details on configuration.](#customizing-an-environment)
 (The `MAKEFLAGS` doesn't seem to have any effect.)
 
 You could find out the name of new created environment with
