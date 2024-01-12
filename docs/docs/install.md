@@ -27,14 +27,15 @@ clutter.
 
 If you already have a conda-forge or micromamba base environment, then you can skip this
 step. However, you should consider setting the "solver" in the base environment
-to use `libmamba`. To switch to new solver see
+to use `libmamba`. To use `libmamba` solver see
 [this]((https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
 This will greatly speed up the dependency resolution
 calculation.
 
 For new installation run following command to install miniforge
 ```
-curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" | bash
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
 ```
 It will set conda-forge as default channel and use `libmamba` as default solver.
 After the installation you need to re-login or start a new terminal to initialize conda.
