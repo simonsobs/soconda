@@ -7,7 +7,6 @@ modulefile:
 
     $> ./soconda.sh -h
         Usage:  ./soconda.sh
-        [-c <directory in config to use for options>]
         [-e <environment, either name or full path>]
         [-b <conda base install (if not activated)>]
         [-v <version (git version used by default)>]
@@ -55,23 +54,52 @@ be built using your system MPI compiler.
 
 ## Example:  Local System
 
-Starting from scratch, bootstrap a small conda-forge base environment in `~/conda`:
+Clone soconda repo
+```
+$ git clone git@github.com:simonsobs/soconda.git
+$ cd soconda
+```
 
-    $> ./tools/bootstrap_base.sh ~/conda
-    $> source ~/conda/etc/profile.d/conda.sh
-    $> conda activate base
+Create and activate new empty environment called `soconda`
+```
+$ conda create --no-default-packages -n soconda
+$ conda activate soconda
+```
 
-Create an `soconda` environment with default name and version. However, we
-decide to put all the modulefiles into a central location in the root of the
-base conda install:
+Install packages to `soconda` environment
+```
+(soconda) $ export MAKEFLAGS='-j 4'
+(soconda) $ bash install_pkgs.sh
+```
+(The `MAKEFLAGS` doesn't seem to have any effect, investigating)
 
-    $> ./soconda.sh -b ~/conda -m ~/conda/modulefiles
+Install JupyterLab
+```
+(soconda) $ conda install jupyterlab
+```
 
-Now we can load the module:
+If running on server, start jupyterlab listening on port `12345` with command
+```
+(soconda) $ cd /path/to/project
+(soconda) $ nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
+```
 
-    $> module use ~/conda/modulefiles
-    $> module avail
-    $> module load soconda/XXXXXX
+To list current running jupyter server:
+```
+(soconda) $ jupyter server list
+```
+
+To connect to jupyterlab running on server, run SSH tunnel on your laptop/desktop:
+```
+$ ssh -N -L 12345:localhost:12345 server_ip
+```
+Then you can connect to jupyterlab with link provided by command `jupyter server list`.
+
+To stop jupyterlab listenging on port 12345:
+```
+(soconda) $ jupyter server stop 12345
+```
+
 
 ## Example:  NERSC
 
@@ -115,21 +143,17 @@ using this python stack.
 
 ## Customizing an Environment
 
-When running `soconda.sh`, the system configuration to use can be specified
-with the `-c` option. This should be the name of the configuration subdirectory
-with the "config" top-level directory. If not specified, the "default" config
-is used. If you want to dramatically change the package versions / content of
-an `soconda` stack, just load the existing `base` conda environment, copy one
-of the configs to a new name and edit the three lists of packages
-(`packages_[conda|pip|local].txt`) to exclude certain packages or add extras.
-Then install it as usual.
+If you want to dramatically change the package versions / content of an
+`soconda` stack, just load the existing `base` conda environment and edit the
+three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
+packages or add extras. Then install it as usual.
 
 ## Deleting an Environment
 
 The `soconda` environments are self contained and you can delete them by
 removing the path or (if using a name), removing the `<base dir>/envs/<name of
-env>` directory. You can optionally delete the modulefile and the versioned pip
-local directory in your home directory.
+env>` directory. You can optionally delete the modulefile and the pip local
+directory in your home directory.
 
 ## Advanced Details
 

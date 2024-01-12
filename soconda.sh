@@ -143,6 +143,7 @@ if [ -z ${CONDA_PKGS_DIRS} ]; then
         # Create temp direcotry
         mkdir -p "$scriptdir/tmpfs"
         conda_tmp=$(mktemp -d --tmpdir="$scriptdir/tmpfs")
+        export TMPDIR="$conda_tmp"
     else
         # Running at NERSC, use a directory in scratch
         conda_tmp="${SCRATCH}/tmp_soconda"
