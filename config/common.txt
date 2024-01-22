@@ -5,6 +5,7 @@
 # and parse pip dependencies with pipgrip.
 #
 conda-build
+conda-verify
 compilers
 setuptools
 pip
