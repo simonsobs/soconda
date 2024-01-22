@@ -52,7 +52,7 @@ compiler before running `soconda.sh`. That will cause the mpi4py package to
 be built using your system MPI compiler.
 
 ## Example:  Local System
-This installation could install `soconda` to your local computer and any cluster.
+This installation could install `soconda` to your local computer and any remote server or cluster.
 
 Clone soconda repo
 ```
@@ -63,10 +63,12 @@ cd soconda
 Run the `soconda.sh` script
 ```
 export MAKEFLAGS='-j 4'
-bash soconda.sh -e soconda -c default
+bash soconda.sh -e soconda -c base
 ```
 This will create a new environment `soconda_xxx.x.x` with version number as suffix
-using `default` configuration. [More details on configuration.](#customizing-an-environment)
+using `base` configuration. [More details on configuration.](#customizing-an-environment)
+If you don't want to compile some packages like `toast` `so3g`, you can use `base-bin` configuration instead.
+This will install binary packages with `pip`, but try to install as many packages with `conda` as possible.
 (The `MAKEFLAGS` doesn't seem to have any effect.)
 
 You could find out the name of new created environment with
@@ -156,6 +158,13 @@ an `soconda` stack, just load the existing `base` conda environment, copy one
 of the configs to a new name and edit the three lists of packages
 (`packages_[conda|pip|local].txt`) to exclude certain packages or add extras.
 Then install it as usual.
+
+| Configuration | Description |
+| --- | --- |
+| default | Default/reference configuration. It will also set up module file (require [Modules](https://docs.fedoraproject.org/en-US/modularity/using-modules/)) and jupyter kernel script. |
+| base | Same as `default` but without module file and jupyter kernel script. |
+| base-bin | Same as `base` but will not compile [packages](/pkgs). It will install `pip` packages instead.  |
+| minimal | Minimal installation (without jupyterlab etc.)  And it will not compile [packages](/pkgs). |
 
 ## Deleting an Environment
 
