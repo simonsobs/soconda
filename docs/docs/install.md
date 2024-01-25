@@ -32,11 +32,11 @@ to use `libmamba`. To use `libmamba` solver see
 This will greatly speed up the dependency resolution
 calculation.
 
-For new installation run following command to install miniforge
+For new installation run following script to install miniforge
 ```
-curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-bash Miniforge3-$(uname)-$(uname -m).sh
+./tools/bootstrap_base "$HOME/miniforge3"
 ```
+This will intall conda to `$HOME/miniforge3` directory.
 It will set conda-forge as default channel and use `libmamba` as default solver.
 After the installation you need to re-login or start a new terminal to initialize conda.
 
@@ -68,6 +68,7 @@ bash soconda.sh -e soconda -c default
 This will create a new environment `soconda_xxx.x.x` with version number as suffix
 using `default` configuration. [More details on configuration.](#customizing-an-environment)
 (The `MAKEFLAGS` doesn't seem to have any effect.)
+If you want to specify a conda base directory add `-b "$HOME/miniforge3"` argument to `soconda.sh`.
 
 You could find out the name of new created environment with
 ```
