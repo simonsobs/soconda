@@ -1,6 +1,12 @@
 # Modulefile install snippet.  This is sourced from the main
 # `soconda.sh` script and uses variables defined there.
 
+# The env root name, used for the name of the generated module file
+envroot=$(basename ${envname})
+
+# The optional module init for this config
+modinit="${confdir}/module_init"
+
 if [ -z "${moduledir}" ]; then
     # No centralized directory was specified for modulefiles.  Make
     # a subdirectory within the environment itself.

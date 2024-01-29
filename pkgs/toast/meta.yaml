@@ -1,6 +1,6 @@
 
-{% set version = "3980cbb579de56a379df000df76e69a1c1ac73ae" %}
-{% set sha256 = "e2713145f758631cd6bb24b89a87f2522322a72a29400f8ba51d5144e9afe54d" %}
+{% set version = "3.0.0a20" %}
+{% set sha256 = "4d5ad584bf0d2e851009beb17a4ec96677b36b9c9e18893910014581bc22bb4c" %}
 
 {% set build = 0 %}
 
@@ -9,7 +9,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/hpc4cmb/toast/archive/{{ version }}.tar.gz
+  url: https://github.com/hpc4cmb/toast/archive/refs/tags/{{ version }}.tar.gz
   sha256: {{ sha256 }}
   # patches:
   #   - debug_lapack.patch
