@@ -13,7 +13,6 @@ show_help () {
     echo "    [-b <conda base install (if not activated)>]" >&2
     echo "    [-v <version (git version used by default)>]" >&2
     echo "    [-m <modulefile dir (default is <env>/modulefiles)>]" >&2
-    echo "    [-i <file with modulefile commands to load dependencies> ]" >&2
     echo "" >&2
     echo "    Create a conda environment for Simons Observatory." >&2
     echo "" >&2
@@ -25,9 +24,8 @@ envname=""
 config=""
 version=""
 moduledir=""
-modinit=""
 
-while getopts ":e:c:b:v:m:i:" opt; do
+while getopts ":e:c:b:v:m:" opt; do
     case $opt in
         e)
             envname=$OPTARG
