@@ -13,3 +13,8 @@ install_module=yes
 install_jupyter_setup=yes
 
 # Add any other shell commands here for this system...
+
+# Forcibly replace the conda pyfftw package with the wheel
+# until this upstream PR is merged:
+# https://github.com/conda-forge/pyfftw-feedstock/pull/60
+pip install --upgrade --no-deps --force-reinstall pyfftw
