@@ -65,10 +65,10 @@ pushd "build" 2>&1 >/dev/null
 export MPICC="cc"
 
 eval "${clone_dir}/soconda.sh" \
+    -c "perlmutter" \
     -e "${env_name}" \
     -v "${env_version}" \
-    -m "${module_dir}" \
-    -i "${clone_dir}/deploy/init_nersc_lmod" >> "${logfile}" 2>&1
+    -m "${module_dir}" >> "${logfile}" 2>&1
 
 popd 2>&1 >/dev/null
 popd 2>&1 >/dev/null
