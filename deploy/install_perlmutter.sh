@@ -54,7 +54,7 @@ git clone --depth=1 --single-branch --branch=${version} https://github.com/simon
 # Activate the base environment and keep it up to date.
 source "${base_dir}/etc/profile.d/conda.sh"
 conda activate base >> "${logfile}" 2>&1
-conda update --all -n base >> "${logfile}" 2>&1
+conda update --yes --all -n base >> "${logfile}" 2>&1
 
 # Build things from the temp directory
 
