@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Location of this script
-pushd $(dirname $0) >/dev/null 2>&1
+pushd $(dirname $0) 2>&1 >/dev/null
 scriptdir=$(pwd)
-popd >/dev/null 2>&1
+popd 2>&1 >/dev/null
 
 show_help () {
     echo "" >&2
@@ -196,9 +196,9 @@ conda_exec env list
 echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
 conda_exec install --yes --file "${scriptdir}/config/common.txt" \
-    | tee -a "log_conda" 2>&1
+    2>&1 | tee -a "log_conda"
 conda_exec install --yes --file "${confdir}/packages_conda.txt" \
-    | tee -a "log_conda" 2>&1
+    2>&1 | tee -a "log_conda"
 # The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
 rm -f "${CONDA_PREFIX}/bin/cc"
 
@@ -214,13 +214,13 @@ if [ -z "${MPICC}" ]; then
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda_exec install --yes openmpi mpi4py | tee -a "log_mpi4py" 2>&1
+    conda_exec install --yes openmpi mpi4py 2>&1 | tee -a "log_mpi4py"
     # Disable the ancient openib btl, in order to avoid a harmless warning
     echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-        | tee -a "log_mpi4py" 2>&1
+        2>&1 | tee -a "log_mpi4py"
 fi
 
 
@@ -243,10 +243,10 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgname="${line}"
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo -e "\n\n"
-        echo "Building local package '${pkgname}'" | tee "log_${pkgname}" 2>&1
-        conda build ${pkgrecipe} | tee -a "log_${pkgname}" 2>&1
-        echo "Installing local package '${pkgname}'" | tee -a "log_${pkgname}" 2>&1
-        conda install --yes --use-local ${pkgname} | tee -a "log_${pkgname}" 2>&1
+        echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
+        conda build ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
+        echo "Installing local package '${pkgname}'" 2>&1 | tee -a "log_${pkgname}"
+        conda install --yes --use-local ${pkgname} 2>&1 | tee -a "log_${pkgname}"
     fi
 done < "${confdir}/packages_local.txt"
 
@@ -281,7 +281,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
         if [ -z "${url_check}" ]; then
-            echo "Checking dependencies for package \"${pkg}\"" | tee -a "log_pip" 2>&1
+            echo "Checking dependencies for package \"${pkg}\"" 2>&1 | tee -a "log_pip"
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
@@ -289,19 +289,22 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                     depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
-                        echo "Attempt to install conda package for dependency \"${name}\"..." | tee -a "log_pip" 2>&1
-                        conda_exec install --yes ${name} | tee -a "log_pip" 2>&1
+                        echo "Attempt to install conda package for dependency \
+                        \"${name}\"..." 2>&1 | tee -a "log_pip"
+                        conda_exec install --yes ${name} 2>&1 | tee -a "log_pip"
                         installed_pkgs="${installed_pkgs}"$'\n'"${name}"
                     else
-                        echo "  Package for dependency \"${name}\" already installed" | tee -a "log_pip" 2>&1
+                        echo "  Package for dependency \"${name}\" already installed" \
+                        2>&1 | tee -a "log_pip"
                     fi
                 fi
             done
         else
-            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" | tee -a "log_pip" 2>&1
+            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" \
+            2>&1 | tee -a "log_pip"
         fi
-        echo "Installing package ${pkg} with --no-deps" | tee -a "log_pip" 2>&1
-        python3 -m pip install --no-deps ${pkg} | tee -a "log_pip" 2>&1
+        echo "Installing package ${pkg} with --no-deps" 2>&1 | tee -a "log_pip"
+        python3 -m pip install --no-deps ${pkg} 2>&1 | tee -a "log_pip"
         installed_pkgs="${installed_pkgs}"$'\n'"${pkg}"
         echo -e "\n\n"
     fi

@@ -21,7 +21,7 @@ echo '
     "display_name": "Simons Observatory @VERSION@",
     "env": {
         "PATH": "@ENVPREFIX@/bin",
-        "PYTHONPATH": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages:@ENVPREFIX@/lib/python@PYVER@/site-packages"
+        "PYTHONUSERBASE": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
     },
     "metadata": {
         "debugger": true
