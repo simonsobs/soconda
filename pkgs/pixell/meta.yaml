@@ -20,11 +20,9 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx or linux]
   host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx or linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
     - libblas * *openblas
@@ -48,6 +46,7 @@ requirements:
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]
   run:
+    - llvm-openmp # [osx or linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
     - libblas * *openblas

@@ -26,11 +26,9 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake
     - make         # [unix]
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx or linux]
   host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx or linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
     - libblas * *openblas
@@ -42,6 +40,7 @@ requirements:
     - libaatm
     - libflac
   run:
+    - llvm-openmp # [osx or linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
     - libblas * *openblas

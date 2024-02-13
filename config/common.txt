@@ -13,6 +13,7 @@ packaging
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
+_openmp_mutex=*=*_llvm
 openblas=*=openmp_*
 libopenblas=*=openmp_*
 libblas=*=*openblas
