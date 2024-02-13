@@ -170,9 +170,19 @@ if [ -z "${env_check}" ]; then
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
 
-    # Create condarc for this environment
+    # Create condarc for this environment.  Note: The conda build
+    # tools are installed in the base environment and so the
+    # "--use-local" option will not let us find the built packages
+    # we will store inside this env.  Because of this, we create a
+    # package directory in our environment and add it to the
+    # condarc.
+    mkdir -p "${CONDA_PREFIX}/conda-bld"
+    mkdir -p "${CONDA_PREFIX}/conda-bld/temp_build"
+    conda_exec index "${CONDA_PREFIX}/conda-bld"
+
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - file://${CONDA_PREFIX}/conda-bld" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
@@ -195,12 +205,10 @@ conda_exec env list
 # Install conda packages.
 echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
-conda_exec install --yes --file "${scriptdir}/config/common.txt" \
+conda_exec install --yes \
+    --file "${scriptdir}/config/common.txt" \
+    --file "${confdir}/packages_conda.txt" \
     2>&1 | tee -a "log_conda"
-conda_exec install --yes --file "${confdir}/packages_conda.txt" \
-    2>&1 | tee -a "log_conda"
-# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-rm -f "${CONDA_PREFIX}/bin/cc"
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
@@ -239,17 +247,19 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkgrecipe="${scriptdir}/pkgs/${pkgname}"
         echo -e "\n\n"
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
-        conda build ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
+        conda build --croot "${CONDA_PREFIX}/conda-bld/temp_build" \
+            --output-folder "${CONDA_PREFIX}/conda-bld" \
+            ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
         echo "Installing local package '${pkgname}'" 2>&1 | tee -a "log_${pkgname}"
-        conda install --yes --use-local ${pkgname} 2>&1 | tee -a "log_${pkgname}"
+        conda install --yes ${pkgname} 2>&1 | tee -a "log_${pkgname}"
     fi
 done < "${confdir}/packages_local.txt"
 
 echo -e "\n\n"
 echo "Cleaning up build products"
-conda build purge
+rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
 
-# Remove buid directory
+# Remove build directory
 rm -rf "${conda_tmp}" &> /dev/null
 
 # Remove /tmp/pixell-* test files create by pixell/setup.py

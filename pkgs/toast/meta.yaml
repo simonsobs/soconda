@@ -25,34 +25,36 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - make         # [unix]
-    - llvm-openmp # [osx or linux]
+    - make
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
   host:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
     - numpy=1.26.*
+    - scipy
     - fftw
     - suitesparse
     - libaatm
     - libflac
   run:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
+    - {{ pin_compatible('openblas') }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('scipy') }}
     - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('fftw') }}
     - {{ pin_compatible('suitesparse') }}
     - {{ pin_compatible('libaatm') }}
     - {{ pin_compatible('libflac') }}
     - ruamel.yaml
-    - scipy
     - matplotlib
     - astropy
     - healpy

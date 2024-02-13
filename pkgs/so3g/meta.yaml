@@ -27,12 +27,12 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake
     - make         # [unix]
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
   host:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
     - numpy=1.26.*
@@ -46,12 +46,14 @@ requirements:
     # building with a numba-compatible numpy version
     - numba
   run:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
+    - {{ pin_compatible('openblas') }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('scipy') }}
     - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('libboost') }}
     - {{ pin_compatible('libboost-python') }}
@@ -59,7 +61,6 @@ requirements:
     - {{ pin_compatible('qpoint') }}
     - astropy
     - matplotlib
-    - scipy
     - ephem
     - pytz
     - pyaml

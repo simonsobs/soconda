@@ -39,13 +39,13 @@ fi
 # always created.
 
 # Update the persistent git checkout and find the most recent tag
-pushd "${git_dir}" 2>&1 >/dev/null
+pushd "${git_dir}" >/dev/null 2>&1
 git checkout main
 git fetch --tags
 git rebase origin/main
 git remote prune origin
 latest=$(git describe --tags $(git rev-list --tags --max-count=1))
-popd 2>&1 >/dev/null
+popd >/dev/null 2>&1
 
 # See if we already have this tag installed
 found=no
@@ -74,7 +74,7 @@ today=$(date +%Y%m%d)
 log_file="${log_dir}/check_tags_${host}_${now}"
 
 # Create the log file
-echo "Starting at ${now}" 2>&1 > "${log_file}"
+echo "Starting at ${now}" > "${log_file}"
 
 # Get the module file version that will be installed
 mod_ver="${today}_${latest}"
@@ -83,9 +83,9 @@ send_log=no
 annoy="${git_dir}/.already_annoyed"
 remain=$(get_common_free_gb)
 if (( remain < typical )); then
-    echo "Only ${remain} GB are available in /global/common/software/sobs" 2>&1 >> "${log_file}"
-    echo "Installing latest tag requires approximately ${typical} GB" 2>&1 >> "${log_file}"
-    echo "SKIPPING until disk space is cleared." 2>&1 >> "${log_file}"
+    echo "Only ${remain} GB are available in /global/common/software/sobs" >> "${log_file}"
+    echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}"
+    echo "SKIPPING until disk space is cleared." >> "${log_file}"
     if [ ! -e "${annoy}" ]; then
         send_log=yes
         touch "${annoy}"
@@ -93,16 +93,16 @@ if (( remain < typical )); then
 else
     send_log=yes
     rm -f "${git_dir}/.already_annoyed"
-    echo "Latest tag '${latest}' not found, installing..." 2>&1 >> "${log_file}"
-    echo "Note: ${remain} GB are available in /global/common/software/sobs" 2>&1 >> "${log_file}"
-    echo "Installing latest tag requires approximately ${typical} GB" 2>&1 >> "${log_file}"
+    echo "Latest tag '${latest}' not found, installing..." >> "${log_file}"
+    echo "Note: ${remain} GB are available in /global/common/software/sobs" >> "${log_file}"
+    echo "Installing latest tag requires approximately ${typical} GB" >> "${log_file}"
     install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
     if [ -f "${install_log}" ]; then
         # There were no errors, and the log file was returned
-        cat "${install_log}" 2>&1 >> "${log_file}"
+        cat "${install_log}" >> "${log_file}"
     else
         # The script must have printed out some errors
-        echo "${install_log}" 2>&1 >> "${log_file}"
+        echo "${install_log}" >> "${log_file}"
     fi
 fi
 
@@ -114,7 +114,7 @@ if [ -e "${mod_latest}" ]; then
     rm -f "${mod_dir}/stable.lua" \
     && ln -s "${mod_latest}" "${mod_dir}/stable.lua"
 else
-    echo "ERROR:  module file ${mod_latest} was not created- leaving stable symlink" 2>&1 >> "${log_file}"
+    echo "ERROR:  module file ${mod_latest} was not created- leaving stable symlink" >> "${log_file}" 
 fi
 
 echo "Finished installing tag '${latest}' on host ${NERSC_HOST} at $(date +%Y%m%d-%H%M%S)" >> "${log_file}"
@@ -124,7 +124,7 @@ if [ "${send_log}" = "yes" ]; then
     slack_web_hook=${SLACKBOT_SOCONDA}
 
     if [ "x${slack_web_hook}" = "x" ]; then
-        echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" 2>&1 >> "${log_file}"
+        echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" >> "${log_file}"
     else
         # Create the JSON payload.
         slackjson="${log_file}_slack.json"
@@ -132,6 +132,6 @@ if [ "${send_log}" = "yes" ]; then
         echo -e "{\"text\":\"soconda install tag (log at \`${log_file}\`):\n\`\`\`$(head -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\n(Snip)\n\`\`\`$(tail -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\"}" > "${slackjson}"
         # Post it.
         slackerror=$(curl -X POST -H 'Content-type: application/json' --data "$(cat ${slackjson})" ${slack_web_hook})
-        echo "Slack API post  ${slackerror}" 2>&1 >> "${log_file}"
+        echo "Slack API post  ${slackerror}" >> "${log_file}"
     fi
 fi

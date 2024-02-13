@@ -20,12 +20,17 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
   host:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
+    - openblas * openmp_*
+    - liblapack * *openblas
     - python
     - setuptools
     - numpy=1.26.*
+    - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
@@ -33,7 +38,14 @@ requirements:
     # IERS data and store it in the package
     - astropy
   run:
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
+    - openblas * openmp_*
+    - liblapack * *openblas
     - python
+    - {{ pin_compatible('openblas') }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('scipy') }}
     - {{ pin_compatible('numpy') }}
 
 test:

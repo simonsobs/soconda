@@ -21,12 +21,12 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
   host:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
     - fftw
@@ -34,22 +34,24 @@ requirements:
     - libactpol
     - future
     - numpy=1.26.*
+    - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
   run:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - python
+    - {{ pin_compatible('openblas') }}
+    - {{ pin_compatible('liblapack') }}
+    - {{ pin_compatible('scipy') }}
+    - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('fftw') }}
     - {{ pin_compatible('gsl') }}
     - {{ pin_compatible('libactpol') }}
-    - {{ pin_compatible('numpy') }}
     - future
-    - scipy
     - matplotlib
     - astropy
     - ephem

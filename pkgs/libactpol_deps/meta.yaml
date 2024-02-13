@@ -21,12 +21,12 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
   host:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
     - automake
     - autoconf
@@ -35,11 +35,12 @@ requirements:
     - make
     - zziplib
   run:
-    - llvm-openmp # [osx or linux]
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
     - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
     - liblapack * *openblas
+    - {{ pin_compatible('openblas') }}
+    - {{ pin_compatible('liblapack') }}
     - {{ pin_compatible('zziplib') }}
 
 test:
