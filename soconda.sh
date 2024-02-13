@@ -230,11 +230,6 @@ fi
 # conda command is availabe in both micromamba and miniforge installation.
 # If you run $(which conda) command it should return $CONDA_PREFIX/bin/conda
 # in both cases.
-mkdir -p "${CONDA_PREFIX}/conda-bld"
-conda index "${CONDA_PREFIX}/conda-bld"
-conda config \
-    --file "${CONDA_PREFIX}/.condarc" \
-    --add channels "file://${CONDA_PREFIX}/conda-bld"
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
     # Is this line commented?
@@ -258,7 +253,7 @@ conda build purge
 rm -rf "${conda_tmp}" &> /dev/null
 
 # Remove /tmp/pixell-* test files create by pixell/setup.py
-find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
+find "/tmp" -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
 
 
 # Install pip packages.  We install one package at a time

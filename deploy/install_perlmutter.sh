@@ -49,12 +49,13 @@ if [ -d "${clone_dir}" ]; then
     rm -rf "${clone_dir}"
 fi
 
-git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
+git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" 2>&1 >> "${logfile}"
 
 # Activate the base environment and keep it up to date.
 source "${base_dir}/etc/profile.d/conda.sh"
-conda activate base >> "${logfile}" 2>&1
-conda update --yes --all -n base >> "${logfile}" 2>&1
+conda activate base 2>&1 >> "${logfile}"
+conda update --yes -n base conda conda-build 2>&1 >> "${logfile}"
+conda update --yes --all -n base 2>&1 >> "${logfile}"
 
 # Build things from the temp directory
 
@@ -68,14 +69,14 @@ eval "${clone_dir}/soconda.sh" \
     -c "perlmutter" \
     -e "${env_name}" \
     -v "${env_version}" \
-    -m "${module_dir}" >> "${logfile}" 2>&1
+    -m "${module_dir}" 2>&1 >> "${logfile}"
 
 popd 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
 # Update permissions
-chmod -R g-w,g+rX "${env_name}_${env_version}" >> "${logfile}" 2>&1
-chmod -R g-w,g+rX "${module_dir}/soconda" >> "${logfile}" 2>&1
+chmod -R g-w,g+rX "${env_name}_${env_version}" 2>&1 >> "${logfile}"
+chmod -R g-w,g+rX "${module_dir}/soconda" 2>&1 >> "${logfile}"
 
 # Return name of log file
 echo "${logfile}"
