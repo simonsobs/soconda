@@ -25,8 +25,8 @@ bash "${inst}" -b -f -p "${base}"
 # Activate base and install libmamba solver
 source "${base}/etc/profile.d/conda.sh"
 conda activate base
-conda update -n base --yes conda
-conda install -n base --yes conda-libmamba-solver conda-build conda-verify
+conda update -n base --yes --all conda
+conda install -n base --yes --all conda-libmamba-solver conda-build conda-verify
 conda deactivate
 
 # Create base config file

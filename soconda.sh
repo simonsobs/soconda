@@ -155,8 +155,12 @@ fi
 # and pass that to the conda create command.
 python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
-# Check this env exist or not
-# env_check would be empty if not exist
+# Get just the major and minor version to use when specifying the
+# python build variant during package build.
+python_major_minor=$(echo ${python_version} | sed -e 's/python=\(3\.[[:digit:]]\+\).*/\1/')
+
+# Check if this env exists or not.
+# env_check would be empty if it does not exist.
 env_check=$(conda_exec env list | grep "${fullenv}")
 echo -e "\n\n"
 if [ -z "${env_check}" ]; then
@@ -202,10 +206,44 @@ fi
 conda_exec env list
 
 
-# Install conda packages.
+# Build local packages.  These are built in an isolated environment with
+# all dependencies installed from upstream or our local $CONDA_PREFIX/conda-bld.
+# Here we use conda instead of conda_exec, because conda is a dependency
+# of conda-build package.  The conda executable and its plugins (conda-build,
+# conda-verify, etc) are always kept in the base environment.
+
+local_pkgs=""
+while IFS='' read -r line || [[ -n "${line}" ]]; do
+    # Is this line commented?
+    comment=$(echo "${line}" | cut -c 1)
+    if [ "${comment}" != "#" ]; then
+        pkgname="${line}"
+        pkgrecipe="${scriptdir}/pkgs/${pkgname}"
+        local_pkgs="${local_pkgs} ${pkgname}"
+        echo -e "\n\n"
+        echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
+        conda build --croot "${CONDA_PREFIX}/conda-bld/temp_build" \
+            --output-folder "${CONDA_PREFIX}/conda-bld" \
+            --variants "{'python':['${python_major_minor}']}" \
+            ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
+    fi
+done < "${confdir}/packages_local.txt"
+
+echo -e "\n\n"
+echo "Cleaning up build products"
+rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
+
+# Remove temporary package directory
+rm -rf "${conda_tmp}" &> /dev/null
+
+# Remove /tmp/pixell-* test files create by pixell/setup.py
+find "/tmp" -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
+
+
+# Install local and upstream conda packages all at once.
 echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
-conda_exec install --yes \
+conda_exec install --yes ${local_pkgs} \
     --file "${scriptdir}/config/common.txt" \
     --file "${confdir}/packages_conda.txt" \
     2>&1 | tee -a "log_conda"
@@ -230,40 +268,6 @@ else
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
         2>&1 | tee -a "log_mpi4py"
 fi
-
-
-# Build local packages
-# Here we use conda instead of conda_exec, because conda is a dependency
-# of conda-build package. Therefore after activated ${fullenv},
-# conda command is availabe in both micromamba and miniforge installation.
-# If you run $(which conda) command it should return $CONDA_PREFIX/bin/conda
-# in both cases.
-
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
-        pkgname="${line}"
-        pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo -e "\n\n"
-        echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
-        conda build --croot "${CONDA_PREFIX}/conda-bld/temp_build" \
-            --output-folder "${CONDA_PREFIX}/conda-bld" \
-            ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
-        echo "Installing local package '${pkgname}'" 2>&1 | tee -a "log_${pkgname}"
-        conda install --yes ${pkgname} 2>&1 | tee -a "log_${pkgname}"
-    fi
-done < "${confdir}/packages_local.txt"
-
-echo -e "\n\n"
-echo "Cleaning up build products"
-rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
-
-# Remove build directory
-rm -rf "${conda_tmp}" &> /dev/null
-
-# Remove /tmp/pixell-* test files create by pixell/setup.py
-find "/tmp" -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
 
 
 # Install pip packages.  We install one package at a time

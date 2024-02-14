@@ -55,7 +55,7 @@ jobs:
           source ~/conda/etc/profile.d/conda.sh &&
           conda activate base &&
           pyver=${{ matrix.python }} &&
-          sed -i -e "s/python=3\.*/python=${pyver}/" ./config/default/packages_conda.txt &&
+          sed -i -e "s/python=3\.[[:digit:]]\+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
           cat ./config/default/packages_conda.txt &&
           ./soconda.sh -e soconda -v CI
 
