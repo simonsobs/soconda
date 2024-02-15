@@ -34,7 +34,7 @@ requirements:
     - liblapack
     - python
     - cython
-    - numpy
+    - numpy >=1.26
     - scipy
     - astropy
     - healpy
@@ -50,6 +50,7 @@ requirements:
     - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
+    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("liblapack") }}
     - python
     - numpy

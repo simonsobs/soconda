@@ -35,7 +35,7 @@ requirements:
     - libopenblas * openmp_*
     - liblapack
     - python
-    - numpy
+    - numpy >=1.26
     - fftw
     - suitesparse
     - libaatm
@@ -44,6 +44,7 @@ requirements:
     - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
+    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("fftw") }}
     - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("suitesparse") }}

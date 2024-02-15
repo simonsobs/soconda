@@ -33,7 +33,7 @@ requirements:
     - gsl
     - libactpol
     - future
-    - numpy
+    - numpy >=1.26
     - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
@@ -42,6 +42,7 @@ requirements:
     - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
+    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("fftw") }}
     - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("gsl") }}
