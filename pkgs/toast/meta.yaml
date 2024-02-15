@@ -11,8 +11,9 @@ package:
 source:
   url: https://github.com/hpc4cmb/toast/archive/refs/tags/{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  # patches:
-  #   - debug_lapack.patch
+  patches:
+    - openmp_linking.patch
+  #  - debug_lapack.patch
 
 build:
   skip: True  # [py<38]
@@ -26,34 +27,31 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake
     - make
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
+    - llvm-openmp # [osx]
   host:
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
     - openblas * openmp_*
-    - liblapack * *openblas
+    - libopenblas * openmp_*
+    - liblapack
     - python
-    - numpy=1.26.*
-    - scipy
+    - numpy
     - fftw
     - suitesparse
     - libaatm
     - libflac
   run:
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
+    - llvm-openmp # [osx]
     - openblas * openmp_*
-    - liblapack * *openblas
+    - libopenblas * openmp_*
+    - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible("liblapack") }}
+    - {{ pin_compatible("suitesparse") }}
+    - {{ pin_compatible("libaatm") }}
+    - {{ pin_compatible("libflac") }}
     - python
-    - {{ pin_compatible('openblas') }}
-    - {{ pin_compatible('liblapack') }}
-    - {{ pin_compatible('scipy') }}
-    - {{ pin_compatible('numpy') }}
-    - {{ pin_compatible('fftw') }}
-    - {{ pin_compatible('suitesparse') }}
-    - {{ pin_compatible('libaatm') }}
-    - {{ pin_compatible('libflac') }}
+    - numpy
+    - scipy
     - ruamel.yaml
     - matplotlib
     - astropy
@@ -63,7 +61,7 @@ requirements:
     - tomlkit
     - traitlets>=5.0
     - psutil
-    - pshmem>=0.2.10
+    - pshmem>=1.0.4
 
 test:
   imports:

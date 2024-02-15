@@ -20,20 +20,21 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
-  host:
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
-    - openblas * openmp_*
-    - liblapack * *openblas
+    - llvm-openmp # [osx]
     - automake
     - autoconf
     - m4
     - libtool
+    - make
+  host:
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
+    - openblas * openmp_*
+    - libopenblas * openmp_*
+    - liblapack
     - python
     - cython
-    - numpy=1.26.*
+    - numpy
     - scipy
     - astropy
     - healpy
@@ -46,15 +47,13 @@ requirements:
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]
   run:
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
+    - llvm-openmp # [osx]
     - openblas * openmp_*
-    - liblapack * *openblas
+    - libopenblas * openmp_*
+    - {{ pin_compatible("liblapack") }}
     - python
-    - {{ pin_compatible('openblas') }}
-    - {{ pin_compatible('liblapack') }}
-    - {{ pin_compatible('scipy') }}
-    - {{ pin_compatible('numpy') }}
+    - numpy
+    - scipy
     - astropy
     - healpy
     - matplotlib

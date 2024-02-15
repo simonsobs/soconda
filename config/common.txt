@@ -23,7 +23,7 @@ liblapacke=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
-numpy=1.26.*
+numpy
 scipy
 matplotlib
 cmake
