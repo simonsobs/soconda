@@ -26,7 +26,7 @@ while getopts ":e:v:m:" opt; do
         e)
             envname=$OPTARG
             ;;
-	v)
+        v)
             version=$OPTARG
             ;;
         m)
@@ -46,7 +46,7 @@ done
 
 shift $((OPTIND-1))
 
-module load openmpi/gcc/4.1.2 anaconda3/2022.10
+module load openmpi/gcc/4.1.1 anaconda3/2022.10
 MPICC=`which mpicc`
 
 if [ -z "${version}" ]; then
@@ -134,11 +134,11 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             pkgname="${pkgname}=${version}"
         fi
         conda_pkgs="${conda_pkgs} ${pkgname}"
-	num_pkgs=`wc -w <<< $conda_pkgs`
-	if [ "${num_pkgs}" = 10 ]; then
-	    conda install --yes $conda_pkgs
-	    conda_pkgs=""
-	fi
+        num_pkgs=`wc -w <<< $conda_pkgs`
+        if [ "${num_pkgs}" = 10 ]; then
+            conda install --yes $conda_pkgs
+            conda_pkgs=""
+        fi
     fi
 done < "${scriptdir}/della/packages_conda.txt"
 
@@ -193,6 +193,8 @@ conda-build purge
 echo "Installing pip packages..."
 
 while IFS='' read -r line || [[ -n "${line}" ]]; do
+    conda deactivate
+    conda activate ${fullenv}
     # Is this line commented?
     comment=$(echo "${line}" | cut -c 1)
     if [ "${comment}" != "#" ]; then
@@ -210,7 +212,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         conda install --yes ${name}
                         if [ $? -ne 0 ]; then
                             echo "  No conda package available for dependency \"${name}\"" 
-			    echo "  Assuming pip package already installed."
+                            echo "  Assuming pip package already installed."
                         fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" 
@@ -219,7 +221,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             done
         fi
         echo "Installing package ${pkg}"
-        python3 -m pip install --no-deps ${pkg}
+        pip install --no-deps ${pkg}
     fi
 done < "${scriptdir}/della/packages_pip.txt"
 
