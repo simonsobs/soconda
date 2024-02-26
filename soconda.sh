@@ -101,6 +101,13 @@ if [ ! -d "${confdir}" ]; then
     exit 1
 fi
 
+# Load any module that the installation might need.
+if [ -e "${confdir}/required_modules.txt" ]; then
+    while IFS= read -r line
+    do
+        module load "$line"
+    done < "${confdir}/required_modules.txt"
+fi
 
 if [ -n "${base}" ]; then
     conda_dir="${base}"
@@ -201,8 +208,11 @@ conda_exec install --yes --file "${scriptdir}/config/common.txt" \
     |& tee -a "log_conda"
 conda_exec install --yes --file "${confdir}/packages_conda.txt" \
     |& tee -a "log_conda"
-# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-rm -f "${CONDA_PREFIX}/bin/cc"
+# The "cc" symlink from the compilers package shadows Cray's MPI C compiler.
+# This might not be the case with other systems, e.g. Tiger
+if [ -d "${CONDA_PREFIX}/bin/cc" ]; then
+    rm -f "${CONDA_PREFIX}/bin/cc"
+fi
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
