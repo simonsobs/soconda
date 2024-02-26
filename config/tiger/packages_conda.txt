@@ -1,5 +1,6 @@
 # Adjust the default python version
 python=3.10.0
+openmpi=4.1.*=external_*
 #
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.

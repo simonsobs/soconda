@@ -20,20 +20,17 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
-  host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - llvm-openmp # [osx]
+    - make
     - automake
     - autoconf
     - m4
     - libtool
-    - make
+  host:
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
+    - libopenblas * openmp_*
+    - openblas * openmp_*
     - cfitsio
     - wcslib
     - libactpol_deps
@@ -44,13 +41,12 @@ requirements:
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]
   run:
+    - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
-    - {{ pin_compatible('libactpol_deps') }}
-    - {{ pin_compatible('cfitsio') }}
-    - {{ pin_compatible('wcslib') }}
+    - {{ pin_compatible("cfitsio") }}
+    - {{ pin_compatible("libactpol_deps") }}
+    - {{ pin_compatible("wcslib") }}
 
 test:
   commands:

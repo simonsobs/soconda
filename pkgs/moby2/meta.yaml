@@ -21,36 +21,36 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx]
   host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - liblapack
     - python
     - fftw
     - gsl
     - libactpol
     - future
-    - numpy=1.26.*
+    - numpy >=1.26
+    - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
   run:
+    - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible("liblapack") }}
+    - {{ pin_compatible("gsl") }}
+    - {{ pin_compatible("libactpol") }}
     - python
-    - {{ pin_compatible('fftw') }}
-    - {{ pin_compatible('gsl') }}
-    - {{ pin_compatible('libactpol') }}
-    - {{ pin_compatible('numpy') }}
-    - future
+    - numpy
     - scipy
+    - future
     - matplotlib
     - astropy
     - ephem
