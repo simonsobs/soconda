@@ -33,9 +33,11 @@ requirements:
     - libgomp # [linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
+    - libblas
     - liblapack
     - python
     - numpy >=1.26
+    - scipy
     - fftw
     - suitesparse
     - libaatm
@@ -46,6 +48,7 @@ requirements:
     - libopenblas * openmp_*
     - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("suitesparse") }}
     - {{ pin_compatible("libaatm") }}
