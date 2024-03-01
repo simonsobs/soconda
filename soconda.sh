@@ -174,6 +174,16 @@ if [ -z "${env_check}" ]; then
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
 
+    if [ -n "$MAMBA_EXE" ]; then
+        # Install conda packages to mamba env
+        conda_exec install --yes conda conda-build conda-verify
+        # Here we installed conda-build to mamba environment.
+        # In the remaining part of code, unless activating/switching
+        # environment and installing packages, we all use `conda` command.
+        # This is due to there is no `micromamba index` or `micromamba build`
+        # command.
+    fi
+
     # Create condarc for this environment.  Note: The conda build
     # tools are installed in the base environment and so the
     # "--use-local" option will not let us find the built packages
@@ -182,7 +192,7 @@ if [ -z "${env_check}" ]; then
     # condarc.
     mkdir -p "${CONDA_PREFIX}/conda-bld"
     mkdir -p "${CONDA_PREFIX}/conda-bld/temp_build"
-    conda_exec index "${CONDA_PREFIX}/conda-bld"
+    conda index "${CONDA_PREFIX}/conda-bld"
 
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
@@ -208,9 +218,8 @@ conda_exec env list
 
 # Build local packages.  These are built in an isolated environment with
 # all dependencies installed from upstream or our local $CONDA_PREFIX/conda-bld.
-# Here we use conda instead of conda_exec, because conda is a dependency
-# of conda-build package.  The conda executable and its plugins (conda-build,
-# conda-verify, etc) are always kept in the base environment.
+# The conda executable and its plugins (conda-build, conda-verify, etc)
+# are always kept in the base environment.
 
 local_pkgs=""
 while IFS='' read -r line || [[ -n "${line}" ]]; do
