@@ -26,18 +26,16 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - make         # [unix]
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - make
+    - llvm-openmp # [osx]
   host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - liblapack
     - python
-    - numpy=1.26.*
+    - numpy >=1.26
     - scipy
     - boost
     - libboost-devel
@@ -48,19 +46,20 @@ requirements:
     # building with a numba-compatible numpy version
     - numba
   run:
+    - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("liblapack") }}
+    - {{ pin_compatible("libboost-python") }}
+    - {{ pin_compatible("libboost") }}
+    - {{ pin_compatible("libflac") }}
     - python
-    - {{ pin_compatible('numpy') }}
-    - {{ pin_compatible('libboost') }}
-    - {{ pin_compatible('libboost-python') }}
-    - {{ pin_compatible('libflac') }}
-    - {{ pin_compatible('qpoint') }}
-    - astropy
-    - matplotlib
+    - numpy
     - scipy
+    - astropy
+    - qpoint
+    - matplotlib
     - ephem
     - pytz
     - pyaml

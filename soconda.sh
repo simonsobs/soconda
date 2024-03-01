@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Location of this script
-pushd $(dirname $0) >/dev/null 2>&1
+pushd $(dirname $0) 2>&1 >/dev/null
 scriptdir=$(pwd)
-popd >/dev/null 2>&1
+popd 2>&1 >/dev/null
 
 show_help () {
     echo "" >&2
@@ -13,7 +13,6 @@ show_help () {
     echo "    [-b <conda base install (if not activated)>]" >&2
     echo "    [-v <version (git version used by default)>]" >&2
     echo "    [-m <modulefile dir (default is <env>/modulefiles)>]" >&2
-    echo "    [-i <file with modulefile commands to load dependencies> ]" >&2
     echo "" >&2
     echo "    Create a conda environment for Simons Observatory." >&2
     echo "" >&2
@@ -25,9 +24,8 @@ envname=""
 config=""
 version=""
 moduledir=""
-modinit=""
 
-while getopts ":e:c:b:v:m:i:" opt; do
+while getopts ":e:c:b:v:m:" opt; do
     case $opt in
         e)
             envname=$OPTARG
@@ -157,8 +155,12 @@ fi
 # and pass that to the conda create command.
 python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
-# Check this env exist or not
-# env_check would be empty if not exist
+# Get just the major and minor version to use when specifying the
+# python build variant during package build.
+python_major_minor=$(echo ${python_version} | sed -e 's/python=\(3\.[[:digit:]]\+\).*/\1/')
+
+# Check if this env exists or not.
+# env_check would be empty if it does not exist.
 env_check=$(conda_exec env list | grep "${fullenv}")
 echo -e "\n\n"
 if [ -z "${env_check}" ]; then
@@ -172,9 +174,29 @@ if [ -z "${env_check}" ]; then
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
 
-    # Create condarc for this environment
+    if [ -n "$MAMBA_EXE" ]; then
+        # Install conda packages to mamba env
+        conda_exec install --yes conda conda-build conda-verify
+        # Here we installed conda-build to mamba environment.
+        # In the remaining part of code, unless activating/switching
+        # environment and installing packages, we all use `conda` command.
+        # This is due to there is no `micromamba index` or `micromamba build`
+        # command.
+    fi
+
+    # Create condarc for this environment.  Note: The conda build
+    # tools are installed in the base environment and so the
+    # "--use-local" option will not let us find the built packages
+    # we will store inside this env.  Because of this, we create a
+    # package directory in our environment and add it to the
+    # condarc.
+    mkdir -p "${CONDA_PREFIX}/conda-bld"
+    mkdir -p "${CONDA_PREFIX}/conda-bld/temp_build"
+    conda index "${CONDA_PREFIX}/conda-bld"
+
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - file://${CONDA_PREFIX}/conda-bld" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
@@ -194,15 +216,46 @@ fi
 conda_exec env list
 
 
-# Install conda packages.
+# Build local packages.  These are built in an isolated environment with
+# all dependencies installed from upstream or our local $CONDA_PREFIX/conda-bld.
+# The conda executable and its plugins (conda-build, conda-verify, etc)
+# are always kept in the base environment.
+
+local_pkgs=""
+while IFS='' read -r line || [[ -n "${line}" ]]; do
+    # Is this line commented?
+    comment=$(echo "${line}" | cut -c 1)
+    if [ "${comment}" != "#" ]; then
+        pkgname="${line}"
+        pkgrecipe="${scriptdir}/pkgs/${pkgname}"
+        local_pkgs="${local_pkgs} ${pkgname}"
+        echo -e "\n\n"
+        echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
+        conda build --croot "${CONDA_PREFIX}/conda-bld/temp_build" \
+            --output-folder "${CONDA_PREFIX}/conda-bld" \
+            --variants "{'python':['${python_major_minor}']}" \
+            ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
+    fi
+done < "${confdir}/packages_local.txt"
+
+echo -e "\n\n"
+echo "Cleaning up build products"
+rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
+
+# Remove temporary package directory
+rm -rf "${conda_tmp}" &> /dev/null
+
+# Remove /tmp/pixell-* test files create by pixell/setup.py
+find "/tmp" -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
+
+
+# Install local and upstream conda packages all at once.
 echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
-conda_exec install --yes --file "${scriptdir}/config/common.txt" \
-    |& tee -a "log_conda"
-conda_exec install --yes --file "${confdir}/packages_conda.txt" \
-    |& tee -a "log_conda"
-# The "cc" symlink from the compilers package shadows Cray's MPI C compiler...
-rm -f "${CONDA_PREFIX}/bin/cc"
+conda_exec install --yes ${local_pkgs} \
+    --file "${scriptdir}/config/common.txt" \
+    --file "${confdir}/packages_conda.txt" \
+    2>&1 | tee -a "log_conda"
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
@@ -216,51 +269,14 @@ if [ -z "${MPICC}" ]; then
         | tee -a "log_mpi4py"
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
-    conda_exec install --yes openmpi mpi4py |& tee -a "log_mpi4py" \
+    conda_exec install --yes openmpi mpi4py 2>&1 | tee -a "log_mpi4py"
     # Disable the ancient openib btl, in order to avoid a harmless warning
     echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
-        |& tee -a "log_mpi4py"
+        2>&1 | tee -a "log_mpi4py"
 fi
-
-
-# Build local packages
-# Here we use conda instead of conda_exec, because conda is a dependency
-# of conda-build package. Therefore after activated ${fullenv},
-# conda command is availabe in both micromamba and miniforge installation.
-# If you run $(which conda) command it should return $CONDA_PREFIX/bin/conda
-# in both cases.
-mkdir -p "${CONDA_PREFIX}/conda-bld"
-conda index "${CONDA_PREFIX}/conda-bld"
-conda config \
-    --file "${CONDA_PREFIX}/.condarc" \
-    --add channels "file://${CONDA_PREFIX}/conda-bld"
-
-while IFS='' read -r line || [[ -n "${line}" ]]; do
-    # Is this line commented?
-    comment=$(echo "${line}" | cut -c 1)
-    if [ "${comment}" != "#" ]; then
-        pkgname="${line}"
-        pkgrecipe="${scriptdir}/pkgs/${pkgname}"
-        echo -e "\n\n"
-        echo "Building local package '${pkgname}'" |& tee "log_${pkgname}"
-        conda build ${pkgrecipe} |& tee -a "log_${pkgname}"
-        echo "Installing local package '${pkgname}'" |& tee -a "log_${pkgname}"
-        conda install --yes --use-local ${pkgname} |& tee -a "log_${pkgname}"
-    fi
-done < "${confdir}/packages_local.txt"
-
-echo -e "\n\n"
-echo "Cleaning up build products"
-conda build purge
-
-# Remove buid directory
-rm -rf "${conda_tmp}" &> /dev/null
-
-# Remove /tmp/pixell-* test files create by pixell/setup.py
-find /tmp -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
 
 
 # Install pip packages.  We install one package at a time
@@ -283,7 +299,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         pkg="${line}"
         url_check=$(echo "${pkg}" | grep '/')
         if [ -z "${url_check}" ]; then
-            echo "Checking dependencies for package \"${pkg}\"" |& tee -a "log_pip"
+            echo "Checking dependencies for package \"${pkg}\"" 2>&1 | tee -a "log_pip"
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
@@ -291,19 +307,22 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                     depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then
                         # It is not already installed, try to install it with conda
-                        echo "Attempt to install conda package for dependency \"${name}\"..." |& tee -a "log_pip"
-                        conda_exec install --yes ${name} |& tee -a "log_pip"
+                        echo "Attempt to install conda package for dependency \
+                        \"${name}\"..." 2>&1 | tee -a "log_pip"
+                        conda_exec install --yes ${name} 2>&1 | tee -a "log_pip"
                         installed_pkgs="${installed_pkgs}"$'\n'"${name}"
                     else
-                        echo "  Package for dependency \"${name}\" already installed" |& tee -a "log_pip"
+                        echo "  Package for dependency \"${name}\" already installed" \
+                        2>&1 | tee -a "log_pip"
                     fi
                 fi
             done
         else
-            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" |& tee -a "log_pip"
+            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" \
+            2>&1 | tee -a "log_pip"
         fi
-        echo "Installing package ${pkg} with --no-deps" |& tee -a "log_pip"
-        python3 -m pip install --no-deps ${pkg} |& tee -a "log_pip"
+        echo "Installing package ${pkg} with --no-deps" 2>&1 | tee -a "log_pip"
+        python3 -m pip install --no-deps ${pkg} 2>&1 | tee -a "log_pip"
         installed_pkgs="${installed_pkgs}"$'\n'"${pkg}"
         echo -e "\n\n"
     fi

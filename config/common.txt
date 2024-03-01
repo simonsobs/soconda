@@ -4,9 +4,6 @@
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
 #
-conda-build
-conda-verify
-compilers
 setuptools
 pip
 wheel
@@ -16,6 +13,7 @@ packaging
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
+_openmp_mutex=*=*_llvm
 openblas=*=openmp_*
 libopenblas=*=openmp_*
 libblas=*=*openblas
@@ -25,7 +23,7 @@ liblapacke=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
-numpy=1.26.*
+numpy
 scipy
 matplotlib
 cmake
@@ -68,3 +66,4 @@ pyaml
 tqdm
 ipykernel
 pyfftw
+numdifftools

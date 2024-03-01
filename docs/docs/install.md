@@ -25,8 +25,11 @@ clutter.
 
 ## Base Conda Environment
 
-If you already have a conda-forge or micromamba base environment, then you can skip this
-step. However, you should consider setting the "solver" in the base environment
+If you already have a conda-forge or micromamba base environment, install `conda-build`
+and `conda-verify` package to base environment.
+    conda update -n base --yes --all conda
+    conda install -n base --yes --all conda-build conda-verify
+Also, you should consider setting the "solver" in the base environment
 to use `libmamba`. To use `libmamba` solver see
 [this](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
 This will greatly speed up the dependency resolution
