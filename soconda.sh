@@ -99,6 +99,13 @@ if [ ! -d "${confdir}" ]; then
     exit 1
 fi
 
+# Load any module that the installation might need.
+if [ -e "${confdir}/required_modules.txt" ]; then
+    while IFS= read -r line
+    do
+        module load "$line"
+    done < "${confdir}/required_modules.txt"
+fi
 
 if [ -n "${base}" ]; then
     conda_dir="${base}"
