@@ -1,5 +1,5 @@
-{% set version = "fd360a7352c88d3eb5195f5f0ea331ddc24e5e09" %}
-{% set sha256 = "2d7f317b34bee752e21a47db0e6d48faeb33d23b06255ddd875274300a183395" %}
+{% set version = "f0056ac3618b8c4c96130fcb41f7be3d6bd07241" %}
+{% set sha256 = "15356bf369bb428a6a8e79b76406d6651b13ca37c18ec8a04c71036c5cc7e35d" %}
 
 {% set build = 0 %}
 
@@ -21,36 +21,36 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx]
   host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - liblapack
     - python
     - fftw
     - gsl
     - libactpol
     - future
-    - numpy
+    - numpy >=1.26
+    - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
   run:
+    - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible("liblapack") }}
+    - {{ pin_compatible("gsl") }}
+    - {{ pin_compatible("libactpol") }}
     - python
-    - {{ pin_compatible('fftw') }}
-    - {{ pin_compatible('gsl') }}
-    - {{ pin_compatible('libactpol') }}
-    - {{ pin_compatible('numpy') }}
-    - future
+    - numpy
     - scipy
+    - future
     - matplotlib
     - astropy
     - ephem

@@ -1,13 +1,9 @@
-# Adjust the default python version
-python=3.10.0
-#
+# This is the set of conda packages that should be installed
+# for all configurations.  The contents of 
+# <config dir>/packages_conda.txt are then appended to this list.
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
 #
-conda-build
-conda-libmamba-solver
-conda-verify
-compilers
 setuptools
 pip
 wheel
@@ -17,6 +13,7 @@ packaging
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
+_openmp_mutex=*=*_llvm
 openblas=*=openmp_*
 libopenblas=*=openmp_*
 libblas=*=*openblas
@@ -28,16 +25,11 @@ liblapacke=*=*openblas
 #
 numpy
 scipy
-pandas
 matplotlib
-cmake
-autoconf
-automake
 libtool
 m4
 psutil
-cython=3.0.3
-pytest
+cython
 fftw
 gsl
 cfitsio
@@ -69,9 +61,5 @@ future
 pyaml
 tqdm
 ipykernel
-ipython_genutils
-dominate
-emcee==3.0.1
-# Revert to 0.12 until this bug is fixed:
-# https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw==0.12
+pyfftw
+numdifftools

@@ -20,37 +20,32 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
-  host:
-    - llvm-openmp  # [osx]
-    - libgomp      # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
+    - llvm-openmp # [osx]
+    - make
     - automake
     - autoconf
     - m4
     - libtool
-    - make
-    - cfitsio
+  host:
+    - llvm-openmp
+    - _openmp_mutex * *_llvm
+    - libopenblas * openmp_*
+    - openblas * openmp_*
+    # This constraint is to force compatibility with the healpy package.
+    # remove once healpy is building with cfitsio-4.4.x.
+    - cfitsio <4.4.0
     - wcslib
     - libactpol_deps
-    # This constraint is to enforce compatibility with older cfitsio
-    # Remove this once healpy package is using latest wcslib / cfitsio.
-    - healpy
     # Remove until this perl bug is fixed
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]
   run:
+    - llvm-openmp # [osx]
     - openblas * openmp_*
     - libopenblas * openmp_*
-    - libblas * *openblas
-    - liblapack * *openblas
-    - {{ pin_compatible('libactpol_deps') }}
-    - {{ pin_compatible('cfitsio') }}
-    - {{ pin_compatible('wcslib') }}
+    - {{ pin_compatible("cfitsio") }}
+    - {{ pin_compatible("libactpol_deps") }}
+    - {{ pin_compatible("wcslib") }}
 
 test:
   commands:

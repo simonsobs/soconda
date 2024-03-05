@@ -1,0 +1,7 @@
+# Adjust the default python version
+python=3.10.*
+#
+jupyterlab
+wurlitzer
+plotly
+plotly-resampler

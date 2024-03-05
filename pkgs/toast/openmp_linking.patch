@@ -1,0 +1,34 @@
+diff -urN toast-3.0.0a21_orig/src/libtoast/CMakeLists.txt toast-3.0.0a21/src/libtoast/CMakeLists.txt
+--- toast-3.0.0a21_orig/src/libtoast/CMakeLists.txt	2024-01-30 08:43:22.000000000 -0800
++++ toast-3.0.0a21/src/libtoast/CMakeLists.txt	2024-02-15 00:02:08.638773488 -0800
+@@ -133,7 +133,7 @@
+ 
+ if(OpenMP_CXX_FOUND)
+     target_compile_options(toast PRIVATE "${OpenMP_CXX_FLAGS}")
+-    target_link_libraries(toast "${OpenMP_CXX_LIBRARIES}")
++    target_link_options(toast PRIVATE "${OpenMP_CXX_FLAGS}")
+ endif(OpenMP_CXX_FOUND)
+ 
+ # CUDA
+diff -urN toast-3.0.0a21_orig/src/toast/CMakeLists.txt toast-3.0.0a21/src/toast/CMakeLists.txt
+--- toast-3.0.0a21_orig/src/toast/CMakeLists.txt	2024-01-30 08:43:22.000000000 -0800
++++ toast-3.0.0a21/src/toast/CMakeLists.txt	2024-02-14 23:54:25.837145915 -0800
+@@ -73,7 +73,8 @@
+     if(USE_OPENMP_TARGET)
+         target_compile_definitions(_libtoast PRIVATE HAVE_OPENMP_TARGET=1)
+     endif()
+-    target_link_libraries(_libtoast PRIVATE "${OpenMP_CXX_LIBRARIES}")
++    target_link_options(_libtoast PUBLIC "${OpenMP_CXX_FLAGS}")  
++    # target_link_libraries(_libtoast PRIVATE "${OpenMP_CXX_LIBRARIES}")
+ endif(OpenMP_CXX_FOUND)
+ 
+ if(AATM_FOUND)
+@@ -100,7 +101,7 @@
+ endif()
+ 
+ target_link_options(_libtoast PRIVATE
+-    ${LAPACK_LINKER_FLAGS} ${BLAS_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}
++    ${LAPACK_LINKER_FLAGS} ${BLAS_LINKER_FLAGS}
+ )
+ 
+ # Include path to the toast headers

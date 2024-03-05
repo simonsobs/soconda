@@ -2,6 +2,10 @@ name:  Test Build
 
 on: workflow_dispatch
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Tests on ${{ matrix.arch }} with Conda Python-${{ matrix.python }}
@@ -28,45 +32,45 @@ jobs:
             python: "3.11"
             arch: MacOSX-x86_64
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-        with:
-          access_token: ${{ github.token }}
-
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Conda Base
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: "latest"
-          channels: conda-forge
-          use-only-tar-bz2: true  # IMPORTANT: Needed for caching to work properly!
-          auto-update-conda: true
-          auto-activate-base: true
+        run: |
+          rm -rf /usr/share/miniconda
+          rm -rf /usr/local/miniconda
+          ./tools/bootstrap_base.sh ~/conda
 
       - name: Check Conda Config
         run: |
-          conda activate base
-          conda info
-          conda list
-          conda config --show-sources
+          source ~/conda/etc/profile.d/conda.sh &&
+          conda activate base &&
+          conda info &&
+          conda list &&
+          conda config --show-sources &&
           conda config --show
 
       - name: Install
         run: |
+          source ~/conda/etc/profile.d/conda.sh &&
+          conda activate base &&
+          pyver=${{ matrix.python }} &&
+          sed -i -e "s/python=3\.[[:digit:]]\+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
+          cat ./config/default/packages_conda.txt &&
           ./soconda.sh -e soconda -v CI
 
       - name: Run Tests
         run: |
-          conda activate "soconda_CI"
-          export OMP_NUM_THREADS=2
-          export MPI_DISABLE=1
-          export CI=1
-          python3 -c 'import toast.tests; toast.tests.run()'
-          git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git
-          pushd sotodlib
-          python3 setup.py test
-          popd
-          unset MPI_DISABLE
+          source ~/conda/etc/profile.d/conda.sh &&
+          conda activate "soconda_CI" &&
+          export OMP_NUM_THREADS=2 &&
+          export MPI_DISABLE=1 &&
+          export CI=1 &&
+          python3 -c 'import scipy; import toast; print(toast.__version__)' &&
+          python3 -c 'import toast.tests; toast.tests.run()' &&
+          git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git &&
+          pushd sotodlib &&
+          python3 -m unittest &&
+          popd &&
+          unset MPI_DISABLE &&
           unset OMP_NUM_THREADS

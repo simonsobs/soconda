@@ -5,8 +5,9 @@ The install script takes options to specify the location of the base environment
 to create. It also allows specifying a central location to install the
 modulefile:
 
-    $> ./soconda.sh -h
+    ./soconda.sh -h
         Usage:  ./soconda.sh
+        [-c <directory in config to use for options>]
         [-e <environment, either name or full path>]
         [-b <conda base install (if not activated)>]
         [-v <version (git version used by default)>]
@@ -24,22 +25,23 @@ clutter.
 
 ## Base Conda Environment
 
-If you already have a conda-forge base environment, then you can skip this
-step. However, you should consider setting the "solver" in the base environment
-to use libmamba. This will greatly speed up the dependency resolution
-calculation. Once you decide on the install prefix for your overall conda
-environment you can use the included bootstrap script. For this example, we
-will use `/opt/conda` as the path to the conda base installation. Now run the
-bootstrap script:
+If you already have a conda-forge or micromamba base environment, install `conda-build`
+and `conda-verify` package to base environment.
+    conda update -n base --yes --all conda
+    conda install -n base --yes --all conda-build conda-verify
+Also, you should consider setting the "solver" in the base environment
+to use `libmamba`. To use `libmamba` solver see
+[this](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
+This will greatly speed up the dependency resolution
+calculation.
 
-    $> ./tools/bootstrap_base "/opt/conda"
+For new installation run following script to install miniforge
 
-This bootstrap will install a base system with the conda-forge channel set to
-the default and using the libmamba solver. You can now source the conda
-initialization file and activate this base environment:
+    ./tools/bootstrap_base "$HOME/miniforge3"
 
-    $> source /opt/conda/etc/profile.d/conda.sh
-    $> conda activate base
+This will intall conda to `$HOME/miniforge3` directory.
+It will set conda-forge as default channel and use `libmamba` as default solver.
+After the installation you need to re-login or start a new terminal to initialize conda.
 
 After installing an `soconda` environment below, you will not need this step
 since it is done by the generated modulefile.
@@ -52,34 +54,69 @@ customized MPI compiler, then set the `MPICC` environment variable to the MPI C
 compiler before running `soconda.sh`. That will cause the mpi4py package to
 be built using your system MPI compiler.
 
-## Example:  Local System
+## Install soconda
+### Example:  Local System
+This installation could install `soconda` to your local computer and any cluster.
 
-Starting from scratch, bootstrap a small conda-forge base environment in `~/conda`:
+Clone soconda repo
 
-    $> ./tools/bootstrap_base.sh ~/conda
-    $> source ~/conda/etc/profile.d/conda.sh
-    $> conda activate base
+    git clone git@github.com:simonsobs/soconda.git
+    cd soconda
 
-Create an `soconda` environment with default name and version. However, we
-decide to put all the modulefiles into a central location in the root of the
-base conda install:
+Run the `soconda.sh` script
 
-    $> ./soconda.sh -b ~/conda -m ~/conda/modulefiles
+    export MAKEFLAGS='-j 4'
+    bash soconda.sh -e soconda -c default
 
-Now we can load the module:
+This will create a new environment `soconda_xxx.x.x` with version number as suffix
+using `default` configuration. [More details on configuration.](#customizing-an-environment)
+(The `MAKEFLAGS` doesn't seem to have any effect.)
+If you want to specify a conda base directory add `-b "$HOME/miniforge3"` argument to `soconda.sh`.
 
-    $> module use ~/conda/modulefiles
-    $> module avail
-    $> module load soconda/XXXXXX
+You could find out the name of new created environment with
 
-## Example:  NERSC
+    conda env list
+
+Then you can now activate the environment with
+
+    conda activate soconda_xxx.x.x
+
+
+If running on a Linux desktop that uses wayland, you also need to install the `qt-wayland` package
+
+    conda install qt-wayland
+
+
+If running on server, start jupyterlab listening on port `12345` with command
+
+    cd /path/to/project
+    nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
+
+
+To list current running jupyter server:
+
+    jupyter server list
+
+
+To connect to jupyterlab running on server, start SSH tunnel from your laptop/desktop:
+
+    ssh -N -L 12345:localhost:12345 server_domain_or_ip
+
+Then you can connect to jupyterlab with link provided by command `jupyter server list`.
+
+To stop jupyterlab listenging on port 12345:
+
+    jupyter server stop 12345
+
+
+### Example:  NERSC
 
 At NERSC, the default provided python is from Anaconda, and does not work well
 for our needs. Instead, we have a conda-forge base system installed in our
 project software directory:
 
-    $> source /global/common/software/sobs/perlmutter/conda/etc/profile.d/conda.sh
-    $> conda activate base
+    source /global/common/software/sobs/perlmutter/conda/etc/profile.d/conda.sh
+    conda activate base
 
 Now we can either install a shared software environment or use this base
 environment to build a conda environment in a personal directory. If you are
@@ -88,43 +125,53 @@ account and follow a specific naming convention which is beyond the scope of
 this document. If you wanted to install these tools to your home directory you
 could do:
 
-    $> mkdir -p ~/conda_envs
-    $> ./soconda.sh -e ~/conda_envs/soconda -m ~/conda_envs/modulefiles
+    mkdir -p ~/conda_envs
+    ./soconda.sh -e ~/conda_envs/soconda -m ~/conda_envs/modulefiles
 
 And then load the module:
 
-    $> module use ~/conda_envs/modulefiles
-    $> module avail
-    $> module load soconda/XXXXXX
+    module use ~/conda_envs/modulefiles
+    module avail
+    module load soconda/XXXXXX
 
 ## Running Tests
 
 After loading an `soconda` environment, you can run some tests with:
 
-    $> ./run_tests.sh
+    ./run_tests.sh
 
-## Installing a Jupyter Kernel
+## Installing a Jupyter Kernel for external Jupyter server
 
-After loading an soconda module the first time, you can run (once) the included script:
+After loading an soconda module or activate socond conda environment the first time, you can run (once) the included script:
 
-    $> soconda_jupyter.sh
+    soconda_jupyter.sh
 
-This will install a kernel file so that jupyter knows how to launch a kernel
-using this python stack.
+This will install a kernel file to `~/.local/share/jupyter/kernels/soconda-xxxxx` so that external jupyter server
+knows how to launch a kernel using this python stack.
 
 ## Customizing an Environment
 
-If you want to dramatically change the package versions / content of an
-`soconda` stack, just load the existing `base` conda environment and edit the
-three lists of packages (`packages_[conda|pip|local].txt`) to exclude certain
-packages or add extras. Then install it as usual.
+When running `soconda.sh`, the system configuration to use can be specified
+with the `-c` option. This should be the name of the configuration subdirectory
+with the "config" top-level directory. If not specified, the "default" config
+is used. If you want to dramatically change the package versions / content of
+an `soconda` stack, just load the existing `base` conda environment, copy one
+of the configs to a new name and edit the three lists of packages
+(`packages_[conda|pip|local].txt`) to exclude certain packages or add extras.
+Then install it as usual.
 
 ## Deleting an Environment
 
 The `soconda` environments are self contained and you can delete them by
-removing the path or (if using a name), removing the `<base dir>/envs/<name of
-env>` directory. You can optionally delete the modulefile and the pip local
-directory in your home directory.
+running command `conda remove --name envname --all` or `conda remove -p /base_dir/envs/name --all`.
+Or directly removing the `<base dir>/envs/<name of env>` directory.
+You can optionally delete the modulefile and the versioned pip
+local directory in your home directory.
+If you installed a jupyter kernel, remove kernel file in `~/.local/share/jupyter/kernels/`
+with matching soconda version.
+If you have multiple soconda environment and deleted wrong kernel file, you can always
+[recreate it](#installing-a-jupyter-kernel).
+
 
 ## Advanced Details
 
