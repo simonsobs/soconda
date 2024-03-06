@@ -26,6 +26,9 @@ liblapacke=*=*openblas
 numpy
 scipy
 matplotlib
+cmake
+autoconf
+automake
 libtool
 m4
 psutil
