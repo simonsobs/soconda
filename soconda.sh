@@ -147,7 +147,8 @@ if [ -z ${CONDA_PKGS_DIRS} ]; then
         # Standard system
         # Create temp direcotry
         mkdir -p "$scriptdir/tmpfs"
-        conda_tmp=$(mktemp -d --tmpdir="$scriptdir/tmpfs")
+        # MacOS mktemp has different arguments.  This is portable.
+        conda_tmp=$(mktemp -d "$scriptdir/tmpfs/conda_pkgs.XXXXXX")
         export TMPDIR="$conda_tmp"
     else
         # Running at NERSC, use a directory in scratch
