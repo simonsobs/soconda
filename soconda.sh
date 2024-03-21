@@ -165,7 +165,7 @@ python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
 # Get just the major and minor version to use when specifying the
 # python build variant during package build.
-python_major_minor=$(echo ${python_version} | sed -e 's/python=\(3\.[[:digit:]]\+\).*/\1/')
+python_major_minor=$(echo ${python_version} | sed -E 's/python=(3\.[[:digit:]]+).*/\1/')
 
 # Check if this env exists or not.
 # env_check would be empty if it does not exist.
