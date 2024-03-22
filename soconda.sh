@@ -147,7 +147,8 @@ if [ -z ${CONDA_PKGS_DIRS} ]; then
         # Standard system
         # Create temp direcotry
         mkdir -p "$scriptdir/tmpfs"
-        conda_tmp=$(mktemp -d --tmpdir="$scriptdir/tmpfs")
+        # MacOS mktemp has different arguments.  This is portable.
+        conda_tmp=$(mktemp -d "$scriptdir/tmpfs/conda_pkgs.XXXXXX")
         export TMPDIR="$conda_tmp"
     else
         # Running at NERSC, use a directory in scratch
@@ -164,7 +165,7 @@ python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
 
 # Get just the major and minor version to use when specifying the
 # python build variant during package build.
-python_major_minor=$(echo ${python_version} | sed -e 's/python=\(3\.[[:digit:]]\+\).*/\1/')
+python_major_minor=$(echo ${python_version} | sed -E 's/python=(3\.[[:digit:]]+).*/\1/')
 
 # Check if this env exists or not.
 # env_check would be empty if it does not exist.

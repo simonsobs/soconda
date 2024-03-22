@@ -55,9 +55,13 @@ jobs:
           source ~/conda/etc/profile.d/conda.sh &&
           conda activate base &&
           pyver=${{ matrix.python }} &&
-          sed -i -e "s/python=3\.[[:digit:]]\+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
+          sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
           cat ./config/default/packages_conda.txt &&
-          ./soconda.sh -e soconda -v CI
+          if [ ${{ matrix.os }} = "macos-latest" ]; then \
+            ./soconda.sh -e soconda -v CI -c binary; \
+          else \
+            ./soconda.sh -e soconda -v CI -c default; \
+          fi
 
       - name: Run Tests
         run: |
@@ -66,7 +70,6 @@ jobs:
           export OMP_NUM_THREADS=2 &&
           export MPI_DISABLE=1 &&
           export CI=1 &&
-          python3 -c 'import scipy; import toast; print(toast.__version__)' &&
           python3 -c 'import toast.tests; toast.tests.run()' &&
           git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git &&
           pushd sotodlib &&

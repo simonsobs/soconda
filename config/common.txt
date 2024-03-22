@@ -1,5 +1,5 @@
 # This is the set of conda packages that should be installed
-# for all configurations.  The contents of 
+# for all configurations.  The contents of
 # <config dir>/packages_conda.txt are then appended to this list.
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
@@ -13,7 +13,6 @@ packaging
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
-_openmp_mutex=*=*_llvm
 openblas=*=openmp_*
 libopenblas=*=openmp_*
 libblas=*=*openblas
@@ -40,6 +39,7 @@ wcslib
 libaatm
 suitesparse
 tomlkit
+ruamel.yaml
 traitlets
 h5py
 astropy
