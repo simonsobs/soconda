@@ -1,4 +1,3 @@
 # Adjust the default python version
 python=3.11.*
 #
-skyfield
