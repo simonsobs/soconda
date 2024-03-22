@@ -3,7 +3,7 @@
 #========== Configuration ==================
 
 # Location for conda base
-base_dir=/global/common/software/sobs/perlmutter/conda
+base_dir=/global/common/software/sobs/perlmutter/conda_base
 
 # Location for temp clones
 temp_dir=${SCRATCH}/temp_soconda
