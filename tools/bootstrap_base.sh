@@ -7,18 +7,25 @@ popd >/dev/null 2>&1
 
 show_help () {
     echo "" >&2
-    echo "Usage:  $0 <base install directory>" >&2
+    echo "Usage:  $0 <base install directory> <optional arch string>" >&2
     echo "" >&2
 }
 
 base=$1
+arch=$2
 
 if [ -z ${base} ]; then
     show_help
     exit 1
 fi
 
-inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh miniforge.sh)
+if [ -z ${arch} ]; then
+    arch="$(uname)-$(uname -m)"
+fi
+
+echo "Bootstrap conda base for architecture ${arch} ..."
+
+inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${arch}.sh miniforge.sh)
 
 bash "${inst}" -b -f -p "${base}"
 
