@@ -18,7 +18,7 @@ echo '
         "-f",
         "{connection_file}"
     ],
-    "display_name": "Simons Observatory @VERSION@",
+    "display_name": "soconda @VERSION@",
     "env": {
         "PATH": "@ENVPREFIX@/bin",
         "PYTHONUSERBASE": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
