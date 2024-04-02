@@ -27,8 +27,10 @@ clutter.
 
 If you already have a conda-forge or micromamba base environment, install `conda-build`
 and `conda-verify` package to base environment.
+
     conda update -n base --yes --all conda
     conda install -n base --yes --all conda-build conda-verify
+
 Also, you should consider setting the "solver" in the base environment
 to use `libmamba`. To use `libmamba` solver see
 [this](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) article.
@@ -115,7 +117,7 @@ At NERSC, the default provided python is from Anaconda, and does not work well
 for our needs. Instead, we have a conda-forge base system installed in our
 project software directory:
 
-    source /global/common/software/sobs/perlmutter/conda/etc/profile.d/conda.sh
+    source /global/common/software/sobs/perlmutter/conda_base/etc/profile.d/conda.sh
     conda activate base
 
 Now we can either install a shared software environment or use this base
