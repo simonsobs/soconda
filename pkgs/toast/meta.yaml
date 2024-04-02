@@ -11,8 +11,8 @@ package:
 source:
   url: https://github.com/hpc4cmb/toast/archive/refs/tags/{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  patches:
-    - openmp_linking.patch
+  #patches:
+  #  - openmp_linking.patch
   #  - debug_lapack.patch
 
 build:
@@ -31,9 +31,8 @@ requirements:
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
-    - libblas
+    - libopenblas * *openmp*
+    - libblas * *openblas
     - liblapack
     - python
     - numpy >=1.26
@@ -44,9 +43,11 @@ requirements:
     - libflac
   run:
     - llvm-openmp # [osx]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - liblapack
     - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("fftw") }}
     - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("liblapack") }}
@@ -54,8 +55,6 @@ requirements:
     - {{ pin_compatible("libaatm") }}
     - {{ pin_compatible("libflac") }}
     - python
-    - numpy
-    - scipy
     - ruamel.yaml
     - matplotlib
     - astropy
@@ -65,7 +64,7 @@ requirements:
     - tomlkit
     - traitlets>=5.0
     - psutil
-    - pshmem>=1.0.4
+    - pshmem>=1.1.0
 
 test:
   imports:

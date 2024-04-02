@@ -30,8 +30,8 @@ requirements:
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
     - liblapack
     - zziplib
   run:

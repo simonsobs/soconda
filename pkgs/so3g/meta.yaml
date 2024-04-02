@@ -31,8 +31,8 @@ requirements:
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
     - liblapack
     - python
     - numpy >=1.26
@@ -47,16 +47,17 @@ requirements:
     - numba
   run:
     - llvm-openmp # [osx]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - liblapack
     - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("scipy") }}
+    - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("libboost-python") }}
     - {{ pin_compatible("libboost") }}
     - {{ pin_compatible("libflac") }}
     - python
-    - numpy
-    - scipy
     - astropy
     - qpoint
     - matplotlib

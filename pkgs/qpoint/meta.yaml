@@ -24,8 +24,8 @@ requirements:
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
     - liblapack
     - python
     - setuptools
@@ -39,13 +39,14 @@ requirements:
     - astropy
   run:
     - llvm-openmp # [osx]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - liblapack
     - {{ pin_compatible("numpy") }}
+    - {{ pin_compatible("scipy") }}
+    - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("liblapack") }}
     - python
-    - numpy
-    - scipy
     - astropy
 
 test:
