@@ -11,7 +11,7 @@ source:
   url: https://github.com/ACTCollaboration/moby2/archive/{{ version }}.tar.gz
   sha256: {{ sha256 }}
   patches:
-    - dep_names.patch
+    #- dep_names.patch
     - np_bool.patch
 
 build:
