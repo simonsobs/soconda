@@ -23,9 +23,6 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    # This is required to ensure consistent use of libgfortran
-    # across the stack.
-    - {{ compiler('fortran') }}
     - cmake
     - make
     - llvm-openmp # [osx]
