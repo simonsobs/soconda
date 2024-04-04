@@ -13,12 +13,8 @@ packaging
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
-openblas=*=openmp_*
 libopenblas=*=openmp_*
 libblas=*=*openblas
-libcblas=*=*openblas
-liblapack=*=*openblas
-liblapacke=*=*openblas
 #
 # Install requirements of our local and pip packages
 #

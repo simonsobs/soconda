@@ -11,3 +11,5 @@ CFLAGS="-O3 -g -fPIC" \
 
 make
 make install
+rm -f "${PREFIX}/lib/libactpol_deps*.la"
+rm -f "${PREFIX}/lib/libarcher.so"

@@ -14,8 +14,6 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win]
-  run_exports:
-    - libactpol
 
 requirements:
   build:
@@ -27,13 +25,11 @@ requirements:
     - m4
     - libtool
   host:
-    - llvm-openmp
-    - _openmp_mutex * *_llvm
-    - libopenblas * openmp_*
-    - openblas * openmp_*
-    # This constraint is to force compatibility with the healpy package.
-    # remove once healpy is building with cfitsio-4.4.x.
-    - cfitsio <4.4.0
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - cfitsio
     - wcslib
     - libactpol_deps
     # Remove until this perl bug is fixed
@@ -41,9 +37,11 @@ requirements:
     - libxcrypt1   # [linux]
   run:
     - llvm-openmp # [osx]
-    - openblas * openmp_*
-    - libopenblas * openmp_*
+    - libopenblas * *openmp*
+    - libblas * *openblas
     - {{ pin_compatible("cfitsio") }}
+    - {{ pin_compatible("libopenblas") }}
+    - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("libactpol_deps") }}
     - {{ pin_compatible("wcslib") }}
 
