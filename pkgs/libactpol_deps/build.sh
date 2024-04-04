@@ -18,4 +18,5 @@ CXXFLAGS="-O3 -g -fPIC" \
 ./configure --prefix="${PREFIX}" --with-zzip
 make
 make install
+rm -f "${PREFIX}/lib/libactpol_deps*.la"
 popd

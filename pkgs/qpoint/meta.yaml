@@ -26,6 +26,7 @@ requirements:
     - llvm-openmp # [osx]
   host:
     - llvm-openmp # [osx]
+    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
     - python

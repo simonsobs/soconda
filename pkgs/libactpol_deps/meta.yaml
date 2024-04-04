@@ -29,6 +29,7 @@ requirements:
     - make
   host:
     - llvm-openmp # [osx]
+    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
     - zziplib
