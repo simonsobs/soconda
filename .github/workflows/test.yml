@@ -73,6 +73,7 @@ jobs:
           python3 -c 'import scipy; import toast' &&
           python3 -c 'import so3g; from spt3g import core' &&
           python3 -c 'from sotodlib import core' &&
+          python3 -c 'import moby2.analysis.socompat' &&
           python3 -c 'import toast.tests; toast.tests.run()' &&
           git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git &&
           pushd sotodlib &&
