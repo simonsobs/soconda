@@ -14,8 +14,8 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win]
-  run_exports:
-    - libactpol_deps
+  # run_exports:
+  #   - libactpol_deps
 
 requirements:
   build:
@@ -29,10 +29,8 @@ requirements:
     - make
   host:
     - llvm-openmp # [osx]
-    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - zziplib
   run:
 

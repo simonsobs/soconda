@@ -1,5 +1,5 @@
 {% set version = "0.23.8" %}
-{% set sha256 = "1f9f89193550892e8e90b95d7fccfaf57d47ff5e99b45854e95231eb5a919a4f" %}
+{% set sha256 = "b50dbc38b26543a36e8ab0f62876fcd25d573c2b78ea58e9e16b51f61ae50107" %}
 
 {% set build = 0 %}
 
@@ -28,10 +28,8 @@ requirements:
     - make
   host:
     - llvm-openmp # [osx]
-    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - python
     - cython
     - numpy >=1.26
@@ -50,11 +48,10 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
+    - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
-    - {{ pin_compatible("liblapack") }}
     - python
     - astropy
     - healpy

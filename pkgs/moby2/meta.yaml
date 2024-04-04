@@ -21,13 +21,14 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
+    # This is required to ensure consistent use of libgfortran
+    # across the stack.
+    - {{ compiler('fortran') }}
     - llvm-openmp # [osx]
   host:
     - llvm-openmp # [osx]
-    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - python
     - fftw
     - gsl
@@ -42,12 +43,11 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("fftw") }}
+    - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
-    - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("gsl") }}
     - {{ pin_compatible("libactpol") }}
     - python

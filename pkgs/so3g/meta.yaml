@@ -13,27 +13,27 @@ source:
   patches:
     - setup_requires.patch
     - cxx_werror.patch
+    - parallel.patch
 
 build:
   number: {{ build }}
   skip: true  # [win]
-  script_env:
-    - CFLAGS=-Wno-error -O3 -g -fPIC
-    - CXXFLAGS=-Wno-error -O3 -g -fPIC -std=c++14
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    # This is required to ensure consistent use of libgfortran
+    # across the stack.
+    - {{ compiler('fortran') }}
     - cmake
     - make
     - llvm-openmp # [osx]
   host:
     - llvm-openmp # [osx]
-    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
+    - openblas * *openmp*
     - python
     - numpy >=1.26
     - scipy
@@ -49,11 +49,10 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
+    - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
-    - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("libboost-python") }}
     - {{ pin_compatible("libboost") }}
     - {{ pin_compatible("libflac") }}

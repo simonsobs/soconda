@@ -14,12 +14,15 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win]
-  run_exports:
-    - libactpol
+  # run_exports:
+  #   - libactpol
 
 requirements:
   build:
     - {{ compiler('c') }}
+    # This is required to ensure consistent use of libgfortran
+    # across the stack.
+    - {{ compiler('fortran') }}
     - llvm-openmp # [osx]
     - make
     - automake
@@ -28,13 +31,9 @@ requirements:
     - libtool
   host:
     - llvm-openmp # [osx]
-    - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
-    # This constraint is to force compatibility with the healpy package.
-    # remove once healpy is building with cfitsio-4.4.x.
-    - cfitsio <4.4.0
+    - cfitsio
     - wcslib
     - libactpol_deps
     # Remove until this perl bug is fixed
@@ -44,10 +43,9 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - liblapack
     - {{ pin_compatible("cfitsio") }}
+    - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
-    - {{ pin_compatible("liblapack") }}
     - {{ pin_compatible("libactpol_deps") }}
     - {{ pin_compatible("wcslib") }}
 
