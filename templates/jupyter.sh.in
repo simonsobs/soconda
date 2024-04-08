@@ -21,7 +21,7 @@ echo '
     "display_name": "soconda @VERSION@",
     "env": {
         "PATH": "@ENVPREFIX@/bin",
-        "PYTHONUSERBASE": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
+        "PYTHONPATH": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
     },
     "metadata": {
         "debugger": true
