@@ -1,0 +1,43 @@
+FROM quay.io/jupyter/minimal-notebook:latest as builder
+
+MAINTAINER Theodore Kisner <tskisner@lbl.gov>
+
+# Use bash
+
+SHELL ["/bin/bash", "-c"]
+
+# Copy files into container
+
+COPY soconda.sh ./soconda.sh
+
+RUN mkdir -p config
+COPY config ./config/
+
+RUN mkdir -p deploy
+COPY deploy ./deploy/
+
+RUN mkdir -p pkgs
+COPY pkgs ./pkgs/
+
+RUN mkdir -p templates
+COPY templates ./templates/
+
+RUN mkdir -p tools
+COPY tools ./tools/
+
+# Install packages to the base environment
+
+RUN ./deploy/install_docker_jupyter.sh
+
+# ======================================
+
+FROM quay.io/jupyter/minimal-notebook:latest
+
+# Copy our installed software binaries and libraries
+
+COPY --from=builder /opt/conda /opt/conda/
+
+# Imports to create config files
+
+RUN python3 -c "import astropy"
+RUN python3 -c "import matplotlib.font_manager as fm; f = fm.FontManager"

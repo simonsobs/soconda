@@ -68,7 +68,14 @@ if [ -z "${envname}" ]; then
     envname="soconda"
 fi
 # The full environment name, including the root and version.
-fullenv="${envname}_${version}"
+if [ "${envname}" = "base" ]; then
+    # We are installing directly to the base conda env.  This is normally
+    # a bad idea, but sometimes makes sense (e.g. inside a docker
+    # container).
+    fullenv="base"
+else
+    fullenv="${envname}_${version}"
+fi
 # Determine whether the new environment is a name or a full path.
 env_noslash=$(echo "${fullenv}" | sed -e 's/\///g')
 if [ "${env_noslash}" != "${fullenv}" ]; then
@@ -220,6 +227,8 @@ if [ -z "${env_check}" ]; then
 else
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
+    # Ensure that the build folder is added to the channel list
+    conda config --env --add channels "file://${CONDA_PREFIX}/conda-bld"
 fi
 conda_exec env list
 
@@ -370,3 +379,6 @@ fi
 if [ -n "${install_jupyter_setup}" ]; then
     source "${scriptdir}/tools/install_jupyter_setup.sh"
 fi
+
+# Clean up
+conda clean --all --yes

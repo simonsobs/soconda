@@ -15,8 +15,8 @@ popd
 pushd slim_v2_7_1-moby2-1
 CFLAGS="-O3 -g -fPIC" \
 CXXFLAGS="-O3 -g -fPIC" \
-./configure --prefix="${PREFIX}" --with-zzip
-make
+./configure --prefix="${PREFIX}" --with-zzip && \
+make && \
 make install
 rm -f "${PREFIX}/lib/libactpol_deps*.la"
 popd
