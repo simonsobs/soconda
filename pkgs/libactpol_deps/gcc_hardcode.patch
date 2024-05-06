@@ -1,0 +1,12 @@
+diff -urN libactpol_deps_orig/sofa_20180130/Makefile libactpol_deps_new/sofa_20180130/Makefile
+--- libactpol_deps_orig/sofa_20180130/Makefile	2020-06-22 15:49:10.000000000 -0700
++++ libactpol_deps_new/sofa_20180130/Makefile	2024-04-26 16:56:59.751864213 -0700
+@@ -23,7 +23,7 @@
+ default: $(LIBNAME)
+ 
+ $(LIBNAME): $(OBJECTS)
+-	gcc -shared -Wl,-soname,$@.1 \
++	$(CC) -shared -Wl,-soname,$@.1 \
+ 	    -o $@ $(OBJECTS)
+ 
+ clean:
