@@ -283,7 +283,7 @@ conda_exec activate "${fullenv}"
 # Install local conda packages.
 echo -e "\n\n"
 echo "Installing local packages..." | tee -a "log_conda"
-conda_exec install --yes --use-local ${local_pkgs} \
+conda_exec install --yes ${local_pkgs} \
     2>&1 | tee -a "log_conda"
 
 conda_exec deactivate
