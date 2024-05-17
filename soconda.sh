@@ -114,6 +114,7 @@ if [ -e "${confdir}/required_modules.txt" ]; then
     done < "${confdir}/required_modules.txt"
 fi
 
+is_micromamba='no'
 if [ -n "${base}" ]; then
     conda_dir="${base}"
     # Initialize conda
@@ -126,17 +127,20 @@ if [ -n "${base}" ]; then
 else
     # User did not specify where to find it
     if [ -n "$CONDA_EXE" ]; then
-        echo "Find conda command at ${CONDA_EXE}"
+        echo "Found conda command at ${CONDA_EXE}"
         conda_dir="$(dirname $(dirname $CONDA_EXE))"
         # Initialize conda
         eval "$("$CONDA_EXE" 'shell.bash' 'hook')"
         conda_exec () { conda "$@" ; }
     elif [ -n "$MAMBA_EXE" ]; then
-        echo "Find micromamba command at ${MAMBA_EXE}"
+        # If both $CONDA_EXE and $MAMBA_EXE variables are defined,
+        # $CONDA_EXE will take precedence.
+        echo "Found micromamba command at ${MAMBA_EXE}"
         conda_dir="$MAMBA_ROOT_PREFIX"
         # Initialize micromamba
         eval "$("$MAMBA_EXE" shell hook --shell bash)"
         conda_exec () { micromamba "$@" ; }
+        is_micromamba='yes'
     else
         # Could not find conda or micromamba
         echo "You must either activate the conda base environment before"
@@ -189,10 +193,12 @@ if [ -z "${env_check}" ]; then
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
 
-    if [ -n "$MAMBA_EXE" ]; then
-        # Install conda packages to mamba env
-        conda_exec install --yes conda conda-build conda-verify
-        # Here we installed conda-build to mamba environment.
+    # If we are using micromamba (not just mamba), then there is no
+    # base environment.  In that case, install conda build tools directly.
+    # Note that conda-forge environments now ship with the `mamba` executable.
+    if [ "${is_micromamba}" = "yes" ]; then
+        # Install conda packages to micromamba env
+        conda_exec install --yes conda conda-build conda-verify conda-index
         # In the remaining part of code, unless activating/switching
         # environment and installing packages, we all use `conda` command.
         # This is due to there is no `micromamba index` or `micromamba build`
@@ -232,11 +238,12 @@ else
 fi
 conda_exec env list
 
-
 # Build local packages.  These are built in an isolated environment with
 # all dependencies installed from upstream or our local $CONDA_PREFIX/conda-bld.
 # The conda executable and its plugins (conda-build, conda-verify, etc)
 # are always kept in the base environment.
+
+export CONDA_BLD_PATH="${CONDA_PREFIX}/conda-bld"
 
 local_pkgs=""
 while IFS='' read -r line || [[ -n "${line}" ]]; do
@@ -248,8 +255,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         local_pkgs="${local_pkgs} ${pkgname}"
         echo -e "\n\n"
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
-        conda build --croot "${CONDA_PREFIX}/conda-bld/temp_build" \
-            --output-folder "${CONDA_PREFIX}/conda-bld" \
+        conda build \
             --variants "{'python':['${python_major_minor}']}" \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
     fi
@@ -280,7 +286,7 @@ conda_exec activate "${fullenv}"
 # Install local conda packages.
 echo -e "\n\n"
 echo "Installing local packages..." | tee -a "log_conda"
-conda_exec install --yes --use-local ${local_pkgs} \
+conda_exec install --yes ${local_pkgs} \
     2>&1 | tee -a "log_conda"
 
 conda_exec deactivate

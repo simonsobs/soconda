@@ -1,6 +1,6 @@
 
-{% set version = "3.0.0a23" %}
-{% set sha256 = "677195878815f3c089067a7b28ea0d06ddd303eb6dab014a4d1a1b0e7f9eb7dd" %}
+{% set version = "3.0.0a25" %}
+{% set sha256 = "a280e69abd038d211321f03978e84ddfe3fbb15c763f82254f16b451503c34aa" %}
 
 {% set build = 0 %}
 
@@ -37,7 +37,7 @@ requirements:
     - numpy >=1.26
     - scipy
     - fftw
-    - suitesparse
+    - suitesparse <7.3
     - libaatm
     - libflac
   run:

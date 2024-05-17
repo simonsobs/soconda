@@ -33,7 +33,7 @@ bash "${inst}" -b -f -p "${base}"
 source "${base}/etc/profile.d/conda.sh"
 conda activate base
 conda update -n base --yes --all conda
-conda install -n base --yes --all conda-libmamba-solver conda-build conda-verify
+conda install -n base --yes --all conda-libmamba-solver conda-build conda-verify conda-index
 conda deactivate
 
 # Create base config file
