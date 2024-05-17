@@ -114,6 +114,7 @@ if [ -e "${confdir}/required_modules.txt" ]; then
     done < "${confdir}/required_modules.txt"
 fi
 
+is_micromamba='no'
 if [ -n "${base}" ]; then
     conda_dir="${base}"
     # Initialize conda
@@ -126,17 +127,20 @@ if [ -n "${base}" ]; then
 else
     # User did not specify where to find it
     if [ -n "$CONDA_EXE" ]; then
-        echo "Find conda command at ${CONDA_EXE}"
+        echo "Found conda command at ${CONDA_EXE}"
         conda_dir="$(dirname $(dirname $CONDA_EXE))"
         # Initialize conda
         eval "$("$CONDA_EXE" 'shell.bash' 'hook')"
         conda_exec () { conda "$@" ; }
     elif [ -n "$MAMBA_EXE" ]; then
-        echo "Find micromamba command at ${MAMBA_EXE}"
+        # If both $CONDA_EXE and $MAMBA_EXE variables are defined,
+        # $CONDA_EXE will take precedence.
+        echo "Found micromamba command at ${MAMBA_EXE}"
         conda_dir="$MAMBA_ROOT_PREFIX"
         # Initialize micromamba
         eval "$("$MAMBA_EXE" shell hook --shell bash)"
         conda_exec () { micromamba "$@" ; }
+        is_micromamba='yes'
     else
         # Could not find conda or micromamba
         echo "You must either activate the conda base environment before"
@@ -191,9 +195,8 @@ if [ -z "${env_check}" ]; then
 
     # If we are using micromamba (not just mamba), then there is no
     # base environment.  In that case, install conda build tools directly.
-    # Note that conda-forge environments now ship with the `mamba` executable,
-    # so that does not work as a test for whether we have micromamba.
-    if [ "x$(which micromamba)" != "x" ]; then
+    # Note that conda-forge environments now ship with the `mamba` executable.
+    if [ "${is_micromamba}" = "yes" ]; then
         # Install conda packages to micromamba env
         conda_exec install --yes conda conda-build conda-verify conda-index
         # In the remaining part of code, unless activating/switching
