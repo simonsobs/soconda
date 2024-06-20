@@ -31,7 +31,7 @@ requirements:
     - gsl
     - libactpol
     - future
-    - numpy >=1.26
+    - numpy =1.26
     - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
