@@ -34,7 +34,7 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
-    - numpy >=1.26
+    - numpy =1.26
     - scipy
     - fftw
     - suitesparse <7.3

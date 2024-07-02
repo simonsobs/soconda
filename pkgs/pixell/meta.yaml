@@ -33,7 +33,7 @@ requirements:
     - libblas * *openblas
     - python
     - cython
-    - numpy >=1.26
+    - numpy =1.26
     - scipy
     - astropy
     - healpy
