@@ -25,7 +25,7 @@ jobs:
           - os: ubuntu-latest
             python: "3.11"
             arch: Linux-x86_64
-          - os: macos-12
+          - os: macos-13
             python: "3.11"
             arch: MacOSX-x86_64
           - os: macos-14
@@ -57,7 +57,7 @@ jobs:
           pyver=${{ matrix.python }} &&
           sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
           cat ./config/default/packages_conda.txt &&
-          if [[ ${{ matrix.os }} == "macos-12" || ${{ matrix.os }} == "macos-14" ]]; then \
+          if [[ ${{ matrix.os }} == "macos-13" || ${{ matrix.os }} == "macos-14" ]]; then \
             ./soconda.sh -e soconda -v CI -c binary; \
           else \
             ./soconda.sh -e soconda -v CI -c default; \
