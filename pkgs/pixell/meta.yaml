@@ -32,6 +32,7 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
+    - meson-python
     - cython
     - numpy =1.26
     - scipy
