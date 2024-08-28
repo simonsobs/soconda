@@ -12,6 +12,7 @@ source:
   sha256: {{ sha256 }}
   patches:
     - gcc_hardcode.patch
+    - implicit_func.patch
 
 build:
   number: {{ build }}
