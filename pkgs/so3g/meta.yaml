@@ -33,7 +33,7 @@ requirements:
     - libblas * *openblas
     - openblas * *openmp*
     - python
-    - numpy =1.26
+    - numpy <2.0
     - scipy
     - boost
     - libboost-devel

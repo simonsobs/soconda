@@ -36,7 +36,7 @@ requirements:
     - python
     - meson-python
     - cython
-    - numpy =1.26
+    - numpy <2.0
     - scipy
     - astropy
     - healpy
