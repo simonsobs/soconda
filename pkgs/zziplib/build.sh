@@ -25,7 +25,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
     -DCMAKE_PREFIX_PATH="${PREFIX}" \
     -DCMAKE_C_COMPILER="${CC}" \
-    -DCMAKE_C_FLAGS="-O3 -g -fPIC" \
+    -DCMAKE_C_FLAGS="-O3 -fPIC" \
     "${SRC_DIR}"
 make -j 2
 make install

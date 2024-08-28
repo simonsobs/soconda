@@ -13,8 +13,8 @@ PREFIX="${PREFIX}" make install
 popd
 
 pushd slim_v2_7_1-moby2-1
-CFLAGS="-O3 -g -fPIC" \
-CXXFLAGS="-O3 -g -fPIC" \
+CFLAGS="-O3 -fPIC" \
+CXXFLAGS="-O3 -fPIC" \
 ./configure --prefix="${PREFIX}" --with-zzip && \
 make && \
 make install
