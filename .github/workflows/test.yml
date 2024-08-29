@@ -22,15 +22,23 @@ jobs:
           - os: ubuntu-latest
             python: "3.10"
             arch: Linux-x86_64
+            config: default
           - os: ubuntu-latest
             python: "3.11"
             arch: Linux-x86_64
+            config: default
+          - os: ubuntu-latest
+            python: "3.11"
+            arch: Linux-x86_64
+            config: binary
           - os: macos-13
             python: "3.11"
             arch: MacOSX-x86_64
-          - os: macos-14
+            config: binary
+          - os: macos-latest
             python: "3.11"
             arch: MacOSX-x86_64
+            config: binary
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,13 +63,9 @@ jobs:
           source ~/conda/etc/profile.d/conda.sh &&
           conda activate base &&
           pyver=${{ matrix.python }} &&
-          sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/default/packages_conda.txt &&
+          sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/default ./config/binary packages_conda.txt &&
           cat ./config/default/packages_conda.txt &&
-          if [[ ${{ matrix.os }} == "macos-13" || ${{ matrix.os }} == "macos-14" ]]; then \
-            ./soconda.sh -e soconda -v CI -c binary; \
-          else \
-            ./soconda.sh -e soconda -v CI -c default; \
-          fi
+          ./soconda.sh -e soconda -v CI -c ${{ matrix.config }}
 
       - name: Run Tests
         run: |
