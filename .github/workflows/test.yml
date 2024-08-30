@@ -63,8 +63,8 @@ jobs:
           source ~/conda/etc/profile.d/conda.sh &&
           conda activate base &&
           pyver=${{ matrix.python }} &&
-          sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/default ./config/binary packages_conda.txt &&
-          cat ./config/default/packages_conda.txt &&
+          sed -i -E "s/python=3\.[[:digit:]]+.*/python=${pyver}/" ./config/${{ matrix.config }}/packages_conda.txt &&
+          cat ./config/${{ matrix.config }}/packages_conda.txt &&
           ./soconda.sh -e soconda -v CI -c ${{ matrix.config }}
 
       - name: Run Tests
