@@ -18,7 +18,7 @@ libblas=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
-numpy=1.26
+numpy<2.0
 scipy
 matplotlib
 cmake
@@ -63,3 +63,4 @@ ipykernel
 pyfftw
 numdifftools
 namaster
+pysm3

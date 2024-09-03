@@ -1,0 +1,15 @@
+diff -urN libactpol_deps_orig/sla_refro-moby2-1/wrap.c libactpol_deps_new/sla_refro-moby2-1/wrap.c
+--- libactpol_deps_orig/sla_refro-moby2-1/wrap.c	2020-06-22 15:49:10.000000000 -0700
++++ libactpol_deps_new/sla_refro-moby2-1/wrap.c	2024-08-28 10:09:11.952746641 -0700
+@@ -1,5 +1,11 @@
+ #include "wrap.h"
+ 
++/* Avoid implicit function declaration warning. */
++extern void sla_refro_(
++	double *, double *, double *, double *, double *, 
++	double *, double *, double *, double *, double *
++);
++
+ void slaf_refro ( double zobs, double hm, double tdk, double pmb,
+ 		  double rh, double wl, double phi, double tlr,
+ 		  double eps, double *ref )

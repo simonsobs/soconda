@@ -1,5 +1,5 @@
-{% set version = "0.23.14" %}
-{% set sha256 = "7c063f773d7bcb83bf1d10b99a703d8fd7deb7c27a7e73aadca5d6e8c99f659d" %}
+{% set version = "0.26.1" %}
+{% set sha256 = "0aedd7272b2b2ac4aef476d63efb4b6b929d39663f8e3516ceec839896322bcb" %}
 
 {% set build = 0 %}
 
@@ -10,6 +10,8 @@ package:
 source:
   url: https://github.com/simonsobs/pixell/archive/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  patches:
+    - qsort_const.patch
 
 build:
   number: {{ build }}
@@ -32,8 +34,9 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
+    - meson-python
     - cython
-    - numpy =1.26
+    - numpy <2.0
     - scipy
     - astropy
     - healpy

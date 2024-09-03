@@ -3,7 +3,6 @@ dominate
 emcee==3.0.1
 daal==2021.2.3
 sympy==1.1.1
-pysm3
 https://github.com/fgbuster/fgbuster/archive/master.tar.gz
 https://github.com/simonsobs/mbatch/archive/master.tar.gz
 #

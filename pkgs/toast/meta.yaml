@@ -1,6 +1,6 @@
 
-{% set version = "3.0.0a25" %}
-{% set sha256 = "a280e69abd038d211321f03978e84ddfe3fbb15c763f82254f16b451503c34aa" %}
+{% set version = "3.0.0a27" %}
+{% set sha256 = "57689a78cec88030c4f770a6bcde7e1a101bd149f66e7e1c6db3f41451e93ff3" %}
 
 {% set build = 0 %}
 
@@ -34,7 +34,7 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
-    - numpy =1.26
+    - numpy <2.0
     - scipy
     - fftw
     - suitesparse <7.3
