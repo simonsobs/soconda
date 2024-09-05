@@ -1,11 +1,11 @@
 #!/bin/bash
 
-kerneldir=${HOME}/.local/share/jupyter/kernels/soconda-@VERSION@
+kerneldir=${HOME}/.local/share/jupyter/kernels/soconda-mss3-@VERSION@
 if [ -d ${kerneldir} ]; then
-    echo "soconda @VERSION@ is already installed in ${kerneldir}, skipping." >&2
+    echo "soconda-mss3 @VERSION@ is already installed in ${kerneldir}, skipping." >&2
     exit 0
 else
-    echo "soconda installing kernel version @VERSION@ to ${kerneldir}"
+    echo "soconda-mss3 installing kernel version @VERSION@ to ${kerneldir}"
 fi
 mkdir -p "${kerneldir}"
 echo '
@@ -18,7 +18,7 @@ echo '
         "-f",
         "{connection_file}"
     ],
-    "display_name": "soconda @VERSION@",
+    "display_name": "soconda-mss3 @VERSION@",
     "env": {
         "PATH": "/usr/bin:@ENVPREFIX@/bin",
         "PYTHONPATH": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
