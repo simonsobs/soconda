@@ -63,8 +63,10 @@ shift $((OPTIND-1))
 if [ -z "${version}" ]; then
     # Get the version from git
     gitdesc=$(git describe --tags --dirty --always | cut -d "-" -f 1)
-    gitcnt=$(git rev-list --count HEAD)
-    version="${gitdesc}.dev${gitcnt}"
+    #gitcnt=$(git rev-list --count HEAD)
+    #version="${gitdesc}.dev${gitcnt}"
+    githash=$(git log -n 1 --format="%h" HEAD)
+    version="${gitdesc}.${githash}"
 fi
 
 if [ -z "${envname}" ]; then
