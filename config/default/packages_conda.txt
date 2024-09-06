@@ -4,3 +4,4 @@ python=3.12
 jupyterlab
 plotly
 plotly-resampler
+qt6-wayland
