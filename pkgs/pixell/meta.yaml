@@ -8,7 +8,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/simonsobs/pixell/archive/v{{ version }}.tar.gz
+  url: https://github.com/simonsobs/pixell/archive/refs/tags/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
   patches:
     - qsort_const.patch
