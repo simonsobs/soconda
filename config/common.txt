@@ -64,3 +64,4 @@ pyfftw
 numdifftools
 namaster
 pysm3
+lmfit
