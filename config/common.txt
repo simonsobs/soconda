@@ -59,6 +59,7 @@ pytz
 future
 pyaml
 tqdm
+lmfit
 ipykernel
 pyfftw
 numdifftools
