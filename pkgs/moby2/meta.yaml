@@ -36,6 +36,8 @@ requirements:
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
+    # Not a dependency, force installing a NaMaster-compatible GSL version
+    - namaster
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
