@@ -1,4 +1,5 @@
 quaternionarray
+flacarray
 dominate 
 emcee==3.0.1
 daal==2021.2.3

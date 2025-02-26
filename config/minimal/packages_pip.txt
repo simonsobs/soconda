@@ -1,5 +1,6 @@
 pixell
 quaternionarray
+flacarray
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
 toast==3.0.0a27

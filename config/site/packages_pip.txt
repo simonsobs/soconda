@@ -1,4 +1,5 @@
 quaternionarray
+flacarray
 #
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
