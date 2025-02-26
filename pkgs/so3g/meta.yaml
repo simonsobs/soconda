@@ -35,6 +35,7 @@ requirements:
     - libboost-devel
     - libboost-python-devel
     - libflac
+    - gsl
     - qpoint
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
@@ -50,6 +51,7 @@ requirements:
     - {{ pin_compatible("libboost-python") }}
     - {{ pin_compatible("libboost") }}
     - {{ pin_compatible("libflac") }}
+    - {{ pin_compatible("gsl") }}
     - python
     - astropy
     - qpoint

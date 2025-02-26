@@ -36,6 +36,7 @@ libaatm
 suitesparse
 tomlkit
 ruamel.yaml
+jinja2
 traitlets
 h5py
 astropy
