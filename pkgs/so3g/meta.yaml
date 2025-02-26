@@ -10,10 +10,6 @@ package:
 source:
   url: https://github.com/simonsobs/so3g/archive/refs/tags/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  patches:
-    - setup_requires.patch
-    - cxx_werror.patch
-    - parallel.patch
 
 build:
   number: {{ build }}
