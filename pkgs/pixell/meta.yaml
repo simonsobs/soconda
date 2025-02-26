@@ -10,8 +10,6 @@ package:
 source:
   url: https://github.com/simonsobs/pixell/archive/refs/tags/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  patches:
-    - qsort_const.patch
 
 build:
   number: {{ build }}
