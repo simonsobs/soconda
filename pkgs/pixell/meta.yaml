@@ -1,5 +1,5 @@
-{% set version = "0.26.1" %}
-{% set sha256 = "0aedd7272b2b2ac4aef476d63efb4b6b929d39663f8e3516ceec839896322bcb" %}
+{% set version = "0.28.1" %}
+{% set sha256 = "b0c00c427ba3397eedd2832a6e68bb8fa3de5eb908d239f40565434971ff34b7" %}
 
 {% set build = 0 %}
 
@@ -36,7 +36,7 @@ requirements:
     - python
     - meson-python
     - cython
-    - numpy <2.0
+    - numpy
     - scipy
     - astropy
     - healpy
