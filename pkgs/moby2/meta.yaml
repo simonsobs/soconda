@@ -12,6 +12,8 @@ source:
   sha256: {{ sha256 }}
   patches:
     - np_bool.patch
+    - pyproject.patch
+    - py_head_init.patch
 
 build:
   number: {{ build }}
@@ -27,6 +29,7 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
+    - setuptools
     - fftw
     - gsl
     - libactpol
