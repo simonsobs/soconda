@@ -10,6 +10,8 @@ package:
 source:
   url: https://github.com/ACTCollaboration/moby2/archive/{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  patches:
+    - complex_fftw.patch
 
 build:
   number: {{ build }}

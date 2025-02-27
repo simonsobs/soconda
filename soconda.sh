@@ -257,7 +257,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
         conda build \
             --variants "{'python':['${python_major_minor}']}" \
-            --numpy 2 \
+            --numpy 2.1 \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
     fi
 done < "${confdir}/packages_local.txt"
