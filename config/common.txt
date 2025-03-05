@@ -64,7 +64,7 @@ lmfit
 ipykernel
 pyfftw
 numdifftools
-#namaster
+namaster
 pysm3
 psycopg2-binary
 versioneer
