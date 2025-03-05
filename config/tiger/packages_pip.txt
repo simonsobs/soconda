@@ -11,8 +11,8 @@ https://github.com/simonsobs/mbatch/archive/master.tar.gz
 # line in packages_local.txt
 #so3g
 #
-# Eventually use a tag for sotodlib...
-https://github.com/simonsobs/sotodlib/archive/master.tar.gz
+# sotodlib latest tag
+https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.1.tar.gz
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.
