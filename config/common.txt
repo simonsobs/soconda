@@ -67,3 +67,4 @@ numdifftools
 #namaster
 pysm3
 psycopg2-binary
+versioneer
