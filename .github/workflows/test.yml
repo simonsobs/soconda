@@ -8,7 +8,7 @@ concurrency:
 
 jobs:
   test:
-    name: Conda ${{ matrix.arch }} on ${{ matrix.os }} with Python ${{ matrix.python }}
+    name: Python ${{ matrix.python }} on ${{ matrix.arch }} with config ${{ matrix.config }}
     runs-on: ${{ matrix.os }}
     env:
       CI: "1"
@@ -24,11 +24,11 @@ jobs:
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
-            python: "3.11"
+            python: "3.12"
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
-            python: "3.11"
+            python: "3.12"
             arch: Linux-x86_64
             config: binary
           - os: macos-13
@@ -36,9 +36,9 @@ jobs:
             arch: MacOSX-x86_64
             config: binary
           - os: macos-latest
-            python: "3.11"
-            arch: MacOSX-x86_64
-            config: binary
+            python: "3.12"
+            arch: MacOSX-arm64
+            config: default
     steps:
       - name: Checkout
         uses: actions/checkout@v4
