@@ -38,7 +38,7 @@ jobs:
           - os: macos-latest
             python: "3.12"
             arch: MacOSX-arm64
-            config: default
+            config: binary
     steps:
       - name: Checkout
         uses: actions/checkout@v4
