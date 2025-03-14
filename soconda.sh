@@ -106,16 +106,9 @@ if [ ! -d "${confdir}" ]; then
     exit 1
 fi
 
-# Load any module that the installation might need.
-if [ -e "${confdir}/required_modules.txt" ]; then
-    while IFS= read -r line
-    do
-        module load "$line"
-    done < "${confdir}/required_modules.txt"
-fi
-
-if [ -e "${confdir}/env.sh" ]; then
-    source "${confdir}/env.sh"
+# Load build envinronment that the installation might need.
+if [ -e "${confdir}/build_env.sh" ]; then
+    source "${confdir}/build_env.sh"
 fi
 
 is_micromamba='no'
