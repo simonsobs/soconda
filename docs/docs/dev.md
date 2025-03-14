@@ -14,7 +14,9 @@ computing centers will check for new tags and build them if found.
 
 ## Changing the Build Configuration
 
-The `config/common.txt` file contains conda packages that should be installed on all systems.  There are subdirectories under `config` for each unique machine / build configuration.  Here we discuss the contents of each of these subdirectories.
+The `config/common.txt` file contains conda packages that should be installed on all
+systems. There are subdirectories under `config` for each unique machine / build
+configuration. Here we discuss the contents of each of these subdirectories.
 
 ### Environment Setup
 
