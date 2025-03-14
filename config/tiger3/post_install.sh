@@ -7,7 +7,7 @@
 # for the environment into a user's home directory.
 
 # Install a module file?
-install_module=no
+install_module=yes
 
 # Install jupyter kernel setup script?
 install_jupyter_setup=no
