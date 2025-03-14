@@ -7,6 +7,3 @@ openmpi=4.1.*=external_*
 #
 pandas
 ipython_genutils
-# Revert to 0.12 until this bug is fixed:
-# https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw==0.12
