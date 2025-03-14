@@ -1,0 +1,1 @@
+export MPICC=cc

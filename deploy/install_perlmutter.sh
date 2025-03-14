@@ -60,8 +60,6 @@ pushd "${clone_dir}" >/dev/null 2>&1
 mkdir -p "build"
 pushd "build" >/dev/null 2>&1
 
-export MPICC="cc"
-
 eval "${clone_dir}/soconda.sh" \
     -b "${base_dir}" \
     -c "perlmutter" \

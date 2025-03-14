@@ -1,0 +1,4 @@
+if [ module-info mode load ] {
+    module load openmpi/gcc/4.1.2
+    module load anaconda3/2022.10
+}
