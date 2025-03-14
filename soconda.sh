@@ -114,6 +114,10 @@ if [ -e "${confdir}/required_modules.txt" ]; then
     done < "${confdir}/required_modules.txt"
 fi
 
+if [ ${HOSTNAME} = "tiger3.princeton.edu"]; then
+    MPICC=$(which mpicc)
+fi
+
 is_micromamba='no'
 if [ -n "${base}" ]; then
     conda_dir="${base}"

@@ -1,2 +1,0 @@
-openmpi/gcc/4.1.1/64
-anaconda3/2022.10

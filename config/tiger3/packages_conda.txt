@@ -1,6 +1,6 @@
 # Adjust the default python version
-python=3.9.*
-openmpi=4.1.*=external_*
+python=3.11.*
+openmpi=4.1.6=external_*
 #
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
@@ -9,4 +9,5 @@ pandas
 ipython_genutils
 # Revert to 0.12 until this bug is fixed:
 # https://github.com/conda-forge/pyfftw-feedstock/issues/51
-pyfftw==0.12
+pyfftw
+scikit-learn
