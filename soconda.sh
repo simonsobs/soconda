@@ -114,8 +114,8 @@ if [ -e "${confdir}/required_modules.txt" ]; then
     done < "${confdir}/required_modules.txt"
 fi
 
-if [ ${HOSTNAME} = "tiger3.princeton.edu"]; then
-    MPICC=$(which mpicc)
+if [ -e "${confdir}/env.sh" ]; then
+    source "${confdir}/env.sh"
 fi
 
 is_micromamba='no'

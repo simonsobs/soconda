@@ -1,0 +1,1 @@
+MPICC=$(which mpicc)
