@@ -51,11 +51,8 @@ fi
 
 git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
-# Activate the base environment and keep it up to date.
-source "${base_dir}/etc/profile.d/conda.sh"
-conda activate base >> "${logfile}" 2>&1
-conda update --yes -n base conda conda-build >> "${logfile}" 2>&1
-conda update --yes --all -n base >> "${logfile}" 2>&1
+# Keep the base environment up to date.
+eval "${clone_dir}/tools/update_base.sh" "${base_dir}" >> "${logfile}"
 
 # Build things from the temp directory
 
@@ -66,6 +63,7 @@ pushd "build" >/dev/null 2>&1
 export MPICC="cc"
 
 eval "${clone_dir}/soconda.sh" \
+    -b "${base_dir}" \
     -c "perlmutter" \
     -e "${env_name}" \
     -v "${env_version}" \

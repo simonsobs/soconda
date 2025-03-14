@@ -18,7 +18,7 @@ libblas=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
-numpy<2.0
+numpy>=2
 scipy
 matplotlib
 cmake
@@ -36,6 +36,7 @@ libaatm
 suitesparse
 tomlkit
 ruamel.yaml
+jinja2
 traitlets
 h5py
 astropy
@@ -59,8 +60,11 @@ pytz
 future
 pyaml
 tqdm
+lmfit
 ipykernel
 pyfftw
 numdifftools
 namaster
 pysm3
+psycopg2-binary
+versioneer

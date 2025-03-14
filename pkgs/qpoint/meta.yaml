@@ -28,7 +28,7 @@ requirements:
     - libblas * *openblas
     - python
     - setuptools
-    - numpy <2.0
+    - numpy
     - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
@@ -40,7 +40,6 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}

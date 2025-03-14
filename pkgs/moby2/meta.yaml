@@ -1,5 +1,5 @@
-{% set version = "f0056ac3618b8c4c96130fcb41f7be3d6bd07241" %}
-{% set sha256 = "15356bf369bb428a6a8e79b76406d6651b13ca37c18ec8a04c71036c5cc7e35d" %}
+{% set version = "0ae27c81ea6b326e165c553786531086bb4dd13d" %}
+{% set sha256 = "942b4dda73222ad44feebd826916e8db993a76cb5a10579274e3446bfebef1e2" %}
 
 {% set build = 0 %}
 
@@ -11,7 +11,7 @@ source:
   url: https://github.com/ACTCollaboration/moby2/archive/{{ version }}.tar.gz
   sha256: {{ sha256 }}
   patches:
-    - np_bool.patch
+    - complex_fftw.patch
 
 build:
   number: {{ build }}
@@ -27,11 +27,12 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
+    - setuptools
     - fftw
     - gsl
     - libactpol
     - future
-    - numpy <2.0
+    - numpy
     - scipy
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
@@ -42,7 +43,6 @@ requirements:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("fftw") }}
     - {{ pin_compatible("libopenblas") }}

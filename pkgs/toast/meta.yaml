@@ -1,6 +1,6 @@
 
-{% set version = "3.0.0a27" %}
-{% set sha256 = "57689a78cec88030c4f770a6bcde7e1a101bd149f66e7e1c6db3f41451e93ff3" %}
+{% set version = "3.0.0a29" %}
+{% set sha256 = "9bc8d32dca486a3ff8592a0cbe665cf85e2422e4aedc2f949a1d02dfa0389791" %}
 
 {% set build = 0 %}
 
@@ -34,17 +34,16 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
-    - numpy <2.0
+    - numpy
     - scipy
     - fftw
-    - suitesparse <7.3
+    - suitesparse
     - libaatm
     - libflac
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("fftw") }}
     - {{ pin_compatible("libopenblas") }}

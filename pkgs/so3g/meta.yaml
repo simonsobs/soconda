@@ -1,5 +1,5 @@
-{% set version = "0.1.15" %}
-{% set sha256 = "172b203c0f6395c4482d32a8e74f247761f0e380729a8357ef76bc23a581a46c" %}
+{% set version = "0.2.0" %}
+{% set sha256 = "3eccc4b5c8bc4177f74bd6878eb0d80192eaae4ffaf922e7de139d872d468644" %}
 
 {% set build = 0 %}
 
@@ -10,10 +10,6 @@ package:
 source:
   url: https://github.com/simonsobs/so3g/archive/refs/tags/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  patches:
-    - setup_requires.patch
-    - cxx_werror.patch
-    - parallel.patch
 
 build:
   number: {{ build }}
@@ -33,27 +29,30 @@ requirements:
     - libblas * *openblas
     - openblas * *openmp*
     - python
-    - numpy <2.0
+    - numpy
     - scipy
     - boost
     - libboost-devel
     - libboost-python-devel
     - libflac
+    - gsl
     - qpoint
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
     - numba
+    # Not a dependency, force installing a NaMaster-compatible GSL version
+    - namaster
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
     - libblas * *openblas
-    - {{ pin_compatible("numpy") }}
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("libboost-python") }}
     - {{ pin_compatible("libboost") }}
     - {{ pin_compatible("libflac") }}
+    - {{ pin_compatible("gsl") }}
     - python
     - astropy
     - qpoint

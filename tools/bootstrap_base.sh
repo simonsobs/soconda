@@ -29,17 +29,15 @@ inst=$(eval "${scriptdir}/fetch_check.sh" https://github.com/conda-forge/minifor
 
 bash "${inst}" -b -f -p "${base}"
 
-# Activate base and install libmamba solver
-source "${base}/etc/profile.d/conda.sh"
-conda activate base
-conda update -n base --yes --all conda
-conda install -n base --yes --all conda-libmamba-solver conda-build conda-verify conda-index
-conda deactivate
-
 # Create base config file
 echo "# condarc bootstrapped by soconda" > "${base}/.condarc"
 echo "channels:" >> "${base}/.condarc"
 echo "  - conda-forge" >> "${base}/.condarc"
 echo "changeps1: false" >> "${base}/.condarc"
-echo "solver: libmamba" >> "${base}/.condarc"
 
+# Activate base and update conda tools
+source "${base}/etc/profile.d/conda.sh"
+conda activate base
+conda update -n base --yes --all conda
+conda install -n base --yes --all conda-build conda-index
+conda deactivate

@@ -114,6 +114,10 @@ if [ -e "${confdir}/required_modules.txt" ]; then
     done < "${confdir}/required_modules.txt"
 fi
 
+if [ ${HOSTNAME} = "tiger3.princeton.edu"]; then
+    MPICC=$(which mpicc)
+fi
+
 is_micromamba='no'
 if [ -n "${base}" ]; then
     conda_dir="${base}"
@@ -198,7 +202,7 @@ if [ -z "${env_check}" ]; then
     # Note that conda-forge environments now ship with the `mamba` executable.
     if [ "${is_micromamba}" = "yes" ]; then
         # Install conda packages to micromamba env
-        conda_exec install --yes conda conda-build conda-verify conda-index
+        conda_exec install --yes conda conda-build conda-index
         # In the remaining part of code, unless activating/switching
         # environment and installing packages, we all use `conda` command.
         # This is due to there is no `micromamba index` or `micromamba build`
@@ -257,7 +261,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
         conda build \
             --variants "{'python':['${python_major_minor}']}" \
-            --numpy 1.26 \
+            --numpy 2.1 \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
     fi
 done < "${confdir}/packages_local.txt"

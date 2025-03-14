@@ -1,0 +1,186 @@
+diff -urN moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/fft.c moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/fft.c
+--- moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/fft.c	2025-02-26 21:14:59.000000000 -0800
++++ moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/fft.c	2025-02-27 10:46:52.954009731 -0800
+@@ -15,6 +15,7 @@
+ 
+ #include <stdbool.h>
+ 
++#include <complex.h>
+ #include <fftw3.h>
+ 
+ /*
+@@ -94,8 +95,9 @@
+ 	// Unload conjugate.  This is not very expensive.
+ 	if (full_freq) {
+ 	    for (int i=1; i<ndata/2; i++) {
+-		dest[ndata-i][0] =  dest[i][0];
+-		dest[ndata-i][1] = -dest[i][1];
++			dest[ndata-i] = creal(dest[i]) - cimag(dest[i]);
++			// dest[ndata-i][0] =  dest[i][0];
++			// dest[ndata-i][1] = -dest[i][1];
+ 	    }
+ 	}
+     }
+@@ -184,8 +186,9 @@
+ 	    // Copy input, and scale by 1/n since FFTW does not bother
+ 	    fftwf_complex *src = fdata + dets[d]*nfreq;
+ 	    for (int i=0; i<ndata/2+1; i++) {
+-		src_copy[i][0] = src[i][0] / ndata;
+-		src_copy[i][1] = src[i][1] / ndata;
++			src_copy[i] = src[i] / ndata;
++			// src_copy[i][0] = src[i][0] / ndata;
++			// src_copy[i][1] = src[i][1] / ndata;
+ 	    }
+ 	    float *dest = itform + d*ndata;
+ 	    fftwf_execute_dft_c2r(f_plan, src_copy, dest);
+diff -urN moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/filter.c moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/filter.c
+--- moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/filter.c	2025-02-26 21:14:59.000000000 -0800
++++ moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/filter.c	2025-02-27 10:59:47.974887321 -0800
+@@ -16,6 +16,7 @@
+ #include "myassert.h"
+ 
+ #include <stdbool.h>
++#include <complex.h>
+ 
+ #include <fftw3.h>
+ #include <gsl/gsl_cblas.h>
+@@ -121,11 +122,10 @@
+                     tmp_real[j] = gain * (real[j] - imag[j]*dtc);
+                     tmp_imag[j] = gain * (real[j]*dtc + imag[j]);
+                 }
+-                fftdata[j][0] = tod[dets[i]*n+j];
+-                fftdata[j][1] = 0.0;
++                fftdata[j] = tod[dets[i]*n+j] + 0.0 * I;
+             }
+             filter_one_detector(fftdata, tmp_real, tmp_imag, n, p_forward, p_back, detrend, retrend);
+-            for (int j = 0; j < n; j++) tod[dets[i]*n+j] = fftdata[j][0];
++            for (int j = 0; j < n; j++) tod[dets[i]*n+j] = creal(fftdata[j]);
+         }
+ 
+         fftwf_free(fftdata);
+@@ -160,8 +160,8 @@
+   if (win > ndata/2) win = ndata/2;
+   if (detrend) {
+     for (int i = 0; i < win; i++) {
+-      x0 += data[i][0];
+-      x1 += data[ndata-1 - i][0];
++      x0 += creal(data[i]);
++      x1 += creal(data[ndata-1 - i]);
+     }
+     x0 /= (double)win;
+     x1 /= (double)win;
+@@ -170,21 +170,21 @@
+     trendSlope = (x1-x0)/(double)(ndata-1.0-win);
+     
+     for (int j = 0; j < ndata; j++)
+-      data[j][0] -= (x0 - m + trendSlope*((double) (j - win/2)));
++      data[j] -= (x0 - m + trendSlope*((double) (j - win/2)));
+   }
+ 
+   fftwf_execute_dft(p_forward, data, data);
+   for (int j = 0; j < ndata; j++) {
+     // Multiply by complex filter
+-    tmp = data[j][0]*real[j] - data[j][1]*imag[j];
+-    data[j][1] = (data[j][0]*imag[j] + data[j][1]*real[j]) / (float)ndata;
+-    data[j][0] = tmp / (float)ndata;
++    tmp = creal(data[j])*real[j] - cimag(data[j])*imag[j];
++    data[j] = tmp + I * (creal(data[j])*imag[j] + cimag(data[j])*real[j]);
++    data[j] /= (float)ndata;
+   }
+   fftwf_execute_dft(p_back, data, data);
+ 
+   if (retrend && detrend) 
+     for (int j = 0; j < ndata; j++)
+-      data[j][0] += (x0 - m + trendSlope*((double) (j - win/2)));
++      data[j] += (x0 - m + trendSlope*((double) (j - win/2)));
+ 
+ }
+ 
+@@ -218,7 +218,7 @@
+   actData *mydat = malloc(sizeof(actData)*n);
+   float *imag = malloc(n * sizeof(float));
+   for (int i = 0; i < n; i++) {
+-    mydat[i] = fftdata[i][0];
++    mydat[i] = creal(fftdata[i]);
+     imag[i] = 0.0;
+   }
+   filter_one_detector(fftdata, real, imag, n, p_forward, p_back, true, false);
+@@ -228,7 +228,7 @@
+   // Find its median (for use in cuts).
+   float *tmpclean = malloc(n*sizeof(actData));
+   for (int j = 0; j < n; j++)
+-      tmpclean[j] = fabs(fftdata[j][0]);
++      tmpclean[j] = fabs(creal(fftdata[j]));
+   actData thresh = pyactpol_sselect((n*3)/4, n, tmpclean);
+   thresh -= pyactpol_sselect(n/4, n, tmpclean);
+   thresh *= 0.741*nsig;
+@@ -237,13 +237,13 @@
+   int lind = 0;
+   memset(cutvec,0,sizeof(*cutvec)*n);
+   for (int j = 0; j < n; j++) {
+-      if (fabs(fftdata[j][0]) > thresh) {
++      if (fabs(creal(fftdata[j])) > thresh) {
+           cutvec[j] = 1;
+           if (j-lind < minSep)
+               for (int k = lind+1; k < j; k++) cutvec[k] = 1;
+           lind = j;
+       }
+-      fftdata[j][0] = mydat[j];
++      fftdata[j] = mydat[j] + 0.0 * I;
+   }
+ 
+   free(mydat);
+@@ -292,13 +292,12 @@
+ #pragma omp for
+         for (int i = 0; i < ndet; i++) {
+             for (int j = 0; j < n; j++) {
+-                fftdata[j][0] = tod_data[dets[i]*nsamps+j];
+-                fftdata[j][1] = 0.0;
++                fftdata[j] = tod_data[dets[i]*nsamps+j] + 0.0 * I;
+             }
+ 
+             glitch_one_detector(fftdata, filt, cutvec ,n, p_forward, p_back, nsig, minSep);
+ 
+-            for (int j = 0; j < n; j++) tod_data[dets[i]*nsamps+j] = fftdata[j][0];
++            for (int j = 0; j < n; j++) tod_data[dets[i]*nsamps+j] = creal(fftdata[j]);
+ 
+             /* Convert cuts vector start / stop positions */
+             cuts_data[i] = pyactpol_cuts_vector_from_mask(cutvec, nsamps, &n_cuts[i]);
+diff -urN moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/waterfall.c moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/waterfall.c
+--- moby2-0ae27c81ea6b326e165c553786531086bb4dd13d_orig/src/waterfall.c	2025-02-26 21:14:59.000000000 -0800
++++ moby2-0ae27c81ea6b326e165c553786531086bb4dd13d/src/waterfall.c	2025-02-27 11:10:11.687632196 -0800
+@@ -5,7 +5,9 @@
+ 
+ #include "pyactpol.h"
+ #include <assert.h>
+-#include "fftw3.h"
++
++#include <complex.h>
++#include <fftw3.h>
+ 
+ 
+ static PyObject *freq_space_waterfall(PyObject *self, PyObject *args);
+@@ -94,20 +96,20 @@
+   if (end - ini < 2) {
+     ini = (int)(f/df);
+     end = (int)ceil(f/df);
+-    p1 = fftdata[ini][0]*fftdata[ini][0] + fftdata[ini][1]*fftdata[ini][1];
++    p1 = creal(fftdata[ini])*creal(fftdata[ini]) + cimag(fftdata[ini])*cimag(fftdata[ini]);
+     if (end > nn) {
+       value = p1;
+       return value;
+     }
+     else {
+-      p2 = fftdata[end][0]*fftdata[end][0] + fftdata[end][1]*fftdata[end][1];
++      p2 = creal(fftdata[end])*creal(fftdata[end]) + cimag(fftdata[end])*cimag(fftdata[end]);
+       value = (p1*(end*df-f) + p2*(f-ini*df))/df;
+       return value;
+     }
+   } else {
+     value = 0.0;
+     for (int i = ini; i <= end; i++) {
+-      value += (fftdata[i][0]*fftdata[i][0] + fftdata[i][1]*fftdata[i][1])/(end-ini+1);
++      value += (creal(fftdata[i])*creal(fftdata[i]) + cimag(fftdata[i])*cimag(fftdata[i]))/(end-ini+1);
+     }
+   }
+   return value;
