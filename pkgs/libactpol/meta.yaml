@@ -35,6 +35,8 @@ requirements:
     # Remove until this perl bug is fixed
     # https://github.com/conda-forge/perl-feedstock/issues/56
     - libxcrypt1   # [linux]
+    # Not a dependency, force installing a NaMaster-compatible CFITSIO version
+    - namaster >=2.4
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
