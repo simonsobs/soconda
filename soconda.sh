@@ -5,6 +5,10 @@ pushd $(dirname $0) 2>&1 >/dev/null
 scriptdir=$(pwd)
 popd 2>&1 >/dev/null
 
+# Make the pipeline’s return status is the value of the last (rightmost) command
+# to exit with a non-zero status, or zero if all commands exit successfully
+set -o pipefail
+
 show_help () {
     echo "" >&2
     echo "Usage:  $0" >&2
@@ -256,6 +260,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             --variants "{'python':['${python_major_minor}']}" \
             --numpy 2.1 \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
+        [[ $? != 0 ]] && exit 1
     fi
 done < "${confdir}/packages_local.txt"
 
@@ -277,6 +282,7 @@ conda_exec install --yes \
     --file "${scriptdir}/config/common.txt" \
     --file "${confdir}/packages_conda.txt" \
     2>&1 | tee -a "log_conda"
+[[ $? != 0 ]] && exit 1
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
@@ -286,6 +292,7 @@ echo -e "\n\n"
 echo "Installing local packages..." | tee -a "log_conda"
 conda_exec install --yes ${local_pkgs} \
     2>&1 | tee -a "log_conda"
+[[ $? != 0 ]] && exit 1
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
@@ -300,12 +307,14 @@ if [ -z "${MPICC}" ]; then
     echo "from the conda package, rather than building from source." \
         | tee -a "log_mpi4py"
     conda_exec install --yes openmpi mpi4py 2>&1 | tee -a "log_mpi4py"
+    [[ $? != 0 ]] && exit 1
     # Disable the ancient openib btl, in order to avoid a harmless warning
     echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
 else
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
         2>&1 | tee -a "log_mpi4py"
+    [[ $? != 0 ]] && exit 1
 fi
 
 
@@ -340,6 +349,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         echo "Attempt to install conda package for dependency \
                         \"${name}\"..." 2>&1 | tee -a "log_pip"
                         conda_exec install --yes ${name} 2>&1 | tee -a "log_pip"
+                        [[ $? != 0 ]] && exit 1
                         installed_pkgs="${installed_pkgs}"$'\n'"${name}"
                     else
                         echo "  Package for dependency \"${name}\" already installed" \
@@ -353,6 +363,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         fi
         echo "Installing package ${pkg} with --no-deps" 2>&1 | tee -a "log_pip"
         python3 -m pip install --no-deps ${pkg} 2>&1 | tee -a "log_pip"
+        [[ $? != 0 ]] && exit 1
         installed_pkgs="${installed_pkgs}"$'\n'"${pkg}"
         echo -e "\n\n"
     fi
