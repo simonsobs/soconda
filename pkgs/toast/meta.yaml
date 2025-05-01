@@ -1,6 +1,6 @@
 
-{% set version = "3.0.0a29" %}
-{% set sha256 = "9bc8d32dca486a3ff8592a0cbe665cf85e2422e4aedc2f949a1d02dfa0389791" %}
+{% set version = "3.0.0a34" %}
+{% set sha256 = "11205205523b36dd9704a31fbc519687b4d098e0893e5648c6b2125f07a4465f" %}
 
 {% set build = 0 %}
 
@@ -16,7 +16,7 @@ source:
   #  - debug_lapack.patch
 
 build:
-  skip: True  # [py<38]
+  skip: True  # [py<39]
   skip: True  # [win]
   number: {{ build }}
   string: "py{{ py }}h{{ PKG_HASH }}_{{ build }}"
@@ -61,7 +61,7 @@ requirements:
     - tomlkit
     - traitlets>=5.0
     - psutil
-    - pshmem>=1.1.0
+    - pshmem>=1.2.1
 
 test:
   imports:

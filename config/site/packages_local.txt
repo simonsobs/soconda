@@ -1,5 +1,6 @@
 qpoint
-pixell
+# Get pixell from conda-forge by default
+# pixell
 libactpol_deps
 libactpol
 moby2

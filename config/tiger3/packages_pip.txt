@@ -1,6 +1,6 @@
 quaternionarray
 flacarray
-dominate 
+dominate
 emcee==3.0.1
 daal==2021.2.3
 sympy==1.1.1
@@ -12,7 +12,7 @@ https://github.com/simonsobs/mbatch/archive/master.tar.gz
 #so3g
 #
 # sotodlib latest tag
-https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.2.tar.gz
+https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.4.tar.gz
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.
