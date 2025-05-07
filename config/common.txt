@@ -42,6 +42,7 @@ h5py
 astropy
 ephem
 healpy
+pixell
 pshmem
 coverage
 pytest
