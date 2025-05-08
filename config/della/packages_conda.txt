@@ -7,3 +7,4 @@ openmpi=4.1.*=external_*
 #
 pandas
 ipython_genutils
+radical.pilot

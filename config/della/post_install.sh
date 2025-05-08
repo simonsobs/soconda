@@ -7,9 +7,12 @@
 # for the environment into a user's home directory.
 
 # Install a module file?
-install_module=yes
+install_module=no
 
 # Install jupyter kernel setup script?
 install_jupyter_setup=no
 
 # Add any other shell commands here for this system...
+
+# Add radical.pilot SO config in the correct folder.
+cp ${script_dir}/templates/resource_so.json ${CONDA_PREFIX}/lib/python${python_major_minor}/site-packages/radical/pilot/configs/
