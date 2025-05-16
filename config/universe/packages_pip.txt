@@ -11,4 +11,4 @@ https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.2.tar.gz
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.
 #https://github.com/galsci/mapsims/archive/main.tar.gz
-https://github.com/simonsobs/SOOPERCOOL.git
+https://github.com/simonsobs/SOOPERCOOL/archive/master.zip
