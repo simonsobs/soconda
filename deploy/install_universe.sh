@@ -10,6 +10,7 @@ temp_dir=/cephfs/soukdata/software/python/tmp_cepfs
 
 # Location for installs
 install_dir=/cephfs/soukdata/software/python/soconda_builds
+CONDA_PKGS_DIRS=/cephfs/soukdata/software/python/tmp_conda
 
 # Module file directory
 module_dir=/cephfs/soukdata/software/modulefiles
