@@ -21,6 +21,7 @@ libblas=*=*openblas
 numpy>=2
 scipy
 matplotlib
+camb
 cmake
 autoconf
 automake
