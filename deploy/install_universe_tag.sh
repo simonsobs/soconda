@@ -1,21 +1,38 @@
 #!/bin/bash
 
 #========== Configuration ==================
+# Host name
+host=universe
+
+while getopts b:t:g:i:m: flag
+do
+    case "${flag}" in
+        b) base_dir=${OPTARG};;
+        t) temp_dir=${OPTARG};;
+        g) git_dir=${OPTARG};;
+        i) install_dir=${OPTARG};;
+        m) module_dir=${OPTARG};;
+    esac
+done
+
+# Location for conda base
+echo "base_dir = ${base_dir}"
 
 # Location for persistent soconda checkout
-git_dir=/cephfs/soukdata/software/python/soconda
+echo "git_dir = ${git_dir}"
 
 # Location of installed envs
-install_dir=/cephfs/soukdata/software/python/soconda_builds
+echo "install_dir = ${install_dir}"
+
+# Module file directory
+echo "module_dir = ${module_dir}"
 
 # Log dir- make a temp dir in the git checkout
 log_dir="${git_dir}/logs"
-echo $log_dir
-# Module file directory
-module_dir=/cephfs/soukdata/software/modulefiles/
+echo "log_dir = ${log_dir}"
 
-# Host name
-host=universe
+#===========================================
+
 
 # If the latest tag is already installed, we do not need to make an
 # extra log in the log dir.  We already have a slurm/scron log that is
@@ -63,7 +80,9 @@ echo "Starting at ${now}" > "${log_file}"
 mod_ver="${today}_${latest}"
 
 echo "Latest tag '${latest}' not found, installing..." >> "${log_file}"
-install_log=$(eval "${git_dir}/deploy/install_${host}.sh" "${latest}")
+install_script="${git_dir}/deploy/install_${host}.sh"
+install_args=" -v ${latest} -b ${base_dir} -t ${temp_dir} -i ${install_dir} -m ${module_dir}"
+install_log=$(eval "${install_script} ${install_args}")
 if [ -f "${install_log}" ]; then
     # There were no errors, and the log file was returned
     cat "${install_log}" >> "${log_file}"

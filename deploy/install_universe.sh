@@ -2,24 +2,36 @@
 
 #========== Configuration ==================
 
+while getopts b:t:i:m:v: flag
+do
+    case "${flag}" in
+        b) base_dir=${OPTARG};;
+        t) temp_dir=${OPTARG};;
+        i) install_dir=${OPTARG};;
+        m) module_dir=${OPTARG};;
+        v) version=${OPTARG};;
+    esac
+done
+
 # Location for conda base
-base_dir=/cephfs/soukdata/software/python/soconda_builds/build_bases
+echo "base_dir = ${base_dir}"
 
 # Location for temp clones
-temp_dir=/cephfs/soukdata/software/python/tmp_cepfs
+echo "temp_dir = ${temp_dir}"
 
 # Location for installs
-install_dir=/cephfs/soukdata/software/python/soconda_builds
+echo "install_dir = ${install_dir}"
 
 # Module file directory
-module_dir=/cephfs/soukdata/software/modulefiles
+echo "module_dir = ${module_dir}"
 
 #===========================================
 
-version=$1
 if [ "x${version}" = "x" ]; then
     echo "usage:  $0 <soconda branch/tag/hash>"
     exit 1
+else
+    echo "Installing soconda version: ${version}"
 fi
 
 # Location for clone repos
