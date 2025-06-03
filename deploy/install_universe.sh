@@ -61,7 +61,7 @@ if [ -d "${clone_dir}" ]; then
     rm -rf "${clone_dir}"
 fi
 
-git clone --depth=1 --single-branch --branch=${version} https://github.com/josephwkania/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
+git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
 # Keep the base environment up to date.
 eval "${clone_dir}/tools/update_base.sh" "${base_dir}" >> "${logfile}"
