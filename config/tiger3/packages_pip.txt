@@ -18,4 +18,3 @@ https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.2.tar.gz
 # pixell, which un-installs our versions of those packages.
 #https://github.com/galsci/mapsims/archive/main.tar.gz
 pspy
-camb
