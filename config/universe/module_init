@@ -1,0 +1,3 @@
+if (mode() == "load") then
+    execute{cmd="module load openmpi/4.1.6", modeA={"load"}}
+end
