@@ -345,6 +345,14 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
+                # Special handling of ruamel.yaml / ruamel-yaml.  This is a longstanding
+                # mess across PyPI and conda ecosystems...
+                if [ "${name}" = "ruamel-yaml" ]; then
+                    name="ruamel.yaml"
+                fi
+                if [ "${name}" = "ruamel-yaml-clib" ]; then
+                    name="ruamel.yaml"
+                fi
                 if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then
