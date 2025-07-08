@@ -29,7 +29,8 @@ requirements:
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
-    - libopenblas * *openmp*
+    - libopenblas * *openmp* # [linux]
+    - libopenblas # [osx]
     - libblas * *openblas
     - python
     - meson-python
@@ -43,12 +44,10 @@ requirements:
     - h5py
     - pillow
     - pyfftw
-    # Remove until this perl bug is fixed
-    # https://github.com/conda-forge/perl-feedstock/issues/56
-    - libxcrypt1   # [linux]
   run:
     - llvm-openmp # [osx]
-    - libopenblas * *openmp*
+    - libopenblas * *openmp* # [linux]
+    - libopenblas # [osx]
     - libblas * *openblas
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("libopenblas") }}

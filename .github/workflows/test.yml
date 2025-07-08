@@ -84,7 +84,7 @@ jobs:
           python3 -c 'import toast.tests; toast.tests.run()' &&
           git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git &&
           pushd sotodlib &&
-          pytest ./tests &&
+          python3 -m pytest -vv ./tests &&
           popd &&
           unset MPI_DISABLE &&
           unset OMP_NUM_THREADS
