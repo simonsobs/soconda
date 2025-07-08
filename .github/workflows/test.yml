@@ -39,6 +39,10 @@ jobs:
             python: "3.12"
             arch: MacOSX-arm64
             config: binary
+          - os: macos-latest
+            python: "3.12"
+            arch: MacOSX-arm64
+            config: default
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,7 +84,10 @@ jobs:
           python3 -c 'import toast.tests; toast.tests.run()' &&
           git clone --depth=1 --single-branch --branch=master https://github.com/simonsobs/sotodlib.git &&
           pushd sotodlib &&
-          pytest ./tests &&
+          mkdir -p test_run &&
+          pushd test_run &&
+          python3 -m pytest -vv ../tests &&
+          popd &&
           popd &&
           unset MPI_DISABLE &&
           unset OMP_NUM_THREADS

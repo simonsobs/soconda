@@ -1,5 +1,5 @@
-{% set version = "0.2.0" %}
-{% set sha256 = "3eccc4b5c8bc4177f74bd6878eb0d80192eaae4ffaf922e7de139d872d468644" %}
+{% set version = "0.2.2" %}
+{% set sha256 = "97f0dc305e20d6c2feda5bc72f974ed8a343faa6d597aafd96b58b4cbfa724d2" %}
 
 {% set build = 0 %}
 
@@ -36,6 +36,8 @@ requirements:
     - libboost-python-devel
     - libflac
     - gsl
+    - glog
+    - ceres-solver
     - qpoint
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
