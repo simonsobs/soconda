@@ -1,9 +1,9 @@
 pixell
 quaternionarray
-flacarray
+flacarray>=0.3
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
-toast==3.0.0a35
+toast==3.0.0a36
 qpoint
 so3g
 #
