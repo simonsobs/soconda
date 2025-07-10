@@ -6,7 +6,7 @@
 base_dir=/global/common/software/sobs/perlmutter/conda_base
 
 # Location for temp clones
-temp_dir=${SCRATCH}/temp_soconda
+temp_dir=${SCRATCH}/build_soconda
 
 # Location for installs
 install_dir=/global/common/software/sobs/perlmutter/conda_envs
@@ -52,7 +52,13 @@ fi
 git clone --depth=1 --single-branch --branch=${version} https://github.com/simonsobs/soconda.git "${clone_dir}" >> "${logfile}" 2>&1
 
 # Keep the base environment up to date.
-eval "${clone_dir}/tools/update_base.sh" "${base_dir}" >> "${logfile}"
+eval "${clone_dir}/tools/update_base.sh" "${base_dir}" >> "${logfile}" 2>&1
+chmod -R g-w,g+rX "${base_dir}" >> "${logfile}" 2>&1
+
+# Clean out the conda package cache which is set by soconda.sh.
+package_dir="${SCRATCH}/tmp_soconda"
+mkdir -p "${package_dir}" >> "${logfile}" 2>&1
+rm -rf "${package_dir}/*" >> "${logfile}" 2>&1
 
 # Build things from the temp directory
 
