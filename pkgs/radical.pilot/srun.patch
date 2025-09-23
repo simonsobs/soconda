@@ -1,0 +1,17 @@
+diff --git a/src/radical/pilot/agent/launch_method/srun.py b/src/radical/pilot/agent/launch_method/srun.py
+index 95387c685..861d9e0b6 100644
+--- a/src/radical/pilot/agent/launch_method/srun.py
++++ b/src/radical/pilot/agent/launch_method/srun.py
+@@ -214,10 +214,10 @@ class Srun(LaunchMethod):
+                        self._rm_info['threads_per_core']
+
+         if td.get('mem_per_rank'):
+-            mapping += ' --mem %s' % td.get('mem_per_rank')
++            mapping += ' --mem-per-cpu %s' % math.ceil(td.get('mem_per_rank') / n_task_threads)
+         else:
+             # allow access to full node memory by default
+-            mapping += ' --mem 0'
++            mapping += ' '
+
+         # check that gpus were requested to be allocated
+         if self._rm_info.get('requested_gpus') and gpus_per_task:
