@@ -8,3 +8,4 @@ openmpi=4.1.*=external_*
 pixell
 pandas
 ipython_genutils
+radical.pilot

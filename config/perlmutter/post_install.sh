@@ -13,3 +13,5 @@ install_module=yes
 install_jupyter_setup=yes
 
 # Add any other shell commands here for this system...
+
+# Add radical.pilot SO config in the correct folder.
