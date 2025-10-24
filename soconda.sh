@@ -360,8 +360,9 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                         # A failure of the above command is NOT AN ERROR.  If the
                         # conda package does not exist, then the dependency will be
                         # installed by pip below.
-                        if [[ $? = 0 ]] && \
+                        if [[ $? = 0 ]]; then
                             installed_pkgs="${installed_pkgs}"$'\n'"${name}"
+                        fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" \
                         2>&1 | tee -a "log_pip"
