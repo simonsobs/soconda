@@ -24,23 +24,23 @@ jobs:
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             arch: Linux-x86_64
             config: binary
           - os: macos-13
             python: "3.11"
             arch: MacOSX-x86_64
             config: binary
-          - os: macos-latest
-            python: "3.12"
+          - os: macos-14
+            python: "3.13"
             arch: MacOSX-arm64
             config: binary
-          - os: macos-latest
-            python: "3.12"
+          - os: macos-14
+            python: "3.13"
             arch: MacOSX-arm64
             config: default
     steps:
