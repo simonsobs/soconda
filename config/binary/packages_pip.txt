@@ -8,7 +8,7 @@ qpoint
 so3g
 #
 # sotodlib latest tag
-https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.8.tar.gz
+https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.12.tar.gz
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.
