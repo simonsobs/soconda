@@ -290,10 +290,13 @@ conda_exec activate "${fullenv}"
 # Install local conda packages.
 echo -e "\n\n"
 echo "Installing local packages..." | tee -a "log_conda"
-conda_exec install --yes ${local_pkgs} \
-    2>&1 | tee -a "log_conda"
-[[ $? != 0 ]] && exit 1
-
+if [ -z "${local_pkgs}" ]; then
+    echo "(None specified)"
+else
+    conda_exec install --yes ${local_pkgs} \
+        2>&1 | tee -a "log_conda"
+    [[ $? != 0 ]] && exit 1
+fi
 conda_exec deactivate
 conda_exec activate "${fullenv}"
 
@@ -342,6 +345,11 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
+                # Special handling of ruamel.yaml / ruamel-yaml.  This is a longstanding
+                # mess across PyPI and conda ecosystems...
+if [ "${name}" = "ruamel-yaml" ] || [ "${name}" = "ruamel-yaml-clib" ]; then
+    name="ruamel.yaml"
+fi
                 if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then

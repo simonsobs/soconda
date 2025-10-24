@@ -5,6 +5,7 @@ openmpi=4.1.*=external_*
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
 #
+pixell
 pandas
 ipython_genutils
 radical.pilot

@@ -1,6 +1,7 @@
 # Adjust the default python version
 python=3.12.*
 #
+pixell
 wurlitzer
 plotly
 plotly-resampler

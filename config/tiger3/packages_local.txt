@@ -1,5 +1,6 @@
 qpoint
-pixell
+# Get pixell from conda-forge by default
+# pixell
 libactpol_deps
 libactpol
 moby2
@@ -9,3 +10,4 @@ toast
 # Uncomment next line to build so3g from source, and
 # comment out line in packages_pip.txt.
 so3g
+radical.pilot

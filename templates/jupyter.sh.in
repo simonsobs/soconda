@@ -20,7 +20,7 @@ echo '
     ],
     "display_name": "soconda @VERSION@",
     "env": {
-        "PATH": "@ENVPREFIX@/bin",
+        "PATH": "/usr/bin:@ENVPREFIX@/bin",
         "PYTHONPATH": "${HOME}/.local/soconda/@VERSION@/lib/python@PYVER@/site-packages"
     },
     "metadata": {
