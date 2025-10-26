@@ -38,7 +38,7 @@ jobs:
           - os: macos-14
             python: "3.12"
             arch: MacOSX-arm64
-            config: binary
+            config: minimal
           # The ACT tools (e.g. libactpol_deps) does not compile yet on
           # macos arm64.  Disable this test for now.
           # - os: macos-14
