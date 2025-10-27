@@ -37,7 +37,7 @@ requirements:
     - libflac
     - gsl
     - glog
-    - ceres-solver
+    - ceres-solver=*=cpu*
     - qpoint
     # Although not a dependency, we put numba here to force
     # building with a numba-compatible numpy version
@@ -65,6 +65,7 @@ requirements:
     - sqlalchemy
     - pysqlite3
     - tqdm
+    - ceres-solver=*=cpu*
 
 test:
   imports:
