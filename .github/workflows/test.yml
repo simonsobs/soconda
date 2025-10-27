@@ -35,14 +35,16 @@ jobs:
             python: "3.11"
             arch: MacOSX-x86_64
             config: binary
-          - os: macos-latest
+          - os: macos-14
             python: "3.12"
             arch: MacOSX-arm64
-            config: binary
-          - os: macos-latest
-            python: "3.12"
-            arch: MacOSX-arm64
-            config: default
+            config: minimal
+          # The ACT tools (e.g. libactpol_deps) does not compile yet on
+          # macos arm64.  Disable this test for now.
+          # - os: macos-14
+          #   python: "3.12"
+          #   arch: MacOSX-arm64
+          #   config: default
     steps:
       - name: Checkout
         uses: actions/checkout@v5

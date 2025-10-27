@@ -6,7 +6,7 @@ flacarray>=0.3
 #so3g
 #
 # sotodlib latest tag
-https://github.com/simonsobs/sotodlib/archive/refs/tags/v0.6.8.tar.gz
+sotodlib
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.

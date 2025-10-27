@@ -347,9 +347,9 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                 name=$(echo ${dep} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
                 # Special handling of ruamel.yaml / ruamel-yaml.  This is a longstanding
                 # mess across PyPI and conda ecosystems...
-if [ "${name}" = "ruamel-yaml" ] || [ "${name}" = "ruamel-yaml-clib" ]; then
-    name="ruamel.yaml"
-fi
+                if [ "${name}" = "ruamel-yaml" ] || [ "${name}" = "ruamel-yaml-clib" ]; then
+                    name="ruamel.yaml"
+                fi
                 if [ "${name}" != "${pkgbase}" ]; then
                     depcheck=$(echo "$installed_pkgs" | grep -E "^${name}\$")
                     if [ -z "${depcheck}" ]; then
@@ -357,8 +357,12 @@ fi
                         echo "Attempt to install conda package for dependency \
                         \"${name}\"..." 2>&1 | tee -a "log_pip"
                         conda_exec install --yes ${name} 2>&1 | tee -a "log_pip"
-                        [[ $? != 0 ]] && exit 1
-                        installed_pkgs="${installed_pkgs}"$'\n'"${name}"
+                        # A failure of the above command is NOT AN ERROR.  If the
+                        # conda package does not exist, then the dependency will be
+                        # installed by pip below.
+                        if [[ $? = 0 ]]; then
+                            installed_pkgs="${installed_pkgs}"$'\n'"${name}"
+                        fi
                     else
                         echo "  Package for dependency \"${name}\" already installed" \
                         2>&1 | tee -a "log_pip"
