@@ -26,12 +26,14 @@
                                          "order": ["SRUN"],
                                          "SRUN" : {
                                             "pre_exec_cached": [
-                                                "module load soconda"
+                                                "source /global/common/software/sobs/perlmutter/conda_base/etc/profile.d/conda.sh",
+                                                "conda activate /pscratch/sd/i/iparask/envs/soconda_test"
                                             ]
                                         }
                                         },
         "pre_bootstrap_0"             : [
-            "module load soconda"
+            "source /global/common/software/sobs/perlmutter/conda_base/etc/profile.d/conda.sh",
+            "conda activate /pscratch/sd/i/iparask/envs/soconda_test"
                                         ],
         "default_remote_workdir"      : "$PSCRATCH",
         "virtenv_mode"                : "use",
@@ -43,7 +45,8 @@
                                          "options" : ["cpu"]
                                         },
         "task_pre_exec": [
-            "module load soconda"
+                            "source /global/common/software/sobs/perlmutter/conda_base/etc/profile.d/conda.sh",
+                            "conda activate /pscratch/sd/i/iparask/envs/soconda_test"
         ]
     },
     "tiger3": {

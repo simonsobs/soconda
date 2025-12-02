@@ -28,12 +28,9 @@ if __name__ == "__main__":
     rp_config = base_config[args.config]
     rp_config["virtenv"] = conda_prefix
 
-    if args.config == "tiger3":
-        rp_config["pre_bootstrap_0"][1] = f"conda activate {conda_prefix}"
-        rp_config["task_pre_exec"][1] = f"conda activate {conda_prefix}"
-        rp_config["launch_methods"]["SRUN"]["pre_exec_cached"][
-            1
-        ] = f"conda activate {conda_prefix}"
 
+    rp_config["pre_bootstrap_0"][1] = f"conda activate {conda_prefix}"
+    rp_config["task_pre_exec"][1] = f"conda activate {conda_prefix}"
+    rp_config["launch_methods"]["SRUN"]["pre_exec_cached"][1] = f"conda activate {conda_prefix}"
     with open(args.output_json, "w") as file:
         json.dump({args.config: rp_config}, file, indent=4)
