@@ -3,6 +3,9 @@ pixell
 libactpol_deps
 libactpol
 moby2
+# Remove next line once flacarray is on conda-forge,
+# and move to packages_conda.txt
+flacarray
 # Remove next line once toast-3.0 is on conda-forge,
 # and move to packages_conda.txt
 toast
