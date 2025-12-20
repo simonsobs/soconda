@@ -1,5 +1,5 @@
-{% set version = "0.2.4" %}
-{% set sha256 = "8094de0d65570ab118748d96891dcfdc5aef6f3e1d3569db381d0a87e1cf8429" %}
+{% set version = "0.2.5" %}
+{% set sha256 = "d2721ce5d6e4b1726ee32bec849001ee1c41149462c56b4cb01c330568db0493" %}
 
 {% set build = 0 %}
 
@@ -8,7 +8,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/user-attachments/files/23375626/so3g-0.2.4.tar.gz
+  url: https://github.com/simonsobs/so3g/archive/refs/tags/v{{ version }}.tar.gz
   sha256: {{ sha256 }}
 
 build:
