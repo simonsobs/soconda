@@ -1,0 +1,63 @@
+{% set version = "0.3.4" %}
+{% set sha256 = "2daa1b32f96ef13112a878468748c7f6e38cb937757b7a2ab0ef993c86b960bd" %}
+
+{% set build = 0 %}
+
+package:
+  name: flacarray
+  version: {{ version }}
+
+source:
+  url: https://github.com/hpc4cmb/flacarray/archive/refs/tags/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  skip: True  # [win]
+  number: {{ build }}
+  string: "py{{ py }}h{{ PKG_HASH }}_{{ build }}"
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - make
+    - llvm-openmp # [osx]
+  host:
+    - llvm-openmp # [osx]
+    - libgomp # [linux]
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - pkgconfig
+    - python
+    - meson-python
+    - cython
+    - numpy
+    - libflac
+  run:
+    - llvm-openmp # [osx]
+    - libopenblas * *openmp*
+    - libblas * *openblas
+    - {{ pin_compatible("libopenblas") }}
+    - {{ pin_compatible("libblas") }}
+    - {{ pin_compatible("libflac") }}
+    - python
+
+test:
+  imports:
+    - flacarray
+
+about:
+  home: https://github.com/hpc4cmb/flacarray
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'Tools for FLAC compression of numpy arrays in memory'
+  description: |
+    Tools for FLAC compression of numpy arrays in memory and support for several on-disk formats.
+    This is intended for use with raw numerical data rather than audio formats.
+  dev_url: https://github.com/hpc4cmb/flacarray
+
+extra:
+  recipe-maintainers:
+    - tskisner
