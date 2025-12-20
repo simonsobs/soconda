@@ -1,6 +1,4 @@
 quaternionarray
-flacarray>=0.3
-#
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
 #so3g
