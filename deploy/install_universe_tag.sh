@@ -12,6 +12,8 @@ do
         g) git_dir=${OPTARG};;
         i) install_dir=${OPTARG};;
         m) module_dir=${OPTARG};;
+        *) echo "usage: $0 [-b] [-t] [-g] [-i] [-m]" >&2
+            exit 1 ;;
     esac
 done
 
