@@ -15,3 +15,7 @@ install_jupyter_setup=yes
 # Add any other shell commands here for this system...
 
 # Add radical.pilot SO config in the correct folder.
+python ${scriptdir}/tools/update_resource.py \
+       --config ${config} \
+       --base-json ${scriptdir}/templates/resource_so.json \
+       --output-json ${CONDA_PREFIX}/lib/python${python_major_minor}/site-packages/radical/pilot/configs/resource_so.json
