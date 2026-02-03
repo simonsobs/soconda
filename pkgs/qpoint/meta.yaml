@@ -1,5 +1,5 @@
-{% set version = "1.12.4" %}
-{% set sha256 = "d9acae381fbafdc57aac865fe87a009d164d06162c320982876bd000b936d223" %}
+{% set version = "1.13.0" %}
+{% set sha256 = "700605fe0034d4e0a93e3a7316910300134d0bd8ee652dcafc28a6f3a313223c" %}
 
 {% set build = 0 %}
 
@@ -28,6 +28,8 @@ requirements:
     - libblas * *openblas
     - python
     - setuptools
+    - extension-helpers
+    - setuptools-scm
     - numpy
     - scipy
     # Although not a dependency, we put numba here to force

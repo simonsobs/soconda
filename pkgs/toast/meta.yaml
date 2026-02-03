@@ -11,9 +11,6 @@ package:
 source:
   url: https://github.com/hpc4cmb/toast/archive/refs/tags/{{ version }}.tar.gz
   sha256: {{ sha256 }}
-  #patches:
-  #  - openmp_linking.patch
-  #  - debug_lapack.patch
 
 build:
   skip: True  # [py<39]
@@ -28,6 +25,8 @@ requirements:
     - cmake
     - make
     - llvm-openmp # [osx]
+    - setuptools
+    - python
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
@@ -39,7 +38,6 @@ requirements:
     - fftw
     - suitesparse
     - libaatm
-    - libflac
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
@@ -50,7 +48,6 @@ requirements:
     - {{ pin_compatible("libblas") }}
     - {{ pin_compatible("suitesparse") }}
     - {{ pin_compatible("libaatm") }}
-    - {{ pin_compatible("libflac") }}
     - python
     - ruamel.yaml
     - matplotlib
@@ -59,11 +56,11 @@ requirements:
     - h5py
     - ephem
     - tomlkit
-    - traitlets>=5.0
+    - traitlets >=5.0
     - psutil
-    - pshmem>=1.3.0
+    - pshmem >=1.3.3
     - wurlitzer
-    - flacarray
+    - flacarray >=0.3.4
 
 test:
   imports:

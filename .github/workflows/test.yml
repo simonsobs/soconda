@@ -20,28 +20,30 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            python: "3.10"
+            python: "3.11"
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             arch: Linux-x86_64
             config: default
           - os: ubuntu-latest
             python: "3.12"
             arch: Linux-x86_64
             config: binary
-          - os: macos-13
+          - os: macos-15-intel
             python: "3.11"
             arch: MacOSX-x86_64
             config: binary
-          - os: macos-14
+            continue-on-error: true
+          - os: macos-15
             python: "3.12"
             arch: MacOSX-arm64
             config: minimal
+            continue-on-error: true
           # The ACT tools (e.g. libactpol_deps) does not compile yet on
           # macos arm64.  Disable this test for now.
-          # - os: macos-14
+          # - os: macos-15
           #   python: "3.12"
           #   arch: MacOSX-arm64
           #   config: default

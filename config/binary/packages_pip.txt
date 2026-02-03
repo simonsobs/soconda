@@ -1,4 +1,3 @@
-pixell
 quaternionarray
 flacarray>=0.3
 # Uncomment here if installing wheel, and comment out
