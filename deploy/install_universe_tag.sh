@@ -12,6 +12,8 @@ do
         g) git_dir=${OPTARG};;
         i) install_dir=${OPTARG};;
         m) module_dir=${OPTARG};;
+        *) echo "usage: $0 [-b] [-t] [-g] [-i] [-m]" >&2
+            exit 1 ;;
     esac
 done
 
@@ -104,3 +106,17 @@ fi
 
 echo "Finished installing tag '${latest}' on host ${host} at $(date +%Y%m%d-%H%M%S)" >> "${log_file}"
 
+# Get our webhook address from the environment
+slack_web_hook=${SLACKBOT_SOCONDA}
+
+if [ "x${slack_web_hook}" = "x" ]; then
+    echo "Environment variable SLACKBOT_SOCONDA not set- skipping notifications" >> "${log_file}"
+else
+    # Create the JSON payload.
+    slackjson="${log_file}_slack.json"
+    headtail=12
+    echo -e "{\"text\":\"soconda install tag (log at \`${log_file}\`):\n\`\`\`$(head -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\n(Snip)\n\`\`\`$(tail -n ${headtail} ${log_file} | sed -e "s|'|\\\'|g")\`\`\`\"}" > "${slackjson}"
+    # Post it.
+    slackerror=$(curl -X POST -H 'Content-type: application/json' --data "$(cat ${slackjson})" ${slack_web_hook})
+    echo "Slack API post  ${slackerror}" >> "${log_file}"
+fi
