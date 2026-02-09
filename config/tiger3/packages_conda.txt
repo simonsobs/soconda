@@ -8,4 +8,3 @@ openmpi=4.1.6=external_*
 pandas
 ipython_genutils
 scikit-learn
-radical.pilot

@@ -293,18 +293,6 @@ rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
 # Remove temporary package directory
 rm -rf "${conda_tmp}" &> /dev/null
 
-# The installation step of some packages expect to find helper scripts that
-# ship with the binutils / compiler packages.  Having compilers available in
-# our final environment is also useful for building downstream packages with
-# the same toolchain.  Install these packages and re-activate to make them
-# available before installing the rest of the conda packages.
-
-conda_exec install --yes compilers
-
-# Reactivate to pick up changes
-conda_exec deactivate
-conda_exec activate "${fullenv}"
-
 # Install both local and upstream conda packages at once.  This allows the
 # dependency resolution to run and find a solution that is valid for
 # all the packages we are going to install.
@@ -390,7 +378,6 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo -e "\n\n"
     fi
 done < "${confdir}/packages_pip.txt"
-
 
 # Get the python site packages version
 pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
