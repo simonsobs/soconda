@@ -31,11 +31,6 @@ jobs:
             python: "3.12"
             arch: Linux-x86_64
             config: binary
-          - os: macos-15-intel
-            python: "3.11"
-            arch: MacOSX-x86_64
-            config: binary
-            continue-on-error: true
           - os: macos-15
             python: "3.12"
             arch: MacOSX-arm64
