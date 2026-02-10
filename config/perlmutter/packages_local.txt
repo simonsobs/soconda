@@ -1,5 +1,4 @@
 qpoint
-pixell
 libactpol_deps
 libactpol
 moby2

@@ -22,6 +22,9 @@ requirements:
     - cmake
     - make
     - llvm-openmp # [osx]
+    - setuptools
+    - python
+    - numpy
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]

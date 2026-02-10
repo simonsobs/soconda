@@ -151,7 +151,6 @@ else
     fi
 fi
 
-
 # Conda package cache.  In some cases this can get really big, so
 # we point it to a temp location unless the user has overridden it.
 if [ -z ${CONDA_PKGS_DIRS} ]; then
@@ -170,7 +169,6 @@ if [ -z ${CONDA_PKGS_DIRS} ]; then
     export CONDA_PKGS_DIRS="${conda_tmp}"
 fi
 
-
 # Extract the python version we are using (if not the default)
 # and pass that to the conda create command.
 python_version=$(cat "${confdir}/packages_conda.txt" | grep 'python=')
@@ -183,13 +181,36 @@ python_major_minor=$(echo ${python_version} | sed -E 's/python=(3\.[[:digit:]]+)
 # env_check would be empty if it does not exist.
 env_check=$(conda_exec env list | grep "${fullenv}")
 echo -e "\n\n"
+
+# Determine whether we are installing MPI with conda.  This matters due
+# to a bug in the ucx package (required by the MPI packages).  The ucx package
+# will only install correctly if listed as an initial package during the 
+# "create" command.
+
+conda_mpi="yes"
+mpi_pkgs="mpich mpi4py"
+if [ -n "${MPICC}" ]; then
+    conda_mpi="no"
+    mpi_pkgs=""
+fi
+
+if [ -z "${mpi_pkgs}" ]; then
+    initial_pkgs="${python_version}"
+else
+    if [ "$(uname)" = "Linux" ]; then
+        initial_pkgs="ucx ${python_version}"
+    else
+        initial_pkgs="${python_version}"
+    fi
+fi
+
 if [ -z "${env_check}" ]; then
     if [ ${is_path} = "no" ]; then
         echo "Creating new environment \"${fullenv}\""
-        conda_exec create --yes -n "${fullenv}" "${python_version}"
+        conda_exec create --yes -n "${fullenv}" ${initial_pkgs}
     else
         echo "Creating new environment \"${fullenv}\""
-        conda_exec create --yes -p "${fullenv}" "${python_version}"
+        conda_exec create --yes -p "${fullenv}" ${initial_pkgs}
     fi
     echo "Activating environment \"${fullenv}\""
     conda_exec activate "${fullenv}"
@@ -258,8 +279,8 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo -e "\n\n"
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
         conda build \
-            --variants "{'python':['${python_major_minor}']}" \
-            --numpy 2.1 \
+            --python ${python_major_minor} \
+            --numpy 2.3 \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
         [[ $? != 0 ]] && exit 1
     fi
@@ -272,55 +293,28 @@ rm -rf "${CONDA_PREFIX}/conda-bld/temp_build"
 # Remove temporary package directory
 rm -rf "${conda_tmp}" &> /dev/null
 
-# Remove /tmp/pixell-* test files create by pixell/setup.py
-find "/tmp" -maxdepth 1 -type f -name 'pixell-*' -exec rm {} \;
+# Install both local and upstream conda packages at once.  This allows the
+# dependency resolution to run and find a solution that is valid for
+# all the packages we are going to install.
 
-
-# Install upstream conda packages.
 echo -e "\n\n"
 echo "Installing conda packages..." | tee "log_conda"
 conda_exec install --yes \
     --file "${scriptdir}/config/common.txt" \
-    --file "${confdir}/packages_conda.txt" \
+    --file "${confdir}/packages_conda.txt" ${local_pkgs} ${mpi_pkgs} \
     2>&1 | tee -a "log_conda"
 [[ $? != 0 ]] && exit 1
 
 conda_exec deactivate
 conda_exec activate "${fullenv}"
 
-# Install local conda packages.
-echo -e "\n\n"
-echo "Installing local packages..." | tee -a "log_conda"
-if [ -z "${local_pkgs}" ]; then
-    echo "(None specified)"
-else
-    conda_exec install --yes ${local_pkgs} \
-        2>&1 | tee -a "log_conda"
-    [[ $? != 0 ]] && exit 1
-fi
-conda_exec deactivate
-conda_exec activate "${fullenv}"
-
-
-# Install mpi4py
-echo -e "\n\n"
-echo "Installing mpi4py..." | tee "log_mpi4py"
-if [ -z "${MPICC}" ]; then
-    echo "The MPICC environment variable is not set.  Installing mpi4py" \
-        | tee -a "log_mpi4py"
-    echo "from the conda package, rather than building from source." \
-        | tee -a "log_mpi4py"
-    conda_exec install --yes openmpi mpi4py 2>&1 | tee -a "log_mpi4py"
-    [[ $? != 0 ]] && exit 1
-    # Disable the ancient openib btl, in order to avoid a harmless warning
-    echo 'btl = ^openib' >> "${CONDA_PREFIX}/etc/openmpi-mca-params.conf"
-else
+# Install mpi4py from source if using an external MPI
+if [ "${conda_mpi}" = "no" ]; then
     echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
         2>&1 | tee -a "log_mpi4py"
     [[ $? != 0 ]] && exit 1
 fi
-
 
 # Install pip packages.  We install one package at a time
 # with no dependencies, so that we will intentionally
@@ -340,8 +334,11 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
     # If the $line start with '#' then it's a comment.
     if [[ -n "${line}" && "${line:0:1}" != "#" ]]; then
         pkg="${line}"
-        url_check=$(echo "${pkg}" | grep '/')
-        if [ -z "${url_check}" ]; then
+        skip_check=$(echo "${pkg}" | grep '/')
+        if [ -z "${skip_check}" ]; then
+            skip_check=$(echo "${pkg}" | grep 'sotodlib')
+        fi
+        if [ -z "${skip_check}" ]; then
             echo "Checking dependencies for package \"${pkg}\"" 2>&1 | tee -a "log_pip"
             pkgbase=$(echo ${pkg} | sed -e 's/\([[:alnum:]_\-]*\).*/\1/')
             for dep in $(pipgrip --pipe --threads 4 "${pkg}"); do
@@ -371,7 +368,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
                 fi
             done
         else
-            echo "Pip package \"${pkg}\" is a URL, skipping dependency check" \
+            echo "Pip package \"${pkg}\" matches exclusion, skipping dependency check" \
             2>&1 | tee -a "log_pip"
         fi
         echo "Installing package ${pkg} with --no-deps" 2>&1 | tee -a "log_pip"
@@ -381,7 +378,6 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo -e "\n\n"
     fi
 done < "${confdir}/packages_pip.txt"
-
 
 # Get the python site packages version
 pyver=$(python3 --version 2>&1 | awk '{print $2}' | sed -e "s#\(.*\)\.\(.*\)\..*#\1.\2#")
