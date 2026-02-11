@@ -71,3 +71,4 @@ psycopg2-binary
 versioneer
 wurlitzer
 pixell
+quaternion
