@@ -1,7 +1,5 @@
 # Adjust the default python version
-python=3.12
+python=3.13
 #
 jupyterlab
-plotly
-plotly-resampler
 qt6-wayland

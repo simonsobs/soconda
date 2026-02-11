@@ -1,5 +1,4 @@
 # Adjust the default python version
-python=3.12
+python=3.13
 #
-plotly
-plotly-resampler
+jupyterlab

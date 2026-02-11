@@ -1,10 +1,4 @@
 # Adjust the default python version
-python=3.11
-openmpi=4.1.6=external_*
+python=3.13
 #
-# These are low-level tools needed to build local packages
-# and parse pip dependencies with pipgrip.
-#
-pandas
-ipython_genutils
-scikit-learn
+jupyterlab
