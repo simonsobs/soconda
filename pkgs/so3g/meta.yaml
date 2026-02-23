@@ -1,5 +1,4 @@
 {% set version = "0.2.5" %}
-{% set sha256 = "5ac42b4fe2993a80616e2749c48d6107da43bb8662485fdf846d2a51ee9a961e" %}
 
 {% set build = 0 %}
 
@@ -8,8 +7,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/simonsobs/so3g/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/simonsobs/so3g.git
+  git_rev: v{{ version }}
 
 build:
   number: {{ build }}
