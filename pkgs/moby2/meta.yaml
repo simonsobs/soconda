@@ -1,5 +1,4 @@
 {% set version = "0ae27c81ea6b326e165c553786531086bb4dd13d" %}
-{% set sha256 = "942b4dda73222ad44feebd826916e8db993a76cb5a10579274e3446bfebef1e2" %}
 
 {% set build = 0 %}
 
@@ -8,8 +7,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/ACTCollaboration/moby2/archive/{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/ACTCollaboration/moby2.git
+  git_rev: {{ version }}
   patches:
     - complex_fftw.patch
 
