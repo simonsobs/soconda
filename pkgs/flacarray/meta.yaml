@@ -1,5 +1,4 @@
 {% set version = "0.3.4" %}
-{% set sha256 = "2daa1b32f96ef13112a878468748c7f6e38cb937757b7a2ab0ef993c86b960bd" %}
 
 {% set build = 0 %}
 
@@ -8,8 +7,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/hpc4cmb/flacarray/archive/refs/tags/{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/hpc4cmb/flacarray.git
+  git_rev: {{ version }}
 
 build:
   skip: True  # [win]
