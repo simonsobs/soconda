@@ -1,5 +1,4 @@
 {% set version = "1.102.0" %}
-{% set sha256 = "be38d97ce2e2e9a76485cc47e407c1d26a4e4e231c2f81b7b040f7f1e53dd2e7" %}
 
 {% set build = 0 %}
 
@@ -8,8 +7,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/radical-cybertools/radical.pilot/archive/v{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/radical-cybertools/radical.pilot.git
+  git_rev: v{{ version }}
   patches:
     - srun.patch
 

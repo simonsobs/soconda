@@ -1,5 +1,4 @@
 {% set version = "0.13.72" %}
-{% set sha256 = "93ef44bf1f1ea24fc66080426a469df82fa631d13ca3b2e4abaeab89538518dc" %}
 
 {% set build = 0 %}
 
@@ -8,8 +7,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/gdraheim/zziplib/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/gdraheim/zziplib.git
+  git_rev: v{{ version }}
 
 build:
   number: {{ build }}

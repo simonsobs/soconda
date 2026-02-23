@@ -1,6 +1,5 @@
 
 {% set version = "3.0.0a42" %}
-{% set sha256 = "f89bd5dcc9b8ac97e5eab12e0ccad028d6f9670c6a37555843b31b2f6b3176c0" %}
 
 {% set build = 0 %}
 
@@ -9,8 +8,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/hpc4cmb/toast/archive/refs/tags/{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  git_url: https://github.com/hpc4cmb/toast.git
+  git_rev: {{ version }}
 
 build:
   skip: True  # [py<39]
