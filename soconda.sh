@@ -240,6 +240,7 @@ if [ -z "${env_check}" ]; then
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - file://${CONDA_PREFIX}/conda-bld" >> "${CONDA_PREFIX}/.condarc"
+    echo "  - conda-forge/label/mpi-external" >> "${CONDA_PREFIX}/.condarc"
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
