@@ -18,4 +18,5 @@ install_jupyter_setup=no
 python ${scriptdir}/tools/update_resource.py \
        --config ${config} \
        --base-json ${scriptdir}/templates/resource_so.json \
-       --output-json ${CONDA_PREFIX}/lib/python${python_major_minor}/site-packages/radical/pilot/configs/resource_so.json
+       --output-json ${CONDA_PREFIX}/lib/python${python_major_minor}/site-packages/radical/pilot/configs/resource_so.json \
+       --env-path ${CONDA_PREFIX}
