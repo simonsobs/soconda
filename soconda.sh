@@ -67,6 +67,25 @@ if [ -z "${version}" ]; then
     version="${gitdesc}.dev${gitcnt}"
 fi
 
+if [ -z "${config}" ]; then
+    echo "No config specified, using \"default\""
+    config="default"
+else
+    echo "Using config \"${config}\""
+fi
+
+# The path to the selected config directory
+confdir="${scriptdir}/config/${config}"
+if [ ! -d "${confdir}" ]; then
+    echo "Config dir \"${confdir}\" does not exist"
+    exit 1
+fi
+
+# Load build envinronment that the installation might need.
+if [ -e "${confdir}/build_env.sh" ]; then
+    source "${confdir}/build_env.sh"
+fi
+
 if [ -z "${envname}" ]; then
     echo "Environment root name not specified, using \"soconda\""
     envname="soconda"
@@ -95,25 +114,6 @@ else
     is_path='no'
 fi
 
-
-if [ -z "${config}" ]; then
-    echo "No config specified, using \"default\""
-    config="default"
-else
-    echo "Using config \"${config}\""
-fi
-
-# The path to the selected config directory
-confdir="${scriptdir}/config/${config}"
-if [ ! -d "${confdir}" ]; then
-    echo "Config dir \"${confdir}\" does not exist"
-    exit 1
-fi
-
-# Load build envinronment that the installation might need.
-if [ -e "${confdir}/build_env.sh" ]; then
-    source "${confdir}/build_env.sh"
-fi
 
 is_micromamba='no'
 if [ -n "${base}" ]; then
