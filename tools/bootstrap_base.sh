@@ -33,7 +33,8 @@ bash "${inst}" -b -f -p "${base}"
 echo "# condarc bootstrapped by soconda" > "${base}/.condarc"
 echo "channels:" >> "${base}/.condarc"
 echo "  - conda-forge" >> "${base}/.condarc"
-echo "changeps1: false" >> "${base}/.condarc"
+echo "changeps1: true" >> "${base}/.condarc"
+echo "solver: libmamba" >> "${base}/.condarc"
 
 # Activate base and update conda tools
 source "${base}/etc/profile.d/conda.sh"
