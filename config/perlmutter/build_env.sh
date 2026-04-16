@@ -1,1 +1,1 @@
-export MPICC=cc
+export MPICC=$(which cc)
