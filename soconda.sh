@@ -240,6 +240,9 @@ if [ -z "${env_check}" ]; then
     echo "# condarc for soconda" > "${CONDA_PREFIX}/.condarc"
     echo "channels:" >> "${CONDA_PREFIX}/.condarc"
     echo "  - file://${CONDA_PREFIX}/conda-bld" >> "${CONDA_PREFIX}/.condarc"
+    if grep -q 'mpi.*=external' "${confdir}/packages_conda.txt" ; then
+        echo "  - conda-forge/label/mpi-external" >> "${CONDA_PREFIX}/.condarc"
+    fi
     echo "  - conda-forge" >> "${CONDA_PREFIX}/.condarc"
     echo "  - nodefaults" >> "${CONDA_PREFIX}/.condarc"
     echo "changeps1: true" >> "${CONDA_PREFIX}/.condarc"
@@ -280,7 +283,7 @@ while IFS='' read -r line || [[ -n "${line}" ]]; do
         echo "Building local package '${pkgname}'" 2>&1 | tee "log_${pkgname}"
         conda build \
             --python ${python_major_minor} \
-            --numpy 2.3 \
+            --numpy 2.4 \
             ${pkgrecipe} 2>&1 | tee -a "log_${pkgname}"
         [[ $? != 0 ]] && exit 1
     fi
