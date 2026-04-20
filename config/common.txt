@@ -15,6 +15,7 @@ packaging
 #
 libopenblas=*=openmp_*
 libblas=*=*openblas
+blas=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
