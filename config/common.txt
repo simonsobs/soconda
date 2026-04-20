@@ -31,6 +31,7 @@ pkgconfig
 libopenblas=*=openmp_*
 libblas=*=*openblas
 openblas=*=*openmp*
+blas=*=*openblas
 #
 # Install requirements of our local and pip packages
 #
