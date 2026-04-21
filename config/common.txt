@@ -72,3 +72,4 @@ versioneer
 wurlitzer
 pixell
 quaternion
+mapcat
