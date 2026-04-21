@@ -313,7 +313,7 @@ conda_exec activate "${fullenv}"
 
 # Install mpi4py from source if using an external MPI
 if [ "${conda_mpi}" = "no" ]; then
-    echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee -a "log_mpi4py"
+    echo "Building mpi4py with MPICC=\"${MPICC}\"" | tee "log_mpi4py"
     pip install --force-reinstall --no-cache-dir --no-binary=mpi4py mpi4py \
         2>&1 | tee -a "log_mpi4py"
     [[ $? != 0 ]] && exit 1
