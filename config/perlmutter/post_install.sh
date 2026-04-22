@@ -67,3 +67,9 @@ cd $CONDA_PREFIX/git
 git clone https://github.com/amaurea/tenki.git
 ln -sf $CONDA_PREFIX/git/tenki/enplot $CONDA_PREFIX/bin/enplot
 
+echo ''
+echo ''
+cd $CONDA_PREFIX/git
+git clone git@github.com:simonsobs/sotodlib.git
+pip install -e sotodlib
+
