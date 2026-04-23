@@ -28,6 +28,7 @@ requirements:
     - libblas * *openblas
     - python
     - setuptools
+    - pip
     - fftw
     - gsl
     - libactpol

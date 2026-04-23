@@ -25,14 +25,14 @@ requirements:
     - cmake
     - make
     - llvm-openmp # [osx]
-    - setuptools
-    - python
   host:
     - llvm-openmp # [osx]
     - libgomp # [linux]
     - libopenblas * *openmp*
     - libblas * *openblas
     - python
+    - setuptools
+    - pip
     - numpy
     - scipy
     - fftw
