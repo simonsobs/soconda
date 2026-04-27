@@ -71,5 +71,7 @@ psycopg2-binary
 versioneer
 wurlitzer
 pixell
+flacarray
+qpoint
 quaternion
 mapcat
