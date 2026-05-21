@@ -5,7 +5,8 @@ quaternionarray
 #so3g
 #
 # sotodlib latest tag
-sotodlib==v0.6.16
+#sotodlib==v0.6.16
+https://github.com/simonsobs/sotodlib/archive/9f8aa9fcf7d1648e0a52625e9e2535bcdd0d0a20.tar.gz
 #
 # The mapsims package has hard-coded versions of pysm3 and
 # pixell, which un-installs our versions of those packages.
