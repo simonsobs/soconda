@@ -1,5 +1,5 @@
 
-{% set version = "3.0.0a42" %}
+{% set version = "c6aac720a5dc56b32e4cfb193b3b3c87ce02a68f" %}
 
 {% set build = 0 %}
 
@@ -31,12 +31,15 @@ requirements:
     - libblas * *openblas
     - python
     - setuptools
+    - setuptools-scm
     - pip
     - numpy
     - scipy
     - fftw
     - suitesparse
     - libaatm
+    - scikit-build-core
+    - pybind11
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
