@@ -40,6 +40,9 @@ requirements:
     - numba
     # Not a dependency, force installing a NaMaster-compatible GSL version
     - namaster >=2.4
+    # Not a dependency, force installing a compatible libraries
+    - so3g
+    - toast
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
