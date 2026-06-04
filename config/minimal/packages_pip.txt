@@ -2,7 +2,6 @@ pixell
 quaternionarray
 # Uncomment here if installing wheel, and comment out
 # line in packages_local.txt
-toast==3.0.0a43
 so3g
 #
 # sotodlib latest tag
