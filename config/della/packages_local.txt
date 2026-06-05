@@ -1,6 +1,3 @@
-# Remove next line once toast-3.0 is on conda-forge,
-# and move to packages_conda.txt
-toast
 # Uncomment next line to build so3g from source, and
 # comment out line in packages_pip.txt.
 so3g
