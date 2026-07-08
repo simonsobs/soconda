@@ -4,17 +4,31 @@
 # These are low-level tools needed to build local packages
 # and parse pip dependencies with pipgrip.
 #
+# Also Add dependencies to support installation of packages with compiled
+# extensions using "pip install --user ."
+#
+compilers
+pybind11
 setuptools
+setuptools-scm
+scikit-build-core
+cmake
 pip
 wheel
 anytree
 click
 packaging
+autoconf
+automake
+libtool
+m4
+cython
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
 libopenblas=*=openmp_*
 libblas=*=*openblas
+openblas=*=*openmp*
 #
 # Install requirements of our local and pip packages
 #
@@ -22,13 +36,7 @@ numpy>=2
 scipy
 matplotlib
 camb
-cmake
-autoconf
-automake
-libtool
-m4
 psutil
-cython
 fftw
 gsl
 cfitsio
