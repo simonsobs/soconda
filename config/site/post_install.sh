@@ -13,3 +13,5 @@ install_module=yes
 install_jupyter_setup=yes
 
 # Add any other shell commands here for this system...
+# Install sotodlib optional dependency
+pip install sotodlib[site_pipeline]
