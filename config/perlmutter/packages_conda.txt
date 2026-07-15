@@ -1,5 +1,14 @@
 # Adjust the default python version
 python=3.12
 #
+# GPU mapmaker
+cuda
+cupy
+nvidia-ml
+meson
+meson-python
+pybind11
+make
+#
 plotly
 plotly-resampler
