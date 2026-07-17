@@ -12,7 +12,6 @@ modulefile:
         [-b <conda base install (if not activated)>]
         [-v <version (git version used by default)>]
         [-m <modulefile dir (default is <env>/modulefiles)>]
-        [-i <file with modulefile commands to load dependencies> ]
 
 ---
 **NOTE**
@@ -25,8 +24,8 @@ clutter.
 
 ## Base Conda Environment
 
-If you already have a conda-forge or micromamba base environment, install `conda-build`
-and `conda-verify` package to base environment.
+If you already have a conda-forge or micromamba base environment, install
+`conda-build` and `conda-verify` package to base environment.
 
     conda update -n base --yes --all conda
     conda install -n base --yes --all conda-build conda-verify
@@ -70,7 +69,7 @@ This will create a new environment `soconda_xxx.x.x` with version number as
 suffix using `default` configuration. [More details on
 configuration.](#customizing-an-environment)
 
-You can find out the name of new created environment with:
+You can find out the name of newly created environment with:
 
     conda env list
 
@@ -78,31 +77,40 @@ Then you can now activate the environment with:
 
     conda activate soconda_xxx.x.x
 
-
 If running on a Linux desktop that uses wayland, you also need to install the
 `qt-wayland` package
 
     conda install qt-wayland
 
-If running on server, start jupyterlab listening on port `12345` with command
+#### Using Jupyter
+
+If you want to use jupyter [first install a kernel for this new soconda environment](#installing-a-jupyter-kernel).
+Next just run `jupyter-lab` from a terminal in your directory containing some
+notebooks and jupyter-lab should launch in your default browser:
 
     cd /path/to/project
-    nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
+    jupyter-lab
 
-To list current running jupyter server:
+and then ctrl-c the jupyter-lab terminal job when you are done. If you installed
+jupyter-lab on a local "server" and want to connect from your laptop (for
+example), you can launch a long-running jupyter session and control what port is
+used for communication with the browser on your laptop. For example:
 
-    jupyter server list
+    (on server): nohup jupyter-lab --no-browser --port=12345 &> jupyter.log &
 
-To connect to jupyterlab running on server, start SSH tunnel from your laptop/desktop:
+To list the currently running jupyter servers:
 
-    ssh -N -L 12345:localhost:12345 server_domain_or_ip
+    (on server): jupyter server list
 
-Then you can connect to jupyterlab with link provided by command `jupyter server list`.
+To connect to jupyter-lab running on this server, start an SSH tunnel from your
+laptop:
 
-To stop jupyterlab listenging on port 12345:
+    (on laptop): ssh -N -L 12345:localhost:12345 server_domain_or_ip
 
-    jupyter server stop 12345
+Then you can connect to jupyterlab with the link provided by command `jupyter
+server list`.  To stop jupyterlab listening on port 12345:
 
+    (on server): jupyter server stop 12345
 
 ### Example:  NERSC
 
@@ -134,7 +142,7 @@ After loading an `soconda` environment, you can run some tests with:
 
     ./run_tests.sh
 
-## Installing a Jupyter Kernel for external Jupyter server
+## Installing a Jupyter Kernel
 
 After loading an soconda module or activating an soconda conda environment the
 first time, you can run (once) the included script:
@@ -142,14 +150,14 @@ first time, you can run (once) the included script:
     soconda_jupyter.sh
 
 This will install a kernel file to
-`~/.local/share/jupyter/kernels/soconda-xxxxx` so that the external jupyter
-server knows how to launch a kernel using this python stack.
+`~/.local/share/jupyter/kernels/soconda-xxxxx` so that the jupyter server knows
+how to launch a kernel using this python stack.
 
 ## Customizing an Environment
 
 When running `soconda.sh`, the system configuration to use can be specified
 with the `-c` option. This should be the name of the configuration subdirectory
-with the "config" top-level directory. If not specified, the "default" config
+within the "config" top-level directory. If not specified, the "default" config
 is used. If you want to dramatically change the package versions / content of
 an `soconda` stack, just load the existing `base` conda environment, copy one
 of the configs to a new name and edit the three lists of packages
@@ -166,9 +174,8 @@ local directory in your home directory. If you installed a jupyter kernel,
 remove kernel file in `~/.local/share/jupyter/kernels/` with matching soconda
 version.
 
-If you have multiple soconda environments and deleted wrong kernel file, you can always
-[recreate it](#installing-a-jupyter-kernel).
-
+If you have multiple soconda environments and deleted the wrong kernel file, you
+can always [recreate it](#installing-a-jupyter-kernel).
 
 ## Advanced Details
 
