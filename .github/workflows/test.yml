@@ -51,8 +51,8 @@ jobs:
         with:
           miniforge-version: latest
           channels: conda-forge
-          channel-priority: strict
-          conda-remove-defaults: true
+          channel-priority: flexible
+          conda-remove-defaults: false
           auto-update-conda: true
           auto-activate: true
           activate-environment:  # Disable creation of the 'test' env
