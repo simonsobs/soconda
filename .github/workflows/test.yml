@@ -59,6 +59,7 @@ jobs:
 
       - name: Check Conda Config
         run: |
+          conda install -n base --yes --all conda-build conda-verify
           conda info
           conda list
           conda config --show-sources
