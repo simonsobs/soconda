@@ -50,7 +50,9 @@ jobs:
         uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
-          channels: conda-forge
+          channels:
+            - conda-forge
+            - defaults
           channel-priority: flexible
           conda-remove-defaults: false
           auto-update-conda: true
