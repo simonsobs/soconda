@@ -53,7 +53,7 @@ jobs:
           channels: conda-forge,defaults
           channel-priority: flexible
           conda-remove-defaults: false
-          auto-update-conda: true
+          # auto-update-conda: true
           auto-activate: true
           activate-environment:  # Disable creation of the 'test' env
           conda-version: 26.5.0
