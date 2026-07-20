@@ -84,7 +84,7 @@ jobs:
           python3 -c 'from sotodlib import core'
           python3 -c 'import toast.tests; toast.tests.run()'
           sotodlib_version=`python -c 'import sotodlib; print(sotodlib.__version__)'`
-          git clone --depth=1 --single-branch --branch=${sotodlib_version} https://github.com/simonsobs/sotodlib.git
+          git clone --depth=1 --single-branch --branch=v${sotodlib_version} https://github.com/simonsobs/sotodlib.git
           pushd sotodlib
           mkdir -p test_run
           pushd test_run
