@@ -56,7 +56,8 @@ jobs:
           auto-update-conda: true
           auto-activate: true
           activate-environment:  # Disable creation of the 'test' env
-          conda-build-version: latest
+          conda-version: 26.5.0
+          conda-build-version: 26.5.0
 
       - name: Check Conda Config
         run: |
