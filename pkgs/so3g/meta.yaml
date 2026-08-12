@@ -33,9 +33,11 @@ requirements:
     - pip
     - numpy
     - scipy
-    - boost
-    - libboost-devel
-    - libboost-python-devel
+    - libboost <1.89
+    - libboost-devel <1.89
+    - libboost-headers <1.89
+    - libboost-python <1.89
+    - libboost-python-devel <1.89
     - libflac
     - gsl
     - glog
@@ -45,7 +47,7 @@ requirements:
     # building with a numba-compatible numpy version
     - numba
     # Not a dependency, force installing a NaMaster-compatible GSL version
-    - namaster >=2.4
+    - namaster
   run:
     - llvm-openmp # [osx]
     - libopenblas * *openmp*
@@ -53,8 +55,6 @@ requirements:
     - {{ pin_compatible("scipy") }}
     - {{ pin_compatible("libopenblas") }}
     - {{ pin_compatible("libblas") }}
-    - {{ pin_compatible("libboost-python") }}
-    - {{ pin_compatible("libboost") }}
     - {{ pin_compatible("libflac") }}
     - {{ pin_compatible("gsl") }}
     - python
