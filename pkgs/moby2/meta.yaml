@@ -39,7 +39,7 @@ requirements:
     # building with a numba-compatible numpy version
     - numba
     # Not a dependency, force installing a NaMaster-compatible GSL version
-    - namaster >=2.4
+    - namaster
     # Not a dependency, force installing a compatible libraries
     - so3g
     - toast

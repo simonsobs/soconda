@@ -35,6 +35,7 @@ requirements:
     - libopenblas * *openmp*
     - libblas * *openblas
     - zziplib
+    - namaster
   run:
 
 test:
