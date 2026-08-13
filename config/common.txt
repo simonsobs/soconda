@@ -23,6 +23,8 @@ automake
 libtool
 m4
 cython
+meson-python
+pkgconfig
 #
 # Require the OpenBLAS + OpenMP flavor of linear algebra packages
 #
