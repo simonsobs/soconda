@@ -1,2 +1,3 @@
--- Lua Module file init
--- No module dependencies
+
+-- Setup context site file
+setenv("SOTODLIB_SITECONFIG", "/global/cfs/cdirs/sobs/site.yaml")
