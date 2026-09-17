@@ -1,2 +1,5 @@
 # TCL module file init
 # No module dependencies
+
+-- Setup context site file
+setenv("SOTODLIB_SITECONFIG", "/so/shared-software/site.yaml")
