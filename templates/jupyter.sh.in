@@ -1,5 +1,27 @@
 #!/bin/bash
 
+nersc_root="/global/cfs/cdirs/sobs"
+princeton_root="/scratch/gpfs/SIMONSOBS/so/tracked"
+manchester_root="/cephfs/soukdata/data/tracked"
+
+if [ -z "${SOTODLIB_SITECONFIG}" ]; then
+    # Try to guess...
+    if [ -d ${nersc_root} ]; then
+        data_root=${nersc_root}
+    elif [ -d ${princeton_root} ]; then
+        data_root=${princeton_root}
+    elif [ -d ${manchester_root} ]; then
+        data_root=${manchester_root}
+    fi
+else
+    data_root="${SOTODLIB_SITECONFIG}"
+fi
+
+if [ -z "${data_root}" ]; then
+    echo "Unknown system and SOTODLIB_SITECONFIG env variable not set.  Skipping."
+    exit 0
+fi
+
 kerneldir=${HOME}/.local/share/jupyter/kernels/soconda-@VERSION@
 if [ -d ${kerneldir} ]; then
     echo "soconda @VERSION@ is already installed in ${kerneldir}, skipping." >&2
@@ -8,25 +30,26 @@ else
     echo "soconda installing kernel version @VERSION@ to ${kerneldir}"
 fi
 mkdir -p "${kerneldir}"
-echo '
+echo "
 {
-    "language": "python",
-    "argv": [
-        "@ENVPREFIX@/bin/python3",
-        "-m",
-        "ipykernel_launcher",
-        "-f",
-        "{connection_file}"
+    'language': 'python',
+    'argv': [
+        '@ENVPREFIX@/bin/python3',
+        '-m',
+        'ipykernel_launcher',
+        '-f',
+        '{connection_file}'
     ],
-    "display_name": "soconda @VERSION@",
-    "env": {
-        "PATH": "/usr/bin:@ENVPREFIX@/bin",
-        "PYTHONUSERBASE": "${HOME}/.local/soconda/@VERSION@"
+    'display_name': 'soconda @VERSION@',
+    'env': {
+        'SOTODLIB_SITECONFIG': '${data_root}/site.yaml',
+        'PATH': '/usr/bin:@ENVPREFIX@/bin',
+        'PYTHONUSERBASE': '${HOME}/.local/soconda/@VERSION@'
     },
-    "metadata": {
-        "debugger": true
+    'metadata': {
+        'debugger': true
     }
 }
-' > "${kerneldir}/kernel.json"
+" > "${kerneldir}/kernel.json"
 cp "@ENVPREFIX@"/logo-* "${kerneldir}/"
 exit 0
